@@ -21,9 +21,9 @@ A guide with the most important questions to ask during a house hunt and things 
 
 To get started, clone the repository to your local machine:
 
-\```
+```
 git clone https://github.com/harifaka/house-hunt-helper.git
-\```
+```
 
 ### Dependencies
 
@@ -33,7 +33,7 @@ For some of the tools, you may need to install additional dependencies. Be sure 
 
 ## Directory Structure
 
-\```
+```
 house-hunt-helper/
 │
 ├── energy-planner/
@@ -43,7 +43,7 @@ house-hunt-helper/
 ├── question-checklist/
 │   └── README.md  # Question list for before you buy a home
 └── README.md      # This file
-\```
+```
 
 ---
 
