@@ -444,7 +444,8 @@ router.post('/ai/analyze/:houseId', async (req, res) => {
 
   const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
 
-  // Start async generation — don't await, return immediately
+  // Start async generation — don't await, return immediately.
+  // Timing: startTime is before generation, .then() fires after completion so duration is accurate.
   generateReport(req.params.houseId, data, lang).then(() => {
     logger.reportGenerated('ai_analysis', req.params.houseId, Date.now() - startTime, meta).catch(() => {});
   }).catch(err => {
