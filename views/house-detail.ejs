@@ -19,6 +19,9 @@
       <div class="card__header d-flex justify-between items-center flex-wrap gap-3">
         <div>
           <h1 class="card__title mb-1"><%= house.name %></h1>
+          <% if (house.source === 'scraped') { %>
+            <span class="badge badge--info text-xs"><%= lang === 'en' ? 'Scraped' : 'Begyűjtve' %></span>
+          <% } %>
           <% if (house.address) { %>
             <p class="text-muted text-sm">📍 <%= house.address %></p>
           <% } %>
@@ -55,6 +58,42 @@
             <span class="text-xs text-muted uppercase"><%= t.notes %></span>
             <p class="mt-1"><%= house.notes %></p>
           </div>
+        <% } %>
+        <% if (house.description) { %>
+          <div class="mt-4">
+            <span class="text-xs text-muted uppercase"><%= lang === 'en' ? 'Description' : 'Leírás' %></span>
+            <p class="mt-1" style="white-space:pre-wrap;"><%= house.description %></p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- House Images Gallery -->
+    <div class="card mb-6 animate-fade-in">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0">📸 <%= lang === 'en' ? 'Photos' : 'Fotók' %></h3>
+        <button class="btn btn-sm btn-accent" onclick="document.getElementById('upload-image-modal').classList.add('is-active')">
+          ➕ <%= lang === 'en' ? 'Add Photo' : 'Fotó hozzáadása' %>
+        </button>
+      </div>
+      <div class="card__body">
+        <% if (images && images.length > 0) { %>
+          <div class="image-gallery">
+            <% images.forEach(function(img) { %>
+              <div class="image-gallery__item">
+                <img src="/uploads/<%= img.filename %>" alt="<%= img.caption || house.name %>" class="image-gallery__img">
+                <% if (img.caption) { %>
+                  <div class="image-gallery__caption"><%= img.caption %></div>
+                <% } %>
+                <form method="POST" action="/houses/<%= house.id %>/delete-image/<%= img.id %>" class="image-gallery__delete"
+                      onsubmit="return confirm('<%= lang === 'en' ? 'Delete this photo?' : 'Törli ezt a fotót?' %>')">
+                  <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                </form>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="text-muted text-sm"><%= lang === 'en' ? 'No photos yet. Add photos to document this property.' : 'Még nincsenek fotók. Adjon hozzá fotókat az ingatlan dokumentálásához.' %></p>
         <% } %>
       </div>
     </div>
@@ -235,6 +274,35 @@
       </div>
     <% } %>
 
+    <!-- Upload Image Modal -->
+    <div class="modal-overlay" id="upload-image-modal">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title"><%= lang === 'en' ? 'Add Photo' : 'Fotó hozzáadása' %></h3>
+          <button class="modal__close" onclick="document.getElementById('upload-image-modal').classList.remove('is-active')">&times;</button>
+        </div>
+        <form id="image-upload-form">
+          <div class="modal__body">
+            <div class="form-group">
+              <label class="form-label"><%= lang === 'en' ? 'Photo' : 'Fotó' %></label>
+              <input type="file" name="image" accept="image/*" class="form-control" required id="house-image-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><%= lang === 'en' ? 'Caption (optional)' : 'Felirat (opcionális)' %></label>
+              <input type="text" name="caption" class="form-control" id="house-image-caption">
+            </div>
+            <div id="image-upload-preview" style="display:none;" class="mt-2">
+              <img id="image-preview-img" style="max-width:100%;max-height:200px;border-radius:var(--radius);object-fit:cover;">
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('upload-image-modal').classList.remove('is-active')"><%= t.cancel %></button>
+            <button type="submit" class="btn btn-primary" id="upload-image-btn"><%= lang === 'en' ? 'Upload' : 'Feltöltés' %></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Edit House Modal -->
     <div class="modal-overlay" id="edit-house-modal">
       <div class="modal">
@@ -261,6 +329,17 @@
               <label class="form-label" for="edit-notes"><%= t.notes %></label>
               <textarea id="edit-notes" name="notes" class="form-control" rows="3"><%= house.notes || '' %></textarea>
             </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-description"><%= lang === 'en' ? 'Description' : 'Leírás' %></label>
+              <textarea id="edit-description" name="description" class="form-control" rows="5"><%= house.description || '' %></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-source"><%= lang === 'en' ? 'Source' : 'Forrás' %></label>
+              <select id="edit-source" name="source" class="form-control">
+                <option value="manual" <%= (house.source || 'manual') === 'manual' ? 'selected' : '' %>><%= lang === 'en' ? 'Added manually' : 'Manuálisan hozzáadva' %></option>
+                <option value="scraped" <%= house.source === 'scraped' ? 'selected' : '' %>><%= lang === 'en' ? 'Scraped from ingatlan.com' : 'Ingatlan.com-ról begyűjtve' %></option>
+              </select>
+            </div>
           </div>
           <div class="modal__footer">
             <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-house-modal').classList.remove('is-active')"><%= t.cancel %></button>
@@ -281,6 +360,54 @@
       if (e.target === this) this.classList.remove('is-active');
     });
   });
+
+  // Image upload preview
+  var imageInput = document.getElementById('house-image-input');
+  var imagePreview = document.getElementById('image-upload-preview');
+  var imagePreviewImg = document.getElementById('image-preview-img');
+
+  if (imageInput) {
+    imageInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreviewImg.src = e.target.result;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+
+  // Image upload form
+  var imageForm = document.getElementById('image-upload-form');
+  if (imageForm) {
+    imageForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+      formData.append('caption', document.getElementById('house-image-caption').value);
+
+      var btn = document.getElementById('upload-image-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳...';
+
+      fetch('/houses/<%= house.id %>/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          window.location.reload();
+        }
+      })
+      .catch(function() {
+        btn.disabled = false;
+        btn.textContent = '<%= lang === "en" ? "Upload" : "Feltöltés" %>';
+      });
+    });
+  }
 </script>
 </body>
 </html>

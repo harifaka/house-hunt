@@ -2540,3 +2540,38 @@ select.form-control {
   color: var(--primary, #2d6cdf);
   text-decoration: underline;
 }
+
+/* ----- Image Gallery ----- */
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--sp-3);
+}
+.image-gallery__item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--gray-100);
+}
+.image-gallery__img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+.image-gallery__caption {
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--gray-600);
+  text-align: center;
+}
+.image-gallery__delete {
+  position: absolute;
+  top: var(--sp-1);
+  right: var(--sp-1);
+  opacity: 0;
+  transition: opacity var(--duration) var(--ease);
+}
+.image-gallery__item:hover .image-gallery__delete {
+  opacity: 1;
+}

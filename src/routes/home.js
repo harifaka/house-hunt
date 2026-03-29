@@ -1,8 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
 const { getDb } = require('../database');
 const { getAllQuestions, calculateScore, getGroups } = require('../questions');
+const { logger } = require('../logger');
+
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, '..', '..', 'uploads'),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // GET / — Dashboard
 router.get('/', async (req, res) => {
@@ -70,13 +82,13 @@ router.get('/houses', async (req, res) => {
 router.post('/houses', async (req, res) => {
   const db = await getDb();
   try {
-    const { name, address, asking_price, notes } = req.body;
+    const { name, address, asking_price, notes, description, source } = req.body;
     const id = crypto.randomUUID();
     const price = asking_price ? parseFloat(asking_price) : null;
 
     await db.prepare(
-      'INSERT INTO houses (id, name, address, asking_price, notes) VALUES (?, ?, ?, ?, ?)'
-    ).run(id, name, address || null, price, notes || null);
+      'INSERT INTO houses (id, name, address, asking_price, notes, description, source) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(id, name, address || null, price, notes || null, description || null, source || 'manual');
 
     res.redirect('/houses/' + id);
   } finally {
@@ -100,13 +112,15 @@ router.get('/houses/:id', async (req, res) => {
     const { overallScore, groupScores } = calculateScore(answers, lang);
     const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
     const groups = getGroups(lang);
+    const images = await db.prepare('SELECT * FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at').all(house.id);
 
     res.render('house-detail', {
       pageTitle: house.name,
       currentPath: '/houses/' + house.id,
       house: { ...house, answeredCount, totalQuestions, overallScore, groupScores, progress },
       groups,
-      answers
+      answers,
+      images
     });
   } finally {
     await db.close();
@@ -117,12 +131,12 @@ router.get('/houses/:id', async (req, res) => {
 router.post('/houses/:id', async (req, res) => {
   const db = await getDb();
   try {
-    const { name, address, asking_price, notes } = req.body;
+    const { name, address, asking_price, notes, description, source } = req.body;
     const price = asking_price ? parseFloat(asking_price) : null;
 
     await db.prepare(
-      'UPDATE houses SET name = ?, address = ?, asking_price = ?, notes = ?, updated_at = ? WHERE id = ?'
-    ).run(name, address || null, price, notes || null, new Date().toISOString(), req.params.id);
+      'UPDATE houses SET name = ?, address = ?, asking_price = ?, notes = ?, description = ?, source = ?, updated_at = ? WHERE id = ?'
+    ).run(name, address || null, price, notes || null, description || null, source || 'manual', new Date().toISOString(), req.params.id);
 
     res.redirect('/houses/' + req.params.id);
   } finally {
@@ -136,6 +150,40 @@ router.post('/houses/:id/delete', async (req, res) => {
   try {
     await db.prepare('DELETE FROM houses WHERE id = ?').run(req.params.id);
     res.redirect('/houses');
+  } finally {
+    await db.close();
+  }
+});
+
+// POST /houses/:id/upload-image — Upload image to house
+router.post('/houses/:id/upload-image', upload.single('image'), async (req, res) => {
+  const db = await getDb();
+  try {
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.id);
+    if (!house) return res.status(404).json({ error: 'House not found' });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const id = crypto.randomUUID();
+    const caption = req.body.caption || null;
+    await db.prepare(
+      'INSERT INTO house_images (id, house_id, filename, caption) VALUES (?, ?, ?, ?)'
+    ).run(id, house.id, req.file.filename, caption);
+
+    const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
+    logger.imageUploaded(house.id, 'house', req.file.filename, meta).catch(() => {});
+
+    res.json({ success: true, id, filename: req.file.filename });
+  } finally {
+    await db.close();
+  }
+});
+
+// POST /houses/:id/delete-image/:imageId — Delete house image
+router.post('/houses/:id/delete-image/:imageId', async (req, res) => {
+  const db = await getDb();
+  try {
+    await db.prepare('DELETE FROM house_images WHERE id = ? AND house_id = ?').run(req.params.imageId, req.params.id);
+    res.redirect('/houses/' + req.params.id);
   } finally {
     await db.close();
   }
