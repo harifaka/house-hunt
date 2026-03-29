@@ -34,10 +34,18 @@ async function getHouseExportData(houseId, lang) {
       const groupQ = getGroupQuestions(g.id, lang);
       const questions = groupQ.questions.map(q => {
         const ans = answers.find(a => a.question_id === q.id);
-        const selectedOption = ans && ans.option_id
-          ? q.options.find(o => o.id === ans.option_id) || null
-          : null;
-        return { ...q, answer: ans || null, selectedOption };
+        let selectedOption = null;
+        let selectedOptions = [];
+        if (ans && ans.option_id) {
+          if (q.type === 'multi_choice') {
+            const ids = ans.option_id.split(',').filter(Boolean);
+            selectedOptions = ids.map(id => q.options.find(o => o.id === id)).filter(Boolean);
+            selectedOption = selectedOptions[0] || null;
+          } else {
+            selectedOption = q.options.find(o => o.id === ans.option_id) || null;
+          }
+        }
+        return { ...q, answer: ans || null, selectedOption, selectedOptions };
       });
       const gs = groupScores[g.id] || { score: 0, answered: 0, total: g.questionCount };
       return { ...g, questions, score: gs.score, answered: gs.answered, total: gs.total };

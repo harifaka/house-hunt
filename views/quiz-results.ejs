@@ -112,8 +112,27 @@
             <div style="padding-top:var(--sp-3)">
               <% group.questions.forEach(function(q) { %>
                 <div class="mb-3" style="padding:var(--sp-3);background:var(--gray-50);border-radius:var(--radius);">
-                  <div class="font-medium text-sm mb-1"><%= q.text %></div>
-                  <% if (q.selectedOption) { %>
+                  <div class="font-medium text-sm mb-1"><%= q.text %>
+                    <% if (q.type === 'multi_choice') { %>
+                      <span class="badge badge--info text-xs ml-1"><%= lang === 'en' ? 'Multiple' : 'Több válasz' %></span>
+                    <% } %>
+                  </div>
+                  <% if (q.selectedOptions && q.selectedOptions.length > 0) { %>
+                    <% q.selectedOptions.forEach(function(selOpt) { %>
+                      <%
+                        var impactClass = 'neutral';
+                        if (selOpt.impact === 'value_increasing') impactClass = 'positive';
+                        else if (selOpt.impact === 'value_decreasing' || selOpt.impact === 'strong_value_decreasing') impactClass = 'negative';
+                      %>
+                      <div class="d-flex flex-wrap items-center gap-2 text-xs mb-1">
+                        <span class="quiz-option__impact quiz-option__impact--<%= impactClass %>"><%= selOpt.text %></span>
+                        <span class="text-muted"><%= t.score %>: <%= selOpt.score %>/10</span>
+                        <% if (selOpt.estimatedCost) { %>
+                          <span class="text-muted">💰 <%= selOpt.estimatedCost %></span>
+                        <% } %>
+                      </div>
+                    <% }); %>
+                  <% } else if (q.selectedOption) { %>
                     <%
                       var impactClass = 'neutral';
                       if (q.selectedOption.impact === 'value_increasing') impactClass = 'positive';
