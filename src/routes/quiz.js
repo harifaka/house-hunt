@@ -170,13 +170,19 @@ router.post('/:houseId/answer', async (req, res) => {
     const { questionId, optionId, notes } = req.body;
     if (!questionId) return res.status(400).json({ error: 'questionId required' });
 
+    // Support multi_choice: optionId can be an array or comma-separated string
+    let normalizedOptionId = null;
+    if (optionId) {
+      normalizedOptionId = Array.isArray(optionId) ? optionId.join(',') : String(optionId);
+    }
+
     await db.prepare(
       'INSERT OR REPLACE INTO answers (house_id, question_id, option_id, notes) VALUES (?, ?, ?, ?)'
-    ).run(house.id, questionId, optionId || null, notes || null);
+    ).run(house.id, questionId, normalizedOptionId, notes || null);
 
     // Audit: log quiz answer
     const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
-    logger.quizAnswer(house.id, questionId, optionId || null, meta).catch(() => {});
+    logger.quizAnswer(house.id, questionId, normalizedOptionId, meta).catch(() => {});
 
     res.json({ success: true });
   } finally {
@@ -233,7 +239,13 @@ router.post('/:houseId/:groupId', async (req, res) => {
     let answerCount = 0;
     await db.transaction(async () => {
       for (const q of group.questions) {
-        const optionId = req.body['option_' + q.id] || null;
+        let optionId;
+        if (q.type === 'multi_choice') {
+          const vals = req.body['option_' + q.id];
+          optionId = vals ? (Array.isArray(vals) ? vals.join(',') : String(vals)) : null;
+        } else {
+          optionId = req.body['option_' + q.id] || null;
+        }
         const notes = req.body['notes_' + q.id] || null;
         if (optionId || notes) {
           await stmt.run(house.id, q.id, optionId, notes);

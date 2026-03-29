@@ -95,10 +95,27 @@ function calculateScore(answers, lang) {
     for (const q of group.questions) {
       const answer = answers.find(a => a.question_id === q.id);
       if (answer && answer.option_id) {
-        const option = q.options.find(o => o.id === answer.option_id);
-        if (option) {
-          groupScore += option.score * q.weight;
-          answered++;
+        if (q.type === 'multi_choice') {
+          const selectedIds = answer.option_id.split(',').filter(Boolean);
+          let totalOptScore = 0;
+          let validCount = 0;
+          for (const sid of selectedIds) {
+            const option = q.options.find(o => o.id === sid);
+            if (option) {
+              totalOptScore += option.score;
+              validCount++;
+            }
+          }
+          if (validCount > 0) {
+            groupScore += (totalOptScore / validCount) * q.weight;
+            answered++;
+          }
+        } else {
+          const option = q.options.find(o => o.id === answer.option_id);
+          if (option) {
+            groupScore += option.score * q.weight;
+            answered++;
+          }
         }
       }
       groupMaxScore += 10 * q.weight;
