@@ -20,6 +20,7 @@
   "homepage": "https://github.com/harifaka/house-hunt-helper#readme",
   "dependencies": {
     "better-sqlite3": "^12.8.0",
+    "cheerio": "^1.0.0",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
