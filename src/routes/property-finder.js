@@ -5,6 +5,10 @@ const PDFDocument = require('pdfkit');
 const { getDb } = require('../database');
 const { scrapeProperty, searchCity, calculatePriceStats } = require('../scraper');
 
+// Price classification thresholds (HUF)
+const PRICE_PREMIUM_THRESHOLD = 50000000;
+const PRICE_MIDRANGE_THRESHOLD = 25000000;
+
 // GET /property-finder — Main page
 router.get('/', (req, res) => {
   const db = getDb();
@@ -561,7 +565,7 @@ async function callLLM(config, prompt, imageUrls) {
 
 function generateDemoAnalysis(property, lang) {
   const isEn = lang === 'en';
-  const priceLevel = property.price > 50000000 ? 'premium' : property.price > 25000000 ? 'mid-range' : 'affordable';
+  const priceLevel = property.price > PRICE_PREMIUM_THRESHOLD ? 'premium' : property.price > PRICE_MIDRANGE_THRESHOLD ? 'mid-range' : 'affordable';
 
   return {
     summary: isEn

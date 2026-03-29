@@ -83,7 +83,7 @@ async function scrapeProperty(url) {
 
   // Additional parameters from parameter tables
   const parameters = {};
-  $('.parameters tr, .listing-parameters tr, [class*="parameter"] tr, .paramterers li, [class*="param"] li').each(function () {
+  $('.parameters tr, .listing-parameters tr, [class*="parameter"] tr, .parameters li, [class*="param"] li').each(function () {
     const label = $(this).find('td:first-child, .parameter-label, dt').text().trim();
     const value = $(this).find('td:last-child, .parameter-value, dd').text().trim();
     if (label && value) {

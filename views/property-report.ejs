@@ -114,7 +114,12 @@
                   <td><%= (prop.price && prop.size_sqm) ? Math.round(prop.price / prop.size_sqm).toLocaleString() + ' Ft' : '—' %></td>
                   <td>
                     <% if (analysis.condition) { %>
-                      <span class="badge badge--<%= analysis.condition === 'excellent' || analysis.condition === 'good' ? 'success' : analysis.condition === 'fair' ? 'warning' : 'danger' %>"><%= analysis.condition %></span>
+                      <%
+                        var condBadge = 'danger';
+                        if (analysis.condition === 'excellent' || analysis.condition === 'good') condBadge = 'success';
+                        else if (analysis.condition === 'fair') condBadge = 'warning';
+                      %>
+                      <span class="badge badge--<%= condBadge %>"><%= analysis.condition %></span>
                     <% } else { %>—<% } %>
                   </td>
                   <td>
