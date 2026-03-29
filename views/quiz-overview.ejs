@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="/houses/<%= house.id %>" class="btn btn-ghost btn-sm">← <%= t.house_details %></a>
+    </div>
+
+    <!-- House Header -->
+    <div class="card mb-6 animate-fade-in">
+      <div class="card__header">
+        <h1 class="card__title mb-1"><%= house.name %></h1>
+        <% if (house.address) { %>
+          <p class="text-muted text-sm">📍 <%= house.address %></p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="card mb-6 animate-slide-up">
+      <div class="card__body">
+        <div class="d-flex justify-between items-center mb-2">
+          <span class="font-bold"><%= t.inspection_progress %></span>
+          <span class="text-sm text-muted"><%= answeredCount %> / <%= totalQuestions %> <%= t.answered %></span>
+        </div>
+        <div class="score-bar">
+          <div class="score-bar__fill" style="width: <%= progress %>%" data-score-level="<%= progress >= 75 ? 'great' : progress >= 50 ? 'good' : progress >= 25 ? 'medium' : 'low' %>"></div>
+        </div>
+        <div class="text-xs text-muted mt-1"><%= progress %>% <%= t.completed.toLowerCase ? t.completed.toLowerCase() : t.completed %></div>
+      </div>
+    </div>
+
+    <% if (answeredCount > 0) { %>
+      <!-- Overall Score Preview -->
+      <div class="results-hero mb-6 animate-slide-up">
+        <div class="results-hero__score"><%= overallScore %>%</div>
+        <div class="results-hero__label"><%= t.overall_score %></div>
+      </div>
+    <% } %>
+
+    <!-- Group Cards -->
+    <div class="grid grid-2 mb-6">
+      <% groups.forEach(function(group) { %>
+        <%
+          var gScoreLevel = 'low';
+          if (group.score >= 75) gScoreLevel = 'great';
+          else if (group.score >= 50) gScoreLevel = 'good';
+          else if (group.score >= 25) gScoreLevel = 'medium';
+
+          var statusLabel = t.not_started;
+          var statusClass = 'text-muted';
+          if (group.progress === 100) { statusLabel = t.completed; statusClass = 'text-success'; }
+          else if (group.progress > 0) { statusLabel = t.in_progress; statusClass = 'text-warning'; }
+        %>
+        <a href="/quiz/<%= house.id %>/<%= group.id %>" class="card card--clickable animate-slide-up" style="text-decoration:none; color:inherit;">
+          <div class="card__body">
+            <div class="d-flex justify-between items-center mb-2">
+              <h3 class="font-bold text-base mb-0"><%= group.name %></h3>
+              <% if (group.answered > 0) { %>
+                <span class="score-badge score-badge--sm" data-score-level="<%= gScoreLevel %>"><%= group.score %>%</span>
+              <% } %>
+            </div>
+            <div class="text-xs <%= statusClass %> mb-2"><%= statusLabel %></div>
+            <div class="d-flex justify-between items-center mb-1">
+              <span class="text-xs text-muted"><%= group.answered %> / <%= group.total %> <%= t.answered %></span>
+              <span class="text-xs text-muted"><%= group.progress %>%</span>
+            </div>
+            <div class="score-bar score-bar--sm">
+              <div class="score-bar__fill" data-score-level="<%= gScoreLevel %>" style="width: <%= group.progress %>%"></div>
+            </div>
+          </div>
+        </a>
+      <% }); %>
+    </div>
+
+    <!-- View Results Button -->
+    <% if (answeredCount > 0) { %>
+      <div class="text-center mb-6">
+        <a href="/quiz/<%= house.id %>/results" class="btn btn-accent btn-lg">📊 <%= t.view_results %></a>
+      </div>
+    <% } %>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+</body>
+</html>

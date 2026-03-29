@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="/quiz/<%= house.id %>" class="btn btn-ghost btn-sm">← <%= t.quiz %></a>
+      <a href="/houses/<%= house.id %>" class="btn btn-ghost btn-sm">← <%= t.house_details %></a>
+    </div>
+
+    <!-- Overall Score Hero -->
+    <%
+      var scoreLevel = 'low';
+      if (overallScore >= 75) scoreLevel = 'great';
+      else if (overallScore >= 50) scoreLevel = 'good';
+      else if (overallScore >= 25) scoreLevel = 'medium';
+
+      var qualityLabel = t.poor;
+      if (overallScore > 80) qualityLabel = t.excellent;
+      else if (overallScore > 60) qualityLabel = t.good;
+      else if (overallScore > 40) qualityLabel = t.fair;
+
+      var recLabel = t.critical_issues;
+      var recClass = 'alert-danger';
+      if (overallScore > 80) { recLabel = t.good_condition; recClass = 'alert-success'; }
+      else if (overallScore > 60) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
+      else if (overallScore > 40) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
+    %>
+    <div class="results-hero mb-6 animate-fade-in">
+      <div style="margin-bottom:var(--sp-3)">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+          <circle cx="70" cy="70" r="60" fill="none" stroke="white" stroke-width="10"
+                  stroke-dasharray="<%= Math.round(377 * overallScore / 100) %> 377"
+                  stroke-linecap="round" transform="rotate(-90 70 70)"/>
+        </svg>
+      </div>
+      <div class="results-hero__score"><%= overallScore %>%</div>
+      <div class="results-hero__label"><%= qualityLabel %></div>
+      <div class="text-sm" style="opacity:0.75;margin-top:var(--sp-2)">
+        <%= answeredCount %> / <%= totalQuestions %> <%= t.answered %>
+      </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div class="alert <%= recClass %> mb-6 animate-slide-up">
+      <div class="alert__title"><%= t.recommendation %></div>
+      <p><%= recLabel %></p>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="card mb-6 animate-slide-up">
+      <div class="card__header">
+        <h2 class="card__title"><%= t.category_scores %></h2>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-2">
+          <% groups.forEach(function(group) { %>
+            <%
+              var gs = groupScores[group.id] || { score: 0, answered: 0, total: group.questionCount };
+              var gScoreLevel = 'low';
+              if (gs.score >= 75) gScoreLevel = 'great';
+              else if (gs.score >= 50) gScoreLevel = 'good';
+              else if (gs.score >= 25) gScoreLevel = 'medium';
+
+              var condLabel = t.poor;
+              if (gs.score > 80) condLabel = t.excellent;
+              else if (gs.score > 60) condLabel = t.good;
+              else if (gs.score > 40) condLabel = t.fair;
+            %>
+            <div class="card card--stat">
+              <div class="card__body">
+                <div class="d-flex justify-between items-center mb-2">
+                  <span class="font-bold text-sm"><%= group.name %></span>
+                  <span class="score-badge score-badge--sm" data-score-level="<%= gScoreLevel %>"><%= gs.score %>%</span>
+                </div>
+                <div class="score-bar score-bar--sm mb-2">
+                  <div class="score-bar__fill" data-score-level="<%= gScoreLevel %>" style="width: <%= gs.score %>%"></div>
+                </div>
+                <div class="d-flex justify-between items-center">
+                  <span class="text-xs text-muted"><%= gs.answered %>/<%= gs.total %> <%= t.answered %></span>
+                  <span class="badge badge--<%= gScoreLevel === 'great' || gScoreLevel === 'good' ? 'success' : gScoreLevel === 'medium' ? 'warning' : 'danger' %>">
+                    <%= condLabel %>
+                  </span>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Answers (Collapsible by Group) -->
+    <div class="card mb-6 animate-slide-up">
+      <div class="card__header">
+        <h2 class="card__title"><%= t.questions %></h2>
+      </div>
+      <div class="card__body">
+        <% groups.forEach(function(group) { %>
+          <details class="mb-4">
+            <summary class="font-bold text-base" style="cursor:pointer;padding:var(--sp-3) 0;border-bottom:1px solid var(--gray-200);">
+              <%= group.name %>
+              <span class="text-xs text-muted">(<%= group.answered %>/<%= group.total %>)</span>
+            </summary>
+            <div style="padding-top:var(--sp-3)">
+              <% group.questions.forEach(function(q) { %>
+                <div class="mb-3" style="padding:var(--sp-3);background:var(--gray-50);border-radius:var(--radius);">
+                  <div class="font-medium text-sm mb-1"><%= q.text %></div>
+                  <% if (q.selectedOption) { %>
+                    <%
+                      var impactClass = 'neutral';
+                      if (q.selectedOption.impact === 'value_increasing') impactClass = 'positive';
+                      else if (q.selectedOption.impact === 'value_decreasing' || q.selectedOption.impact === 'strong_value_decreasing') impactClass = 'negative';
+                    %>
+                    <div class="d-flex flex-wrap items-center gap-2 text-xs">
+                      <span class="quiz-option__impact quiz-option__impact--<%= impactClass %>"><%= q.selectedOption.text %></span>
+                      <span class="text-muted"><%= t.score %>: <%= q.selectedOption.score %>/10</span>
+                      <% if (q.selectedOption.estimatedCost) { %>
+                        <span class="text-muted">💰 <%= q.selectedOption.estimatedCost %></span>
+                      <% } %>
+                    </div>
+                  <% } else { %>
+                    <span class="text-xs text-muted">— <%= t.select_option %></span>
+                  <% } %>
+                  <% if (q.answer && q.answer.notes) { %>
+                    <div class="text-xs text-muted mt-1">📝 <%= q.answer.notes %></div>
+                  <% } %>
+                  <% if (q.answer && q.answer.image_path) { %>
+                    <div class="mt-1">
+                      <img src="/uploads/<%= q.answer.image_path %>"
+                           alt="<%= q.text %>"
+                           style="max-width:150px;max-height:100px;border-radius:var(--radius-sm);object-fit:cover;">
+                    </div>
+                  <% } %>
+                </div>
+              <% }); %>
+            </div>
+          </details>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card mb-6 animate-slide-up">
+      <div class="card__header">
+        <h2 class="card__title"><%= lang === 'en' ? 'Export' : 'Exportálás' %></h2>
+      </div>
+      <div class="card__body">
+        <div class="export-options">
+          <a href="/api/houses/<%= house.id %>/export/pdf" class="export-option">
+            <div class="export-option__icon">📄</div>
+            <div class="export-option__info">
+              <div class="export-option__title">PDF</div>
+              <div class="export-option__desc"><%= lang === 'en' ? 'Download full inspection report' : 'Teljes szemle jelentés letöltése' %></div>
+            </div>
+          </a>
+          <a href="/api/houses/<%= house.id %>/export/json" class="export-option">
+            <div class="export-option__icon">📋</div>
+            <div class="export-option__info">
+              <div class="export-option__title">JSON</div>
+              <div class="export-option__desc"><%= lang === 'en' ? 'Export raw data' : 'Nyers adatok exportálása' %></div>
+            </div>
+          </a>
+          <a href="/api/houses/<%= house.id %>/export/csv" class="export-option">
+            <div class="export-option__icon">📊</div>
+            <div class="export-option__info">
+              <div class="export-option__title">CSV</div>
+              <div class="export-option__desc"><%= lang === 'en' ? 'Export for spreadsheet' : 'Export táblázatkezelőhöz' %></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back Links -->
+    <div class="d-flex flex-wrap gap-3 mb-6">
+      <a href="/quiz/<%= house.id %>" class="btn btn-secondary">← <%= t.quiz %></a>
+      <a href="/houses/<%= house.id %>" class="btn btn-outline-primary"><%= t.house_details %></a>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+</body>
+</html>
