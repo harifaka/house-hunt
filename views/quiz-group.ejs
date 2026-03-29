@@ -171,45 +171,59 @@
   });
 
   // Image upload
-  document.querySelectorAll('.quiz-image-input').forEach(function(input) {
-    input.addEventListener('change', function() {
-      var houseId = this.dataset.houseId;
-      var questionId = this.dataset.questionId;
-      var file = this.files[0];
-      if (!file) return;
+  function handleImageUpload(input) {
+    var houseId = input.dataset.houseId;
+    var questionId = input.dataset.questionId;
+    var file = input.files[0];
+    if (!file) return;
 
-      var formData = new FormData();
-      formData.append('image', file);
+    var formData = new FormData();
+    formData.append('image', file);
 
-      var uploadLabel = this.closest('.quiz-upload');
-      uploadLabel.textContent = '⏳ ...';
+    var uploadLabel = input.closest('.quiz-upload');
+    uploadLabel.textContent = '⏳ ...';
 
-      fetch('/quiz/' + houseId + '/upload/' + questionId, {
-        method: 'POST',
-        body: formData
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success) {
-          var container = uploadLabel.parentElement;
-          var existingImg = container.querySelector('img');
-          if (existingImg) {
-            existingImg.src = '/uploads/' + data.filename;
-          } else {
-            var div = document.createElement('div');
-            div.className = 'mb-2';
-            div.innerHTML = '<img src="/uploads/' + data.filename + '" style="max-width:100%;max-height:200px;border-radius:var(--radius);object-fit:cover;">';
-            container.insertBefore(div, uploadLabel);
-          }
-          uploadLabel.innerHTML = '📷 ' + '<%= t.upload_image %>' + '<input type="file" accept="image/*" style="display:none" class="quiz-image-input" data-house-id="' + houseId + '" data-question-id="' + questionId + '">';
-          var newInput = uploadLabel.querySelector('.quiz-image-input');
-          newInput.addEventListener('change', arguments.callee);
+    fetch('/quiz/' + encodeURIComponent(houseId) + '/upload/' + encodeURIComponent(questionId), {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        var container = uploadLabel.parentElement;
+        var existingImg = container.querySelector('img');
+        if (existingImg) {
+          existingImg.src = '/uploads/' + data.filename;
+        } else {
+          var wrapper = document.createElement('div');
+          wrapper.className = 'mb-2';
+          var img = document.createElement('img');
+          img.src = '/uploads/' + data.filename;
+          img.style.cssText = 'max-width:100%;max-height:200px;border-radius:var(--radius);object-fit:cover;';
+          wrapper.appendChild(img);
+          container.insertBefore(wrapper, uploadLabel);
         }
-      })
-      .catch(function() {
-        uploadLabel.textContent = '📷 <%= t.upload_image %>';
-      });
+        // Rebuild the upload label
+        while (uploadLabel.firstChild) uploadLabel.removeChild(uploadLabel.firstChild);
+        uploadLabel.appendChild(document.createTextNode('📷 <%= t.upload_image %>'));
+        var newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.accept = 'image/*';
+        newInput.style.display = 'none';
+        newInput.className = 'quiz-image-input';
+        newInput.dataset.houseId = houseId;
+        newInput.dataset.questionId = questionId;
+        newInput.addEventListener('change', function() { handleImageUpload(this); });
+        uploadLabel.appendChild(newInput);
+      }
+    })
+    .catch(function() {
+      uploadLabel.textContent = '📷 <%= t.upload_image %>';
     });
+  }
+
+  document.querySelectorAll('.quiz-image-input').forEach(function(input) {
+    input.addEventListener('change', function() { handleImageUpload(this); });
   });
 })();
 </script>

@@ -34,7 +34,7 @@
         <div class="score-bar">
           <div class="score-bar__fill" style="width: <%= progress %>%" data-score-level="<%= progress >= 75 ? 'great' : progress >= 50 ? 'good' : progress >= 25 ? 'medium' : 'low' %>"></div>
         </div>
-        <div class="text-xs text-muted mt-1"><%= progress %>% <%= t.completed.toLowerCase ? t.completed.toLowerCase() : t.completed %></div>
+        <div class="text-xs text-muted mt-1"><%= progress %>% <%= t.completed.toLowerCase() %></div>
       </div>
     </div>
 

@@ -23,15 +23,15 @@
       else if (overallScore >= 25) scoreLevel = 'medium';
 
       var qualityLabel = t.poor;
-      if (overallScore > 80) qualityLabel = t.excellent;
-      else if (overallScore > 60) qualityLabel = t.good;
-      else if (overallScore > 40) qualityLabel = t.fair;
+      if (overallScore >= 75) qualityLabel = t.excellent;
+      else if (overallScore >= 50) qualityLabel = t.good;
+      else if (overallScore >= 25) qualityLabel = t.fair;
 
       var recLabel = t.critical_issues;
       var recClass = 'alert-danger';
-      if (overallScore > 80) { recLabel = t.good_condition; recClass = 'alert-success'; }
-      else if (overallScore > 60) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
-      else if (overallScore > 40) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
+      if (overallScore >= 75) { recLabel = t.good_condition; recClass = 'alert-success'; }
+      else if (overallScore >= 50) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
+      else if (overallScore >= 25) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
     %>
     <div class="results-hero mb-6 animate-fade-in">
       <div style="margin-bottom:var(--sp-3)">
@@ -71,9 +71,9 @@
               else if (gs.score >= 25) gScoreLevel = 'medium';
 
               var condLabel = t.poor;
-              if (gs.score > 80) condLabel = t.excellent;
-              else if (gs.score > 60) condLabel = t.good;
-              else if (gs.score > 40) condLabel = t.fair;
+              if (gs.score >= 75) condLabel = t.excellent;
+              else if (gs.score >= 50) condLabel = t.good;
+              else if (gs.score >= 25) condLabel = t.fair;
             %>
             <div class="card card--stat">
               <div class="card__body">
