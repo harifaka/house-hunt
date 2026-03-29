@@ -139,7 +139,7 @@
                            style="max-width:150px;max-height:100px;border-radius:var(--radius-sm);object-fit:cover;">
                     </div>
                     <% if (q.answer.image_description) { %>
-                      <div class="mt-1 text-xs" style="padding:var(--sp-2);background:var(--info-light);border-radius:var(--radius-sm);">
+                      <div class="mt-1 text-xs img-desc-display" style="padding:var(--sp-2);background:var(--info-light);border-radius:var(--radius-sm);">
                         🖼️ <%= q.answer.image_description %>
                       </div>
                     <% } %>
@@ -234,7 +234,22 @@ function saveDescription(answerId) {
   .then(function(data) {
     if (data.success) {
       toggleDescEdit(answerId);
-      location.reload();
+      // Update the description display in-place
+      var container = document.getElementById('desc-edit-' + answerId).parentElement;
+      var existing = container.querySelector('.img-desc-display');
+      if (textarea.value) {
+        if (existing) {
+          existing.textContent = '\uD83D\uDDBC\uFE0F ' + textarea.value;
+        } else {
+          var div = document.createElement('div');
+          div.className = 'mt-1 text-xs img-desc-display';
+          div.style.cssText = 'padding:var(--sp-2);background:var(--info-light);border-radius:var(--radius-sm);';
+          div.textContent = '\uD83D\uDDBC\uFE0F ' + textarea.value;
+          container.querySelector('.mt-1.d-flex').before(div);
+        }
+      } else if (existing) {
+        existing.remove();
+      }
     }
   });
 }

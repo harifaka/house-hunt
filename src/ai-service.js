@@ -73,7 +73,7 @@ function computeImageHash(filePath) {
  * Analyze an image using the LLM (vision-capable models).
  * Caches result by image hash.
  */
-async function analyzeImage(imagePath, config) {
+async function analyzeImage(imagePath, config, lang) {
   const hash = computeImageHash(imagePath);
   if (!hash) return null;
 
@@ -108,7 +108,7 @@ async function analyzeImage(imagePath, config) {
     messages: [{
       role: 'user',
       content: [
-        { type: 'text', text: 'Describe what you see in this house inspection image. Focus on the condition of the property, any visible issues, materials, and overall state. Be concise but thorough. Answer in the same language as the question context.' },
+        { type: 'text', text: (lang === 'en' ? 'Answer in English.' : 'Válaszolj magyarul.') + ' Describe what you see in this house inspection image. Focus on the condition of the property, any visible issues, materials, and overall state. Be concise but thorough.' },
         { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } }
       ]
     }],

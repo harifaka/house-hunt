@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
@@ -341,7 +342,7 @@ router.get('/export/:houseId/pdf', (req, res) => {
 
         // Section details
         let sections = [];
-        try { sections = JSON.parse(report.report_text).sections || []; } catch { /* ignore */ }
+        try { sections = JSON.parse(report.report_text).sections || []; } catch (e) { console.error('[PDF] Failed to parse AI report sections:', e.message); }
         for (const sec of sections) {
           if (doc.y > 680) doc.addPage();
           doc.fillColor(accentColor).font(boldFont).fontSize(11).text(sec.section_name);
@@ -456,7 +457,7 @@ router.get('/ai/report/:reportId', (req, res) => {
     if (!report) return res.status(404).json({ error: 'Report not found' });
 
     let sections = [];
-    try { sections = JSON.parse(report.report_text).sections || []; } catch { /* empty */ }
+    try { sections = JSON.parse(report.report_text).sections || []; } catch (e) { console.error('[AI] Failed to parse report sections:', e.message); }
 
     res.json({
       ...report,
@@ -478,7 +479,7 @@ router.post('/ai/analyze-image', async (req, res) => {
   }
 
   try {
-    const description = await analyzeImage(imagePath, config);
+    const description = await analyzeImage(imagePath, config, req.lang || 'hu');
     if (!description) {
       return res.status(500).json({ error: 'Image analysis failed or model does not support vision' });
     }
@@ -513,7 +514,6 @@ router.put('/answers/:answerId/description', (req, res) => {
     if (answer.image_path && description) {
       const hash = computeImageHash(answer.image_path);
       if (hash) {
-        const crypto = require('crypto');
         db.prepare(
           'INSERT OR REPLACE INTO image_descriptions (id, image_hash, image_path, description) VALUES (?, ?, ?, ?)'
         ).run(crypto.randomUUID(), hash, answer.image_path, description);

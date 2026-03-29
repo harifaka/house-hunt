@@ -228,14 +228,21 @@
 
           html += '<div class="d-flex justify-between items-center mb-3" style="padding:var(--sp-3);background:var(--gray-50);border-radius:var(--radius);">' +
             '<div>' +
-              '<div class="d-flex items-center gap-2 mb-1">' + statusBadge + ' <span class="text-xs text-muted">' + r.created_at + '</span></div>' +
+              '<div class="d-flex items-center gap-2 mb-1">' + statusBadge + ' <span class="text-xs text-muted">' + escapeHtml(r.created_at) + '</span></div>' +
               (r.summary ? '<div class="text-sm" style="max-width:600px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.summary.substring(0, 120)) + '...</div>' : '') +
             '</div>' +
-            (r.status === 'completed' ? '<button class="btn btn-sm btn-outline-primary" onclick="showReportDetail(\'' + r.id + '\')">' + (lang === 'en' ? 'View' : 'Megtekintés') + '</button>' : '') +
+            (r.status === 'completed' ? '<button class="btn btn-sm btn-outline-primary" data-report-id="' + escapeHtml(r.id) + '">' + (lang === 'en' ? 'View' : 'Megtekintés') + '</button>' : '') +
           '</div>';
         });
 
         reportsList.innerHTML = html;
+
+        // Attach event listeners via delegation
+        reportsList.querySelectorAll('[data-report-id]').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            showReportDetail(this.getAttribute('data-report-id'));
+          });
+        });
       });
   }
 
@@ -245,7 +252,7 @@
     return div.innerHTML;
   }
 
-  window.showReportDetail = function(reportId) {
+  function showReportDetail(reportId) {
     fetch('/api/ai/report/' + reportId)
       .then(function(r) { return r.json(); })
       .then(function(report) {
@@ -274,7 +281,7 @@
         detail.innerHTML = html;
         card.scrollIntoView({ behavior: 'smooth' });
       });
-  };
+  }
 })();
 </script>
 <style>
