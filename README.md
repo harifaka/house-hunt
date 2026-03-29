@@ -3,32 +3,77 @@
 **House Hunt Helper** is your all-in-one toolkit for finding, planning, and swapping your dream home. Whether you're buying, selling, or renovating, this repository provides a collection of helpful resources and tools to make every step of your home journey easier and more organized.
 
 ## Features
-Add more feature
 
 ### 🏡 Energy Planner
-A helpful tool to calculate your home’s energy needs, potential savings, and efficiency improvements. Make informed decisions on insulation, appliances, and energy sources to reduce costs and environmental impact.
+A helpful tool to calculate your home's energy needs, potential savings, and efficiency improvements. Make informed decisions on insulation, appliances, and energy sources to reduce costs and environmental impact.
 
 ### 📝 Technical Detail List
-A comprehensive list of essential technical details to consider when evaluating potential homes. This includes things like plumbing, electrical systems, roofing, foundation, and more. Stay on top of potential issues before making a decision.
+A comprehensive list of essential technical details to consider when evaluating potential homes. This includes things like plumbing, electrical systems, roofing, foundation, and more.
 
 ### ✅ Question List Guide & Checklist
-A guide with the most important questions to ask during a house hunt and things to check before purchasing. This checklist will help you assess everything from neighborhood safety to the quality of the foundation, so nothing is overlooked.
+A guide with the most important questions to ask during a house hunt and things to check before purchasing.
+
+### 🔍 Property Finder
+Search and analyze real estate listings, compare properties, and generate PDF reports with AI-powered analysis.
+
+### 📊 Calculators
+Energy and heating calculators to help evaluate running costs for potential homes.
 
 ---
 
 ## Setup & Usage
 
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or later
+- npm (comes with Node.js)
+
 ### Clone the Repository
 
-To get started, clone the repository to your local machine:
-
-```
+```bash
 git clone https://github.com/harifaka/house-hunt-helper.git
+cd house-hunt-helper
 ```
 
-### Dependencies
+### Install Dependencies
 
-For some of the tools, you may need to install additional dependencies. Be sure to check each individual helper's folder for installation instructions.
+```bash
+npm install
+```
+
+### Run the Application
+
+```bash
+npm start
+```
+
+The app will be available at `http://localhost:3000`.
+
+### Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `PORT` | HTTP server port | `3000` |
+| `SESSION_SECRET` | Session encryption secret | Random value |
+| `DATABASE_PATH` | Path to SQLite database file | `./db/house_hunt.sqlite` |
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Run Linter
+
+```bash
+npm run lint
+```
+
+---
+
+## Deployment
+
+See [DEPLOY.md](DEPLOY.md) for deployment instructions (Render.com and other platforms).
 
 ---
 
@@ -36,40 +81,37 @@ For some of the tools, you may need to install additional dependencies. Be sure 
 
 ```
 house-hunt-helper/
-│
-├── energy-planner/
-│   └── README.md  # Energy planner tool details
-├── technical-details/
-│   └── README.md  # Guide for technical home evaluation
-├── question-checklist/
-│   └── README.md  # Question list for before you buy a home
-└── README.md      # This file
+├── app.js                 # Express application setup
+├── render.yaml            # Render.com deployment blueprint
+├── eslint.config.js       # ESLint configuration
+├── src/
+│   ├── database.js        # SQLite database initialization
+│   ├── questions.js       # Quiz question management
+│   ├── scraper.js         # Web scraper for property listings
+│   └── routes/
+│       ├── home.js        # Dashboard & house management
+│       ├── quiz.js        # House inspection quiz
+│       ├── admin.js       # Settings & admin
+│       ├── api.js         # REST API & export (JSON/CSV/PDF)
+│       ├── calculators.js # Energy & heating calculators
+│       └── property-finder.js  # Property search & analysis
+├── views/                 # EJS templates
+├── public/                # Static assets (CSS, JS)
+├── data/                  # Question data (JSON)
+├── tests/                 # Jest test suites
+└── .github/workflows/     # CI/CD pipelines
 ```
-
----
-
-## Suggestions & Future Features
-
-Here are a few ideas for additional features that could be added to **House Hunt Helper**:
-
-- **Budgeting Tools:** A section to help you track your spending and stick to your home-buying budget. This could include mortgage calculators, loan comparison tools, and estimated maintenance costs.
-  
-- **Home Renovation Planner:** A planner tool to help track renovation plans, budgets, and timelines, complete with common renovation estimates and DIY tips.
-  
-- **Neighborhood Evaluator:** A guide to help assess different neighborhoods based on safety, schools, proximity to work, local amenities, and more.
-  
-- **Home Swap Planner:** A tool for people looking to trade homes instead of buying or selling traditionally.
 
 ---
 
 ## Contributing
 
-We welcome contributions to **House Hunt Helper**! If you would like to suggest new features, improvements, or bug fixes, please create an issue or pull request.
+We welcome contributions to **House Hunt Helper**!
 
 1. Fork the repository
-2. Create your branch (\`git checkout -b feature-xyz\`)
-3. Commit your changes (\`git commit -m 'Add new feature'\`)
-4. Push to your branch (\`git push origin feature-xyz\`)
+2. Create your branch (`git checkout -b feature-xyz`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to your branch (`git push origin feature-xyz`)
 5. Create a pull request
 
 ---
@@ -77,22 +119,3 @@ We welcome contributions to **House Hunt Helper**! If you would like to suggest 
 ## License
 
 This project is unlicensed yet.
-
----
-
-## Acknowledgments
-
-- Special thanks to the open-source community for contributing tools and libraries that help make home planning easier.
-- Inspiration from all the homeowners and real estate enthusiasts who have shared tips and insights over the years.
-
----
-
-### What else could you add?
-
-A couple of other things you might consider including:
-
-- **Home Inspection Checklist:** A more in-depth document for when you're evaluating a home during an inspection.
-- **Legal Documents Template:** Sample contracts, purchase agreements, or lease options that people can use when negotiating deals.
-- **Real Estate Trends:** A data-driven guide showing trends in home prices, interest rates, etc., to help buyers make informed decisions.
-
-Would you like help creating any of those features?
