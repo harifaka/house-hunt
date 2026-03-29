@@ -20,6 +20,17 @@ describe('Home Routes', () => {
     expect(res.text).toContain('House Hunt');
   });
 
+  test('GET / renders demo advertisement placeholders in Hungarian and English', async () => {
+    const huRes = await request(app).get('/');
+    expect(huRes.status).toBe(200);
+    expect(huRes.text).toContain('Bemutató hirdetés');
+
+    const enRes = await request(app).get('/?lang=en');
+    expect(enRes.status).toBe(200);
+    expect(enRes.text).toContain('Demo advertisement');
+    expect(enRes.text).toContain('Google AdSense');
+  });
+
   test('GET /houses returns 200', async () => {
     const res = await request(app).get('/houses');
     expect(res.status).toBe(200);

@@ -1,121 +1,108 @@
-# House Hunt Helper
+# House Hunt
 
-**House Hunt Helper** is your all-in-one toolkit for finding, planning, and swapping your dream home. Whether you're buying, selling, or renovating, this repository provides a collection of helpful resources and tools to make every step of your home journey easier and more organized.
+**House Hunt** is a Node.js + Express application for tracking homes, running structured inspections, exporting reports, and exploring property opportunities in Hungarian or English.
 
 ## Features
 
-### 🏡 Energy Planner
-A helpful tool to calculate your home's energy needs, potential savings, and efficiency improvements. Make informed decisions on insulation, appliances, and energy sources to reduce costs and environmental impact.
+### 🏠 House management
+- Add, edit, and delete homes with address, asking price, and notes
+- Track multiple houses from a single dashboard
+- Review inspection progress and average scores at a glance
 
-### 📝 Technical Detail List
-A comprehensive list of essential technical details to consider when evaluating potential homes. This includes things like plumbing, electrical systems, roofing, foundation, and more.
+### ✅ Guided inspection workflow
+- Run a weighted house inspection quiz by category
+- Save answers as you go and continue later
+- Upload photos during inspections for documentation
+- Review overall and per-category results with repair cost hints
 
-### ✅ Question List Guide & Checklist
-A guide with the most important questions to ask during a house hunt and things to check before purchasing.
+### 📤 Export and reporting
+- Export house data and inspection results as JSON, CSV, or PDF
+- Use built-in AI analysis settings for richer property evaluation workflows
 
-### 🔍 Property Finder
-Search and analyze real estate listings, compare properties, and generate PDF reports with AI-powered analysis.
+### 🔍 Property finder and market research
+- Search listing URLs and generate property analysis pages
+- Use demo mode when live scraping or AI services are unavailable
+- Review city-level market context and property details
 
-### 📊 Calculators
-Energy and heating calculators to help evaluate running costs for potential homes.
+### ⚡ Calculators
+- Energy calculator for appliance consumption estimates
+- Heating calculator for insulation and heat-loss based estimates
 
----
+### 🌐 Bilingual UI
+- Hungarian and English interface with session-based language switching
 
-## Setup & Usage
+### 💰 Advertisement-ready placements
+- Shared sidebar and footer ad slots are ready for Google AdSense or direct sponsor creatives
+- Demo advertisements are included so monetization placements are visible immediately after deployment
+
+## Setup
 
 ### Prerequisites
-
 - [Node.js](https://nodejs.org/) v18 or later
-- npm (comes with Node.js)
+- npm
 
-### Clone the Repository
+### Clone the repository
 
 ```bash
-git clone https://github.com/harifaka/house-hunt-helper.git
-cd house-hunt-helper
+git clone https://github.com/harifaka/house-hunt.git
+cd house-hunt
 ```
 
-### Install Dependencies
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-### Run the Application
+### Start the app
 
 ```bash
 npm start
 ```
 
-The app will be available at `http://localhost:3000`.
+The app runs at `http://localhost:3000` by default.
 
-### Environment Variables
+## Environment variables
 
 | Variable | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `PORT` | HTTP server port | `3000` |
 | `SESSION_SECRET` | Session encryption secret | Random value |
-| `DATABASE_PATH` | Path to SQLite database file | `./db/house_hunt.sqlite` |
+| `DATABASE_PATH` | SQLite database location | `./db/house_hunt.sqlite` |
 
-### Run Tests
+## Quality checks
 
 ```bash
 npm test
-```
-
-### Run Linter
-
-```bash
 npm run lint
 ```
 
----
-
 ## Deployment
 
-See [DEPLOY.md](DEPLOY.md) for deployment instructions (Render.com and other platforms).
+- Render.com blueprint: `render.yaml`
+- Additional deployment notes: [DEPLOY.md](DEPLOY.md)
 
----
+## Release notes
 
-## Directory Structure
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for a summary of existing features and the new demo advertisement placements.
 
-```
-house-hunt-helper/
-├── app.js                 # Express application setup
-├── render.yaml            # Render.com deployment blueprint
-├── eslint.config.js       # ESLint configuration
+## Project structure
+
+```text
+house-hunt/
+├── app.js
+├── public/
 ├── src/
-│   ├── database.js        # SQLite database initialization
-│   ├── questions.js       # Quiz question management
-│   ├── scraper.js         # Web scraper for property listings
+│   ├── database.js
+│   ├── questions.js
+│   ├── scraper.js
 │   └── routes/
-│       ├── home.js        # Dashboard & house management
-│       ├── quiz.js        # House inspection quiz
-│       ├── admin.js       # Settings & admin
-│       ├── api.js         # REST API & export (JSON/CSV/PDF)
-│       ├── calculators.js # Energy & heating calculators
-│       └── property-finder.js  # Property search & analysis
-├── views/                 # EJS templates
-├── public/                # Static assets (CSS, JS)
-├── data/                  # Question data (JSON)
-├── tests/                 # Jest test suites
-└── .github/workflows/     # CI/CD pipelines
+├── tests/
+├── views/
+├── DEPLOY.md
+└── render.yaml
 ```
-
----
-
-## Contributing
-
-We welcome contributions to **House Hunt Helper**!
-
-1. Fork the repository
-2. Create your branch (`git checkout -b feature-xyz`)
-3. Commit your changes (`git commit -m 'Add new feature'`)
-4. Push to your branch (`git push origin feature-xyz`)
-5. Create a pull request
-
----
 
 ## License
 
-This project is unlicensed yet.
+This project is currently unlicensed.

@@ -1,0 +1,41 @@
+<%
+  const adLabel = lang === 'en' ? 'Advertisement' : 'Hirdetés';
+  const adCopy = {
+    sidebar: lang === 'en'
+      ? {
+          eyebrow: 'Demo advertisement',
+          title: 'Mortgage partner spotlight',
+          body: 'Use this slot for a Google AdSense unit or a sponsor banner to monetize House Hunt without interrupting inspections.',
+          meta: 'Suggested placement: sidebar display'
+        }
+      : {
+          eyebrow: 'Bemutató hirdetés',
+          title: 'Jelzálog partner kiemelés',
+          body: 'Használd ezt a helyet Google AdSense egységhez vagy szponzor bannerhez, hogy bevételt termelj a House Huntban.',
+          meta: 'Javasolt elhelyezés: oldalsáv display'
+        },
+    footer: lang === 'en'
+      ? {
+          eyebrow: 'Demo advertisement',
+          title: 'Promote movers, insurers, or renovators',
+          body: 'This footer slot is ready for AdSense or direct partner creatives and stays visible across the app.',
+          meta: 'Suggested placement: footer banner'
+        }
+      : {
+          eyebrow: 'Bemutató hirdetés',
+          title: 'Népszerűsíts költöztetőt, biztosítót vagy felújítót',
+          body: 'Ez a lábléc hely készen áll AdSense vagy közvetlen partner kreatívok megjelenítésére az egész alkalmazásban.',
+          meta: 'Javasolt elhelyezés: lábléc banner'
+        }
+  };
+  const ad = adCopy[slot] || adCopy.footer;
+%>
+<section class="ad-slot ad-slot--<%= slot %>" aria-label="<%= adLabel %>" data-ad-provider="demo" data-ad-format="display" data-ad-slot="<%= slot %>">
+  <p class="ad-slot__label"><%= adLabel %></p>
+  <div class="ad-slot__card">
+    <span class="ad-slot__badge"><%= ad.eyebrow %></span>
+    <h3 class="ad-slot__title"><%= ad.title %></h3>
+    <p class="ad-slot__body"><%= ad.body %></p>
+    <p class="ad-slot__meta"><%= ad.meta %></p>
+  </div>
+</section>
