@@ -12,6 +12,42 @@
     <h1 class="mb-2">🔥 <%= t.heating_calculator %></h1>
     <p class="text-muted mb-6"><%= lang === 'en' ? 'Calculate heating requirements and costs' : 'Fűtési igény és költségek kiszámítása' %></p>
 
+    <!-- Save/Load Calculations -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0">💾 <%= lang === 'en' ? 'Saved Calculations' : 'Mentett számítások' %></h3>
+        <div class="d-flex gap-2">
+          <select id="link-house" class="form-control" style="max-width:200px;">
+            <option value=""><%= lang === 'en' ? '-- Link to house --' : '-- Házhoz kapcsolás --' %></option>
+            <% if (houses) { houses.forEach(function(h) { %>
+              <option value="<%= h.id %>"><%= h.name %></option>
+            <% }); } %>
+          </select>
+          <button type="button" class="btn btn-sm btn-primary" id="save-calc-btn">💾 <%= t.save %></button>
+        </div>
+      </div>
+      <div class="card__body">
+        <div id="saved-calcs-list">
+          <% if (savedCalcs && savedCalcs.length > 0) { %>
+            <% savedCalcs.forEach(function(calc) { %>
+              <div class="d-flex justify-between items-center mb-2" style="padding:var(--sp-2);background:var(--gray-50);border-radius:var(--radius-sm);" data-calc-id="<%= calc.id %>">
+                <div>
+                  <span class="font-medium"><%= calc.name %></span>
+                  <span class="text-xs text-muted ml-2"><%= new Date(calc.updated_at || calc.created_at).toLocaleDateString() %></span>
+                </div>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm btn-ghost load-calc-btn" data-id="<%= calc.id %>">📂 <%= lang === 'en' ? 'Load' : 'Betöltés' %></button>
+                  <button class="btn btn-sm btn-danger delete-calc-btn" data-id="<%= calc.id %>">🗑️</button>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p class="text-muted text-sm"><%= lang === 'en' ? 'No saved calculations yet.' : 'Még nincsenek mentett számítások.' %></p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
     <!-- Building Parameters -->
     <div class="card mb-6">
       <div class="card__header">
@@ -22,12 +58,26 @@
           <div>
             <label class="form-label"><%= t.wall_type %></label>
             <select id="wall-type" class="form-control">
-              <option value="0.60"><%= lang === 'en' ? 'Brick (38cm)' : 'Tégla (38cm)' %></option>
-              <option value="1.40"><%= lang === 'en' ? 'Concrete' : 'Beton' %></option>
-              <option value="0.45"><%= lang === 'en' ? 'Wood Frame' : 'Favázas' %></option>
-              <option value="1.00"><%= lang === 'en' ? 'Stone' : 'Kő' %></option>
-              <option value="0.50"><%= lang === 'en' ? 'Adobe' : 'Vályog' %></option>
-              <option value="0.80"><%= lang === 'en' ? 'Hollow Block' : 'Üreges blokk' %></option>
+              <optgroup label="<%= lang === 'en' ? 'Brick' : 'Tégla' %>">
+                <option value="0.60"><%= lang === 'en' ? 'Solid Brick (λ=0.60)' : 'Tömör tégla (λ=0.60)' %></option>
+                <option value="0.47"><%= lang === 'en' ? 'B30 Brick (λ=0.47)' : 'B30 tégla (λ=0.47)' %></option>
+                <option value="0.35"><%= lang === 'en' ? 'Porotherm 30 (λ=0.35)' : 'Porotherm 30 (λ=0.35)' %></option>
+                <option value="0.25"><%= lang === 'en' ? 'Porotherm 44 (λ=0.25)' : 'Porotherm 44 (λ=0.25)' %></option>
+                <option value="0.18"><%= lang === 'en' ? 'Porotherm 50 (λ=0.18)' : 'Porotherm 50 (λ=0.18)' %></option>
+                <option value="0.55"><%= lang === 'en' ? 'Clinker Brick (λ=0.55)' : 'Klinker tégla (λ=0.55)' %></option>
+              </optgroup>
+              <optgroup label="<%= lang === 'en' ? 'Concrete / Block' : 'Beton / Blokk' %>">
+                <option value="1.40"><%= lang === 'en' ? 'Reinforced Concrete (λ=1.40)' : 'Vasbeton (λ=1.40)' %></option>
+                <option value="0.80"><%= lang === 'en' ? 'Hollow Block (λ=0.80)' : 'Üreges blokk (λ=0.80)' %></option>
+                <option value="0.58"><%= lang === 'en' ? 'Lightweight Concrete Block (λ=0.58)' : 'Könnyűbeton blokk (λ=0.58)' %></option>
+                <option value="0.22"><%= lang === 'en' ? 'Aerated Concrete / Ytong (λ=0.22)' : 'Pórusbeton / Ytong (λ=0.22)' %></option>
+              </optgroup>
+              <optgroup label="<%= lang === 'en' ? 'Other' : 'Egyéb' %>">
+                <option value="0.45"><%= lang === 'en' ? 'Wood Frame (λ=0.45)' : 'Favázas (λ=0.45)' %></option>
+                <option value="1.00"><%= lang === 'en' ? 'Stone (λ=1.00)' : 'Kő (λ=1.00)' %></option>
+                <option value="0.50"><%= lang === 'en' ? 'Adobe (λ=0.50)' : 'Vályog (λ=0.50)' %></option>
+                <option value="0.13"><%= lang === 'en' ? 'CLT / Cross Laminated Timber (λ=0.13)' : 'CLT / Keresztragasztott fa (λ=0.13)' %></option>
+              </optgroup>
             </select>
           </div>
           <div>
@@ -40,10 +90,25 @@
             <label class="form-label"><%= t.insulation %></label>
             <select id="insulation-type" class="form-control">
               <option value="0"><%= lang === 'en' ? 'None' : 'Nincs' %></option>
-              <option value="0.035"><%= lang === 'en' ? 'EPS (Expanded Polystyrene)' : 'EPS (Expandált polisztirol)' %></option>
-              <option value="0.030"><%= lang === 'en' ? 'XPS (Extruded Polystyrene)' : 'XPS (Extrudált polisztirol)' %></option>
-              <option value="0.038"><%= lang === 'en' ? 'Mineral Wool' : 'Ásványgyapot' %></option>
-              <option value="0.022"><%= lang === 'en' ? 'PIR (Polyisocyanurate)' : 'PIR (Poliizocianurát)' %></option>
+              <optgroup label="<%= lang === 'en' ? 'Polystyrene' : 'Polisztirol' %>">
+                <option value="0.035"><%= lang === 'en' ? 'EPS 80 (λ=0.035)' : 'EPS 80 (λ=0.035)' %></option>
+                <option value="0.032"><%= lang === 'en' ? 'EPS 100 (λ=0.032)' : 'EPS 100 (λ=0.032)' %></option>
+                <option value="0.031"><%= lang === 'en' ? 'EPS 150 / Graphite EPS (λ=0.031)' : 'EPS 150 / Grafit EPS (λ=0.031)' %></option>
+                <option value="0.030"><%= lang === 'en' ? 'XPS Standard (λ=0.030)' : 'XPS Standard (λ=0.030)' %></option>
+                <option value="0.028"><%= lang === 'en' ? 'XPS Premium (λ=0.028)' : 'XPS Prémium (λ=0.028)' %></option>
+              </optgroup>
+              <optgroup label="<%= lang === 'en' ? 'Mineral Fiber' : 'Ásványi szál' %>">
+                <option value="0.038"><%= lang === 'en' ? 'Glass Wool (λ=0.038)' : 'Üveggyapot (λ=0.038)' %></option>
+                <option value="0.036"><%= lang === 'en' ? 'Rock Wool / Stone Wool (λ=0.036)' : 'Kőzetgyapot (λ=0.036)' %></option>
+                <option value="0.035"><%= lang === 'en' ? 'High-Density Mineral Wool (λ=0.035)' : 'Nagysűrűségű ásványgyapot (λ=0.035)' %></option>
+              </optgroup>
+              <optgroup label="<%= lang === 'en' ? 'Premium' : 'Prémium' %>">
+                <option value="0.022"><%= lang === 'en' ? 'PIR / Polyisocyanurate (λ=0.022)' : 'PIR / Poliizocianurát (λ=0.022)' %></option>
+                <option value="0.024"><%= lang === 'en' ? 'PUR / Polyurethane (λ=0.024)' : 'PUR / Poliuretán (λ=0.024)' %></option>
+                <option value="0.020"><%= lang === 'en' ? 'Vacuum Insulation Panel (λ=0.020)' : 'Vákuum-szigetelő panel (λ=0.020)' %></option>
+                <option value="0.040"><%= lang === 'en' ? 'Cellulose (λ=0.040)' : 'Cellulóz (λ=0.040)' %></option>
+                <option value="0.045"><%= lang === 'en' ? 'Wood Fiber Board (λ=0.045)' : 'Faforgácslemez (λ=0.045)' %></option>
+              </optgroup>
             </select>
           </div>
           <div>
@@ -58,13 +123,56 @@
       </div>
     </div>
 
+    <!-- Professional Material Reference -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0">📚 <%= lang === 'en' ? 'Material Reference Library' : 'Anyag referencia könyvtár' %></h3>
+      </div>
+      <div class="card__body" style="overflow-x:auto;">
+        <details>
+          <summary class="font-medium mb-2" style="cursor:pointer;"><%= lang === 'en' ? 'Wall Materials (λ W/mK)' : 'Fal anyagok (λ W/mK)' %></summary>
+          <table class="table mb-4">
+            <thead><tr><th><%= lang === 'en' ? 'Material' : 'Anyag' %></th><th>λ (W/mK)</th><th><%= lang === 'en' ? 'Density (kg/m³)' : 'Sűrűség (kg/m³)' %></th><th><%= lang === 'en' ? 'Notes' : 'Megjegyzés' %></th></tr></thead>
+            <tbody>
+              <tr><td><%= lang === 'en' ? 'Solid Brick' : 'Tömör tégla' %></td><td>0.60</td><td>1600-1800</td><td><%= lang === 'en' ? 'Traditional masonry' : 'Hagyományos falazat' %></td></tr>
+              <tr><td><%= lang === 'en' ? 'B30 Brick' : 'B30 tégla' %></td><td>0.47</td><td>1400-1600</td><td><%= lang === 'en' ? 'Common Hungarian brick, 30cm wide' : 'Általános magyar tégla, 30cm széles' %></td></tr>
+              <tr><td>Porotherm 30</td><td>0.35</td><td>800-900</td><td><%= lang === 'en' ? 'Modern ceramic block' : 'Modern kerámia blokk' %></td></tr>
+              <tr><td>Porotherm 44</td><td>0.25</td><td>700-800</td><td><%= lang === 'en' ? 'Thermal optimized' : 'Hőtechnikai optimalizált' %></td></tr>
+              <tr><td><%= lang === 'en' ? 'Reinforced Concrete' : 'Vasbeton' %></td><td>1.40</td><td>2400</td><td><%= lang === 'en' ? 'Structural element' : 'Szerkezeti elem' %></td></tr>
+              <tr><td><%= lang === 'en' ? 'Aerated Concrete (Ytong)' : 'Pórusbeton (Ytong)' %></td><td>0.22</td><td>500-600</td><td><%= lang === 'en' ? 'Good thermal performance' : 'Jó hőtechnikai teljesítmény' %></td></tr>
+            </tbody>
+          </table>
+        </details>
+        <details>
+          <summary class="font-medium mb-2" style="cursor:pointer;"><%= lang === 'en' ? 'Insulation Materials (λ W/mK)' : 'Szigetelő anyagok (λ W/mK)' %></summary>
+          <table class="table mb-4">
+            <thead><tr><th><%= lang === 'en' ? 'Material' : 'Anyag' %></th><th>λ (W/mK)</th><th><%= lang === 'en' ? 'Typical Thickness' : 'Tipikus vastagság' %></th><th><%= lang === 'en' ? 'Notes' : 'Megjegyzés' %></th></tr></thead>
+            <tbody>
+              <tr><td>EPS 80</td><td>0.035</td><td>8-20 cm</td><td><%= lang === 'en' ? 'Most common facade insulation' : 'Leggyakoribb homlokzati szigetelés' %></td></tr>
+              <tr><td><%= lang === 'en' ? 'Graphite EPS' : 'Grafit EPS' %></td><td>0.031</td><td>8-16 cm</td><td><%= lang === 'en' ? 'Higher performance EPS' : 'Magasabb teljesítményű EPS' %></td></tr>
+              <tr><td>XPS</td><td>0.028-0.030</td><td>5-15 cm</td><td><%= lang === 'en' ? 'Moisture resistant, for basements' : 'Nedvességálló, pincékhez' %></td></tr>
+              <tr><td><%= lang === 'en' ? 'Rock Wool' : 'Kőzetgyapot' %></td><td>0.036</td><td>10-20 cm</td><td><%= lang === 'en' ? 'Fire resistant, breathable' : 'Tűzálló, páraáteresztő' %></td></tr>
+              <tr><td>PIR</td><td>0.022</td><td>6-12 cm</td><td><%= lang === 'en' ? 'Best thermal performance' : 'Legjobb hőtechnikai teljesítmény' %></td></tr>
+              <tr><td>PUR</td><td>0.024</td><td>6-12 cm</td><td><%= lang === 'en' ? 'Spray or board form' : 'Szórt vagy lemez formában' %></td></tr>
+            </tbody>
+          </table>
+        </details>
+      </div>
+    </div>
+
     <!-- Windows & Doors -->
     <div class="card mb-6">
       <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
         <h3 class="card__title mb-0"><%= lang === 'en' ? 'Windows & Doors' : 'Ablakok és ajtók' %></h3>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
           <button type="button" class="btn btn-sm btn-accent" id="add-window">➕ <%= t.add_row %></button>
           <button type="button" class="btn btn-sm btn-outline" id="remove-window">➖ <%= t.remove_row %></button>
+          <select id="template-select" class="form-control" style="max-width:220px;">
+            <option value=""><%= lang === 'en' ? '-- Add from template --' : '-- Sablon hozzáadása --' %></option>
+            <% if (templates) { templates.forEach(function(tmpl) { %>
+              <option value="<%= tmpl.id %>" data-name="<%= tmpl.name %>" data-width="<%= tmpl.width %>" data-height="<%= tmpl.height %>" data-type="<%= tmpl.type %>" data-u="<%= tmpl.u_value %>" data-standard="<%= tmpl.is_standard %>"><%= tmpl.name %> (<%= tmpl.width %>×<%= tmpl.height %>m)</option>
+            <% }); } %>
+          </select>
         </div>
       </div>
       <div class="card__body" style="overflow-x:auto;">
@@ -72,11 +180,13 @@
           <thead>
             <tr>
               <th><%= lang === 'en' ? 'Name / Location' : 'Megnevezés / Helye' %></th>
+              <th><%= lang === 'en' ? 'Qty' : 'Db' %></th>
               <th><%= lang === 'en' ? 'Width (m)' : 'Szélesség (m)' %></th>
               <th><%= lang === 'en' ? 'Height (m)' : 'Magasság (m)' %></th>
               <th><%= lang === 'en' ? 'Type' : 'Típus' %></th>
               <th>U-value (W/m²K)</th>
               <th><%= lang === 'en' ? 'Area (m²)' : 'Terület (m²)' %></th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="window-tbody">
@@ -209,11 +319,13 @@
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><input type="text" class="form-control" data-field="name" value="' + (d.name || '') + '"></td>' +
+      '<td><input type="number" class="form-control" data-field="qty" min="1" step="1" value="' + (d.qty || 1) + '" style="width:60px"></td>' +
       '<td><input type="number" class="form-control" data-field="width" min="0" step="0.01" value="' + (d.width || 1.2) + '" style="width:80px"></td>' +
       '<td><input type="number" class="form-control" data-field="height" min="0" step="0.01" value="' + (d.height || 1.4) + '" style="width:80px"></td>' +
       '<td><select class="form-control" data-field="type">' + buildTypeOptions() + '</select></td>' +
       '<td><input type="number" class="form-control" data-field="uval" min="0" step="0.1" value="' + (d.u || 2.8) + '" style="width:80px"></td>' +
-      '<td class="win-area font-bold">0</td>';
+      '<td class="win-area font-bold">0</td>' +
+      '<td><button type="button" class="btn btn-sm btn-ghost save-template-btn" title="' + (document.documentElement.lang === 'en' ? 'Save as template' : 'Mentés sablonként') + '">📌</button></td>';
     tbody.appendChild(tr);
 
     var typeSelect = tr.querySelector('[data-field="type"]');
@@ -236,6 +348,57 @@
   document.getElementById('remove-window').addEventListener('click', function() {
     var rows = tbody.querySelectorAll('tr');
     if (rows.length > 0) { tbody.removeChild(rows[rows.length - 1]); recalcAll(); }
+  });
+
+  // Template selection
+  document.getElementById('template-select').addEventListener('change', function() {
+    var opt = this.options[this.selectedIndex];
+    if (!opt.value) return;
+    addWindowRow({
+      name: opt.getAttribute('data-name'),
+      width: parseFloat(opt.getAttribute('data-width')),
+      height: parseFloat(opt.getAttribute('data-height')),
+      type: opt.getAttribute('data-type'),
+      u: parseFloat(opt.getAttribute('data-u'))
+    });
+    this.selectedIndex = 0;
+  });
+
+  // Save row as template
+  tbody.addEventListener('click', function(e) {
+    var btn = e.target.closest('.save-template-btn');
+    if (!btn) return;
+    var tr = btn.closest('tr');
+    var name = tr.querySelector('[data-field="name"]').value || (document.documentElement.lang === 'en' ? 'Custom template' : 'Egyéni sablon');
+    var width = parseFloat(tr.querySelector('[data-field="width"]').value) || 1.2;
+    var height = parseFloat(tr.querySelector('[data-field="height"]').value) || 1.4;
+    var type = tr.querySelector('[data-field="type"]').value || 'double';
+    var uval = parseFloat(tr.querySelector('[data-field="uval"]').value) || 2.8;
+
+    fetch('/calculators/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, width: width, height: height, type: type, u_value: uval })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        // Add to template dropdown
+        var sel = document.getElementById('template-select');
+        var newOpt = document.createElement('option');
+        newOpt.value = data.id;
+        newOpt.setAttribute('data-name', name);
+        newOpt.setAttribute('data-width', width);
+        newOpt.setAttribute('data-height', height);
+        newOpt.setAttribute('data-type', type);
+        newOpt.setAttribute('data-u', uval);
+        newOpt.textContent = name + ' (' + width + '×' + height + 'm)';
+        sel.appendChild(newOpt);
+        btn.textContent = '✅';
+        setTimeout(function() { btn.textContent = '📌'; }, 2000);
+      }
+    })
+    .catch(function() {});
   });
 
   // Sync deltaT when indoor/outdoor change
@@ -277,13 +440,15 @@
     var windowLoss = 0;
     var winRows = tbody.querySelectorAll('tr');
     winRows.forEach(function(tr) {
+      var qty = parseInt(tr.querySelector('[data-field="qty"]').value) || 1;
       var w = parseFloat(tr.querySelector('[data-field="width"]').value) || 0;
       var h = parseFloat(tr.querySelector('[data-field="height"]').value) || 0;
       var u = parseFloat(tr.querySelector('[data-field="uval"]').value) || 0;
       var area = w * h;
-      tr.querySelector('.win-area').textContent = area.toFixed(2);
-      totalWinArea += area;
-      windowLoss += u * area * dT;
+      var totalRowArea = area * qty;
+      tr.querySelector('.win-area').textContent = totalRowArea.toFixed(2);
+      totalWinArea += totalRowArea;
+      windowLoss += u * totalRowArea * dT;
     });
 
     var netWallArea = Math.max(0, wallArea - totalWinArea);
@@ -309,6 +474,123 @@
     document.getElementById('res-power').textContent = powerKw.toFixed(1);
     document.getElementById('res-annual-kwh').textContent = Math.round(annualKwh).toLocaleString();
     document.getElementById('res-annual-cost').textContent = Math.round(annualCost).toLocaleString() + ' HUF';
+  }
+
+  // Save calculation
+  document.getElementById('save-calc-btn').addEventListener('click', function() {
+    var calcName = prompt(document.documentElement.lang === 'en' ? 'Calculation name:' : 'Számítás neve:');
+    if (!calcName) return;
+    
+    var houseId = document.getElementById('link-house').value || null;
+    var parameters = collectParameters();
+    var results = collectResults();
+
+    fetch('/calculators/heating/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: calcName, houseId: houseId, parameters: parameters, results: results })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        window.location.reload();
+      }
+    })
+    .catch(function() {});
+  });
+
+  // Load calculation
+  document.querySelectorAll('.load-calc-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.dataset.id;
+      fetch('/calculators/heating/load/' + id)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.parameters) {
+            restoreParameters(data.parameters);
+          }
+        })
+        .catch(function() {});
+    });
+  });
+
+  // Delete calculation
+  document.querySelectorAll('.delete-calc-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm(document.documentElement.lang === 'en' ? 'Delete this calculation?' : 'Törli ezt a számítást?')) return;
+      var id = this.dataset.id;
+      var row = this.closest('[data-calc-id]');
+      fetch('/calculators/heating/delete/' + id, { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success && row) row.remove();
+        })
+        .catch(function() {});
+    });
+  });
+
+  // Helper: collect current parameters
+  function collectParameters() {
+    var windowRows = [];
+    tbody.querySelectorAll('tr').forEach(function(tr) {
+      windowRows.push({
+        name: tr.querySelector('[data-field="name"]').value,
+        qty: parseInt(tr.querySelector('[data-field="qty"]').value) || 1,
+        width: parseFloat(tr.querySelector('[data-field="width"]').value) || 0,
+        height: parseFloat(tr.querySelector('[data-field="height"]').value) || 0,
+        type: tr.querySelector('[data-field="type"]').value,
+        u: parseFloat(tr.querySelector('[data-field="uval"]').value) || 0
+      });
+    });
+    return {
+      wallType: document.getElementById('wall-type').value,
+      wallThickness: document.getElementById('wall-thickness').value,
+      insulationType: document.getElementById('insulation-type').value,
+      insulationThickness: document.getElementById('insulation-thickness').value,
+      wallArea: document.getElementById('wall-area').value,
+      tempIndoor: document.getElementById('temp-indoor').value,
+      tempOutdoor: document.getElementById('temp-outdoor').value,
+      fuelType: document.getElementById('fuel-type').value,
+      heatingDays: document.getElementById('heating-days').value,
+      windowRows: windowRows
+    };
+  }
+
+  // Helper: collect current results
+  function collectResults() {
+    return {
+      wallLoss: document.getElementById('res-wall-loss').textContent,
+      windowLoss: document.getElementById('res-window-loss').textContent,
+      totalLoss: document.getElementById('res-total-loss').textContent,
+      power: document.getElementById('res-power').textContent,
+      annualKwh: document.getElementById('res-annual-kwh').textContent,
+      annualCost: document.getElementById('res-annual-cost').textContent
+    };
+  }
+
+  // Helper: restore parameters from saved data
+  function restoreParameters(params) {
+    if (params.wallType) document.getElementById('wall-type').value = params.wallType;
+    if (params.wallThickness) document.getElementById('wall-thickness').value = params.wallThickness;
+    if (params.insulationType) document.getElementById('insulation-type').value = params.insulationType;
+    if (params.insulationThickness) document.getElementById('insulation-thickness').value = params.insulationThickness;
+    if (params.wallArea) document.getElementById('wall-area').value = params.wallArea;
+    if (params.tempIndoor) document.getElementById('temp-indoor').value = params.tempIndoor;
+    if (params.tempOutdoor) document.getElementById('temp-outdoor').value = params.tempOutdoor;
+    if (params.fuelType) document.getElementById('fuel-type').value = params.fuelType;
+    if (params.heatingDays) document.getElementById('heating-days').value = params.heatingDays;
+    
+    // Restore window rows
+    if (params.windowRows) {
+      // Clear existing rows
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+      params.windowRows.forEach(function(row) {
+        addWindowRow(row);
+      });
+    }
+    
+    syncDelta();
+    recalcAll();
   }
 
   // Init with one default window row
