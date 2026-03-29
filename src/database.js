@@ -95,7 +95,7 @@ function initDb() {
 
   const upsert = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
   upsert.run('language', 'hu');
-  upsert.run('app_title', 'House Hunt Helper');
+  upsert.run('app_title', 'House Hunt');
 
   db.close();
 }

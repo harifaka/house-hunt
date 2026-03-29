@@ -1973,3 +1973,327 @@ select.form-control {
     margin: 2cm;
   }
 }
+
+/* ============================================================
+   Property Finder — Styles
+   ============================================================ */
+
+/* Hero Section */
+.pf-hero {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--sp-8);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.pf-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26, 35, 126, 0.85) 0%, rgba(13, 22, 66, 0.75) 100%);
+  z-index: 1;
+}
+
+.pf-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: var(--sp-10) var(--sp-6);
+  color: var(--white);
+}
+
+.pf-hero__title {
+  font-size: var(--fs-4xl);
+  font-weight: 800;
+  margin-bottom: var(--sp-2);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.pf-hero__subtitle {
+  font-size: var(--fs-lg);
+  opacity: 0.9;
+}
+
+/* Section spacing */
+.pf-section {
+  margin-bottom: var(--sp-8);
+}
+
+/* Property Card with image */
+.pf-property-card__image {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.pf-property-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.pf-property-card:hover .pf-property-card__image img {
+  transform: scale(1.05);
+}
+
+.pf-property-card__badge {
+  position: absolute;
+  bottom: var(--sp-2);
+  right: var(--sp-2);
+  background: rgba(0,0,0,0.7);
+  color: var(--white);
+  font-size: var(--fs-xs);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-full);
+}
+
+/* Price tag */
+.pf-price-tag {
+  background: var(--primary);
+  color: var(--white);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+
+/* Stats Grid */
+.pf-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-4);
+}
+
+.pf-stat-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.pf-stat-card__value {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  color: var(--primary);
+  line-height: var(--lh-tight);
+}
+
+.pf-stat-card__label {
+  font-size: var(--fs-sm);
+  color: var(--gray-600);
+  margin-top: var(--sp-1);
+}
+
+/* City info */
+.pf-city-info {
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  border: 1px solid var(--gray-200);
+}
+
+.pf-city-info h4 {
+  margin-bottom: var(--sp-3);
+  color: var(--primary);
+}
+
+.pf-city-info p {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+/* Image Gallery */
+.pf-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--sp-3);
+}
+
+.pf-gallery__item {
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 4/3;
+}
+
+.pf-gallery__item--main {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.pf-gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.pf-gallery__item:hover img {
+  transform: scale(1.05);
+}
+
+.pf-gallery--small {
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+.pf-gallery__thumb {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+/* Analysis Grid */
+.pf-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-4);
+}
+
+.pf-analysis-card {
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  border: 1px solid var(--gray-200);
+}
+
+.pf-analysis-card h4 {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-base);
+  color: var(--primary);
+}
+
+.pf-analysis-card ul,
+.pf-analysis-card ol {
+  padding-left: var(--sp-5);
+  margin: 0;
+}
+
+.pf-analysis-card li {
+  margin-bottom: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.pf-analysis-card--pros {
+  border-left: 3px solid var(--success);
+}
+
+.pf-analysis-card--cons {
+  border-left: 3px solid var(--warning);
+}
+
+/* Lightbox */
+.pf-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pf-lightbox.is-active {
+  display: flex;
+}
+
+.pf-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+
+/* City Card */
+.pf-city-card .card__body p {
+  margin-bottom: var(--sp-1);
+}
+
+/* Report checkbox in card */
+.report-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* Detail header */
+.pf-detail-header h1 {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+/* Alert styles */
+.alert-info {
+  background: var(--info-light);
+  color: var(--info);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius);
+  border: 1px solid var(--info);
+}
+
+.alert-success {
+  background: var(--success-light);
+  color: var(--success);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius);
+  border: 1px solid var(--success);
+}
+
+.alert-warning {
+  background: var(--warning-light);
+  color: var(--gray-800);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius);
+  border: 1px solid var(--warning);
+}
+
+.alert-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius);
+  border: 1px solid var(--danger);
+}
+
+/* Responsive adjustments for property finder */
+@media (max-width: 768px) {
+  .pf-hero__title {
+    font-size: var(--fs-2xl);
+  }
+  .pf-hero {
+    min-height: 160px;
+  }
+  .pf-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pf-gallery__item--main {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  .pf-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pf-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+}

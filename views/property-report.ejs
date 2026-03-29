@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="/property-finder" class="text-primary text-sm">&larr; <%= lang === 'en' ? 'Back to Property Finder' : 'Vissza az Ingatlan Keresőhöz' %></a>
+    </div>
+
+    <!-- Report Header -->
+    <div class="pf-detail-header mb-6">
+      <h1 class="mb-2">📄 <%= report.title %></h1>
+      <div class="d-flex flex-wrap gap-3 items-center">
+        <% if (report.city) { %><span class="text-muted">📍 <%= report.city %></span><% } %>
+        <span class="text-muted">📅 <%= new Date(report.created_at).toLocaleDateString() %></span>
+        <span class="badge"><%= properties.length %> <%= lang === 'en' ? 'properties' : 'ingatlan' %></span>
+        <a href="/property-finder/report/<%= report.id %>/pdf" class="btn btn-sm btn-accent">📥 <%= lang === 'en' ? 'Download PDF' : 'PDF letöltés' %></a>
+      </div>
+    </div>
+
+    <!-- City Overview -->
+    <% if (cityInfo) { %>
+    <section class="pf-section mb-6">
+      <div class="card">
+        <div class="card__header">
+          <h3 class="card__title">🏙️ <%= cityInfo.city_name %> — <%= lang === 'en' ? 'City Overview' : 'Városi áttekintés' %></h3>
+        </div>
+        <div class="card__body">
+          <div class="grid grid-3 gap-3 mb-4">
+            <% if (cityInfo.population) { %>
+            <div class="pf-stat-card">
+              <div class="pf-stat-card__value"><%= Number(cityInfo.population).toLocaleString() %></div>
+              <div class="pf-stat-card__label">👥 <%= lang === 'en' ? 'Population' : 'Lakosság' %></div>
+            </div>
+            <% } %>
+            <% if (cityInfo.avg_price) { %>
+            <div class="pf-stat-card">
+              <div class="pf-stat-card__value"><%= (cityInfo.avg_price / 1000000).toFixed(1) %> M Ft</div>
+              <div class="pf-stat-card__label">📊 <%= lang === 'en' ? 'Avg Price' : 'Átlagár' %></div>
+            </div>
+            <% } %>
+            <% if (cityInfo.median_price) { %>
+            <div class="pf-stat-card">
+              <div class="pf-stat-card__value"><%= (cityInfo.median_price / 1000000).toFixed(1) %> M Ft</div>
+              <div class="pf-stat-card__label">📈 <%= lang === 'en' ? 'Median' : 'Medián' %></div>
+            </div>
+            <% } %>
+          </div>
+          <div class="grid grid-2 gap-3">
+            <% if (cityInfo.security_info) { %><div><strong>🛡️ <%= lang === 'en' ? 'Security' : 'Biztonság' %>:</strong> <%= cityInfo.security_info %></div><% } %>
+            <% if (cityInfo.infrastructure) { %><div><strong>🏗️ <%= lang === 'en' ? 'Infrastructure' : 'Infrastruktúra' %>:</strong> <%= cityInfo.infrastructure %></div><% } %>
+            <% if (cityInfo.gdp_info) { %><div><strong>💰 GDP:</strong> <%= cityInfo.gdp_info %></div><% } %>
+            <% if (cityInfo.current_mayor) { %><div><strong>🏛️ <%= lang === 'en' ? 'Mayor' : 'Polgármester' %>:</strong> <%= cityInfo.current_mayor %></div><% } %>
+          </div>
+          <% if (cityInfo.general_info) { %>
+            <p class="mt-3"><%= cityInfo.general_info %></p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <!-- Market Stats -->
+    <% if (reportData.priceStats) { %>
+    <section class="pf-section mb-6">
+      <h3 class="mb-3">📊 <%= lang === 'en' ? 'Market Overview' : 'Piaci áttekintés' %></h3>
+      <div class="pf-stats-grid">
+        <div class="pf-stat-card"><div class="pf-stat-card__value"><%= properties.length %></div><div class="pf-stat-card__label"><%= lang === 'en' ? 'Properties' : 'Ingatlanok' %></div></div>
+        <div class="pf-stat-card"><div class="pf-stat-card__value"><%= (reportData.priceStats.avg / 1000000).toFixed(1) %> M</div><div class="pf-stat-card__label"><%= lang === 'en' ? 'Average' : 'Átlag' %></div></div>
+        <div class="pf-stat-card"><div class="pf-stat-card__value"><%= (reportData.priceStats.median / 1000000).toFixed(1) %> M</div><div class="pf-stat-card__label"><%= lang === 'en' ? 'Median' : 'Medián' %></div></div>
+        <div class="pf-stat-card"><div class="pf-stat-card__value"><%= (reportData.priceStats.min / 1000000).toFixed(1) %>-<%= (reportData.priceStats.max / 1000000).toFixed(1) %> M</div><div class="pf-stat-card__label"><%= lang === 'en' ? 'Range' : 'Tartomány' %></div></div>
+      </div>
+    </section>
+    <% } %>
+
+    <!-- Comparison Table -->
+    <% if (properties.length > 0) { %>
+    <section class="pf-section mb-6">
+      <h3 class="mb-3">📋 <%= lang === 'en' ? 'Property Comparison' : 'Ingatlan összehasonlítás' %></h3>
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table--striped">
+            <thead>
+              <tr>
+                <th><%= lang === 'en' ? 'Property' : 'Ingatlan' %></th>
+                <th><%= lang === 'en' ? 'Price' : 'Ár' %></th>
+                <th><%= lang === 'en' ? 'Size' : 'Méret' %></th>
+                <th><%= lang === 'en' ? 'Rooms' : 'Szobák' %></th>
+                <th><%= lang === 'en' ? 'Price/m²' : 'Ár/m²' %></th>
+                <th><%= lang === 'en' ? 'Condition' : 'Állapot' %></th>
+                <th><%= lang === 'en' ? 'Score' : 'Pont' %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% properties.forEach(function(prop) { %>
+                <% var analysis = prop.llmAnalysis || {}; %>
+                <tr>
+                  <td>
+                    <a href="/property-finder/property/<%= prop.id %>" class="text-primary font-bold">
+                      <%= (prop.title || 'Property').substring(0, 40) %>
+                    </a>
+                    <% if (prop.location) { %><br><small class="text-muted"><%= prop.location %></small><% } %>
+                  </td>
+                  <td class="font-bold"><%= prop.price ? (prop.price / 1000000).toFixed(1) + ' M Ft' : '—' %></td>
+                  <td><%= prop.size_sqm ? prop.size_sqm + ' m²' : '—' %></td>
+                  <td><%= prop.rooms || '—' %></td>
+                  <td><%= (prop.price && prop.size_sqm) ? Math.round(prop.price / prop.size_sqm).toLocaleString() + ' Ft' : '—' %></td>
+                  <td>
+                    <% if (analysis.condition) { %>
+                      <span class="badge badge--<%= analysis.condition === 'excellent' || analysis.condition === 'good' ? 'success' : analysis.condition === 'fair' ? 'warning' : 'danger' %>"><%= analysis.condition %></span>
+                    <% } else { %>—<% } %>
+                  </td>
+                  <td>
+                    <% if (analysis.investmentScore) { %>
+                      <strong><%= analysis.investmentScore %>/10</strong>
+                    <% } else { %>—<% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Individual Property Cards -->
+    <section class="pf-section mb-6">
+      <h3 class="mb-3">🏠 <%= lang === 'en' ? 'Detailed Reports' : 'Részletes jelentések' %></h3>
+      <% properties.forEach(function(prop) { %>
+        <% var analysis = prop.llmAnalysis || {}; %>
+        <div class="card mb-4">
+          <div class="card__header">
+            <h4 class="card__title"><%= prop.title || 'Property' %></h4>
+          </div>
+          <div class="card__body">
+            <div class="grid grid-2 gap-4">
+              <!-- Images -->
+              <div>
+                <% if (prop.imageUrls && prop.imageUrls.length > 0) { %>
+                  <div class="pf-gallery pf-gallery--small">
+                    <% prop.imageUrls.slice(0, 4).forEach(function(img) { %>
+                      <img src="<%= img %>" alt="" loading="lazy" class="pf-gallery__thumb"
+                           onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'" />
+                    <% }); %>
+                  </div>
+                <% } %>
+                <div class="mt-3">
+                  <% if (prop.price) { %><p>💰 <strong><%= Number(prop.price).toLocaleString() %> Ft</strong></p><% } %>
+                  <% if (prop.location) { %><p class="text-sm">📍 <%= prop.location %></p><% } %>
+                  <% if (prop.size_sqm) { %><p class="text-sm">📐 <%= prop.size_sqm %> m²</p><% } %>
+                  <% if (prop.rooms) { %><p class="text-sm">🛏️ <%= prop.rooms %> <%= lang === 'en' ? 'rooms' : 'szoba' %></p><% } %>
+                </div>
+              </div>
+              <!-- Analysis -->
+              <div>
+                <% if (analysis.summary) { %>
+                  <p class="mb-2"><%= analysis.summary %></p>
+                  <% if (analysis.recommendation) { %><p class="font-bold mb-2">💡 <%= analysis.recommendation %></p><% } %>
+                  <% if (analysis.pros && analysis.pros.length > 0) { %>
+                    <h5 class="text-sm">✅ <%= lang === 'en' ? 'Pros' : 'Előnyök' %></h5>
+                    <ul class="text-sm"><% analysis.pros.forEach(function(p) { %><li><%= p %></li><% }); %></ul>
+                  <% } %>
+                  <% if (analysis.cons && analysis.cons.length > 0) { %>
+                    <h5 class="text-sm">⚠️ <%= lang === 'en' ? 'Cons' : 'Hátrányok' %></h5>
+                    <ul class="text-sm"><% analysis.cons.forEach(function(c) { %><li><%= c %></li><% }); %></ul>
+                  <% } %>
+                <% } else { %>
+                  <p class="text-muted"><%= lang === 'en' ? 'No analysis available.' : 'Nincs elérhető elemzés.' %></p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </section>
+    <% } %>
+
+    <!-- Actions -->
+    <div class="d-flex gap-3 mb-6">
+      <a href="/property-finder" class="btn btn-secondary">&larr; <%= lang === 'en' ? 'Back' : 'Vissza' %></a>
+      <a href="/property-finder/report/<%= report.id %>/pdf" class="btn btn-accent">📥 <%= lang === 'en' ? 'Download PDF' : 'PDF letöltés' %></a>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+</body>
+</html>

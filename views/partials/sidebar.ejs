@@ -13,6 +13,9 @@
     <a href="/quiz" class="nav__link<%= cp.startsWith('/quiz') ? ' is-active' : '' %>">
       <span class="nav__link-icon">📋</span> <%= t.quiz %>
     </a>
+    <a href="/property-finder" class="nav__link<%= cp.startsWith('/property-finder') ? ' is-active' : '' %>">
+      <span class="nav__link-icon">🔍</span> <%= t.property_finder %>
+    </a>
 
     <div class="nav__section-title"><%= lang === 'en' ? 'Calculators' : 'Kalkulátorok' %></div>
     <a href="/calculators/energy" class="nav__link<%= cp === '/calculators/energy' ? ' is-active' : '' %>">

@@ -48,7 +48,7 @@ app.use((req, res, next) => {
     estimated_cost: 'Estimated Cost', impact: 'Impact',
     value_increasing: 'Value Increasing', value_decreasing: 'Value Decreasing',
     strong_value_decreasing: 'Strongly Decreasing', neutral: 'Neutral',
-    app_title: 'House Hunt Helper', tagline: 'Professional House Inspection Tool',
+    app_title: 'House Hunt', tagline: 'Professional House Inspection Tool',
     select_option: 'Select an option', skip: 'Skip', answered: 'answered',
     not_started: 'Not started', completed: 'Completed', in_progress: 'In Progress',
     house_details: 'House Details', inspection_progress: 'Inspection Progress',
@@ -69,7 +69,8 @@ app.use((req, res, next) => {
     analyze: 'Analyze', provider: 'Provider', endpoint: 'Endpoint',
     model: 'Model', api_key: 'API Key',
     total: 'Total', monthly: 'Monthly', yearly: 'Yearly', daily: 'Daily',
-    add_row: 'Add Row', remove_row: 'Remove Row'
+    add_row: 'Add Row', remove_row: 'Remove Row',
+    property_finder: 'Property Finder'
   } : {
     home: 'Főoldal', quiz: 'Szemle kérdőív', admin: 'Admin', houses: 'Házak',
     new_house: 'Új ház', score: 'Pontszám', results: 'Eredmények', save: 'Mentés',
@@ -85,7 +86,7 @@ app.use((req, res, next) => {
     estimated_cost: 'Becsült költség', impact: 'Hatás',
     value_increasing: 'Értéknövelő', value_decreasing: 'Értékcsökkentő',
     strong_value_decreasing: 'Erősen csökkentő', neutral: 'Semleges',
-    app_title: 'House Hunt Helper', tagline: 'Professzionális ingatlan szemle eszköz',
+    app_title: 'House Hunt', tagline: 'Professzionális ingatlan szemle eszköz',
     select_option: 'Válassz egy opciót', skip: 'Kihagyás', answered: 'megválaszolva',
     not_started: 'Nem kezdődött el', completed: 'Befejezve', in_progress: 'Folyamatban',
     house_details: 'Ház részletei', inspection_progress: 'Szemle haladás',
@@ -106,7 +107,8 @@ app.use((req, res, next) => {
     analyze: 'Elemzés', provider: 'Szolgáltató', endpoint: 'Végpont',
     model: 'Modell', api_key: 'API kulcs',
     total: 'Összesen', monthly: 'Havi', yearly: 'Éves', daily: 'Napi',
-    add_row: 'Sor hozzáadása', remove_row: 'Sor törlése'
+    add_row: 'Sor hozzáadása', remove_row: 'Sor törlése',
+    property_finder: 'Ingatlan Kereső'
   };
   next();
 });
@@ -117,6 +119,7 @@ app.use('/quiz', require('./src/routes/quiz'));
 app.use('/admin', require('./src/routes/admin'));
 app.use('/api', require('./src/routes/api'));
 app.use('/calculators', require('./src/routes/calculators'));
+app.use('/property-finder', require('./src/routes/property-finder'));
 
 // Convenience routes that delegate to admin router handlers
 app.get('/export', (req, res, next) => {
@@ -129,7 +132,7 @@ app.get('/ai', (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`House Hunt Helper running at http://localhost:${PORT}`);
+  console.log(`House Hunt running at http://localhost:${PORT}`);
 });
 
 module.exports = app;
