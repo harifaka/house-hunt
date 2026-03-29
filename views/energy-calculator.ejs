@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <h1 class="mb-2">⚡ <%= t.energy_calculator %></h1>
+    <p class="text-muted mb-6"><%= lang === 'en' ? 'Calculate energy consumption and costs for your home' : 'Számítsd ki otthonod energiafogyasztását és költségeit' %></p>
+
+    <!-- Defaults / Parameters -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Parameters' : 'Paraméterek' %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-3">
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Default Duty Cycle %' : 'Alapértelmezett üzemidő %' %></label>
+            <input type="range" id="default-duty" min="0" max="100" value="100" class="form-control" style="padding:0;">
+            <span class="text-sm text-muted" id="duty-display">100%</span>
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Electricity Price / kWh' : 'Áram ára / kWh' %></label>
+            <input type="number" id="elec-price" class="form-control" value="68" step="0.1" min="0">
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Currency' : 'Pénznem' %></label>
+            <select id="currency" class="form-control">
+              <option value="HUF" selected>HUF</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="mb-4">
+      <label class="form-label"><%= lang === 'en' ? 'Load Preset' : 'Sablon betöltése' %></label>
+      <select id="preset-select" class="form-control" style="max-width:320px;display:inline-block;">
+        <option value=""><%= lang === 'en' ? '— Select preset —' : '— Válassz sablont —' %></option>
+        <option value="3bed"><%= lang === 'en' ? 'Typical 3-Bedroom House' : 'Tipikus 3 szobás ház' %></option>
+        <option value="studio"><%= lang === 'en' ? 'Studio Apartment' : 'Garzonlakás' %></option>
+      </select>
+    </div>
+
+    <!-- Appliance Table -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Lights & Appliances' : 'Világítás és készülékek' %></h3>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-accent" id="add-row">➕ <%= t.add_row %></button>
+          <button type="button" class="btn btn-sm btn-outline" id="remove-row">➖ <%= t.remove_row %></button>
+        </div>
+      </div>
+      <div class="card__body" style="overflow-x:auto;">
+        <table class="table" id="energy-table">
+          <thead>
+            <tr>
+              <th><%= lang === 'en' ? 'Name / Description' : 'Név / Leírás' %></th>
+              <th><%= t.wattage %> (W)</th>
+              <th><%= lang === 'en' ? 'Qty' : 'Db' %></th>
+              <th><%= t.duty_cycle %> (%)</th>
+              <th><%= t.daily_hours %> (h)</th>
+              <th><%= t.daily %> kWh</th>
+              <th><%= t.monthly %> kWh</th>
+            </tr>
+          </thead>
+          <tbody id="energy-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Summary' : 'Összesítés' %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-3">
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="sum-daily">0</div>
+              <div class="card__stat-label"><%= t.daily %> kWh</div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="sum-monthly">0</div>
+              <div class="card__stat-label"><%= t.monthly %> kWh</div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="sum-yearly">0</div>
+              <div class="card__stat-label"><%= t.yearly %> kWh</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-2 mt-4">
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="cost-monthly">0</div>
+              <div class="card__stat-label"><%= t.monthly %> <%= t.cost %></div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="cost-yearly">0</div>
+              <div class="card__stat-label"><%= t.yearly %> <%= t.cost %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-3 mb-6">
+      <button type="button" class="btn btn-primary" id="export-results">📤 <%= lang === 'en' ? 'Export Results' : 'Eredmények exportálása' %></button>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+(function() {
+  var defaultDuty = document.getElementById('default-duty');
+  var dutyDisplay = document.getElementById('duty-display');
+  var elecPrice = document.getElementById('elec-price');
+  var currency = document.getElementById('currency');
+  var tbody = document.getElementById('energy-tbody');
+  var presetSelect = document.getElementById('preset-select');
+
+  var presets = {
+    '3bed': [
+      { name: '<%= lang === "en" ? "LED Ceiling lights" : "LED mennyezeti lámpa" %>', wattage: 12, qty: 8, duty: 100, hours: 5 },
+      { name: '<%= lang === "en" ? "Refrigerator" : "Hűtőszekrény" %>', wattage: 150, qty: 1, duty: 40, hours: 24 },
+      { name: '<%= lang === "en" ? "Washing Machine" : "Mosógép" %>', wattage: 500, qty: 1, duty: 50, hours: 1 },
+      { name: '<%= lang === "en" ? "TV" : "Televízió" %>', wattage: 100, qty: 2, duty: 100, hours: 4 },
+      { name: '<%= lang === "en" ? "Oven" : "Sütő" %>', wattage: 2000, qty: 1, duty: 50, hours: 1 },
+      { name: '<%= lang === "en" ? "Computer" : "Számítógép" %>', wattage: 200, qty: 1, duty: 80, hours: 6 },
+      { name: '<%= lang === "en" ? "Water heater" : "Vízmelegítő" %>', wattage: 2000, qty: 1, duty: 30, hours: 3 },
+      { name: 'Router/WiFi', wattage: 12, qty: 1, duty: 100, hours: 24 }
+    ],
+    'studio': [
+      { name: '<%= lang === "en" ? "LED lights" : "LED lámpa" %>', wattage: 10, qty: 4, duty: 100, hours: 5 },
+      { name: '<%= lang === "en" ? "Refrigerator" : "Hűtőszekrény" %>', wattage: 120, qty: 1, duty: 40, hours: 24 },
+      { name: '<%= lang === "en" ? "Laptop" : "Laptop" %>', wattage: 65, qty: 1, duty: 80, hours: 6 },
+      { name: '<%= lang === "en" ? "Microwave" : "Mikrohullámú sütő" %>', wattage: 800, qty: 1, duty: 50, hours: 0.3 }
+    ]
+  };
+
+  defaultDuty.addEventListener('input', function() {
+    dutyDisplay.textContent = this.value + '%';
+  });
+
+  function createRow(data) {
+    var d = data || {};
+    var duty = d.duty !== undefined ? d.duty : parseInt(defaultDuty.value);
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" class="form-control" data-field="name" value="' + (d.name || '') + '"></td>' +
+      '<td><input type="number" class="form-control" data-field="wattage" min="0" step="1" value="' + (d.wattage || 0) + '" style="width:90px"></td>' +
+      '<td><input type="number" class="form-control" data-field="qty" min="1" step="1" value="' + (d.qty || 1) + '" style="width:70px"></td>' +
+      '<td><input type="number" class="form-control" data-field="duty" min="0" max="100" step="1" value="' + duty + '" style="width:80px"></td>' +
+      '<td><input type="number" class="form-control" data-field="hours" min="0" max="24" step="0.1" value="' + (d.hours || 0) + '" style="width:80px"></td>' +
+      '<td class="daily-kwh text-right font-bold">0</td>' +
+      '<td class="monthly-kwh text-right font-bold">0</td>';
+    tbody.appendChild(tr);
+    tr.querySelectorAll('input').forEach(function(inp) {
+      inp.addEventListener('input', recalculate);
+    });
+    recalculate();
+  }
+
+  function recalculate() {
+    var totalDaily = 0;
+    var rows = tbody.querySelectorAll('tr');
+    rows.forEach(function(tr) {
+      var w = parseFloat(tr.querySelector('[data-field="wattage"]').value) || 0;
+      var q = parseFloat(tr.querySelector('[data-field="qty"]').value) || 0;
+      var d = parseFloat(tr.querySelector('[data-field="duty"]').value) || 0;
+      var h = parseFloat(tr.querySelector('[data-field="hours"]').value) || 0;
+      var dailyKwh = (w * q * (d / 100) * h) / 1000;
+      tr.querySelector('.daily-kwh').textContent = dailyKwh.toFixed(3);
+      tr.querySelector('.monthly-kwh').textContent = (dailyKwh * 30).toFixed(2);
+      totalDaily += dailyKwh;
+    });
+
+    var monthlyKwh = totalDaily * 30;
+    var yearlyKwh = totalDaily * 365;
+    var price = parseFloat(elecPrice.value) || 0;
+    var cur = currency.value;
+
+    document.getElementById('sum-daily').textContent = totalDaily.toFixed(3);
+    document.getElementById('sum-monthly').textContent = monthlyKwh.toFixed(1);
+    document.getElementById('sum-yearly').textContent = yearlyKwh.toFixed(0);
+    document.getElementById('cost-monthly').textContent = Math.round(monthlyKwh * price).toLocaleString() + ' ' + cur;
+    document.getElementById('cost-yearly').textContent = Math.round(yearlyKwh * price).toLocaleString() + ' ' + cur;
+  }
+
+  document.getElementById('add-row').addEventListener('click', function() { createRow(); });
+  document.getElementById('remove-row').addEventListener('click', function() {
+    var rows = tbody.querySelectorAll('tr');
+    if (rows.length > 0) { tbody.removeChild(rows[rows.length - 1]); recalculate(); }
+  });
+
+  elecPrice.addEventListener('input', recalculate);
+  currency.addEventListener('change', recalculate);
+
+  presetSelect.addEventListener('change', function() {
+    if (!this.value) return;
+    tbody.innerHTML = '';
+    var items = presets[this.value] || [];
+    items.forEach(function(item) { createRow(item); });
+  });
+
+  document.getElementById('export-results').addEventListener('click', function() {
+    var rows = tbody.querySelectorAll('tr');
+    var lines = ['Name,Wattage(W),Qty,DutyCycle%,DailyHours,DailykWh,MonthlykWh'];
+    rows.forEach(function(tr) {
+      var name = tr.querySelector('[data-field="name"]').value;
+      var w = tr.querySelector('[data-field="wattage"]').value;
+      var q = tr.querySelector('[data-field="qty"]').value;
+      var d = tr.querySelector('[data-field="duty"]').value;
+      var h = tr.querySelector('[data-field="hours"]').value;
+      var dk = tr.querySelector('.daily-kwh').textContent;
+      var mk = tr.querySelector('.monthly-kwh').textContent;
+      lines.push(['"' + name.replace(/"/g, '""') + '"', w, q, d, h, dk, mk].join(','));
+    });
+    var blob = new Blob([lines.join('\r\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'energy_calculation.csv';
+    a.click();
+  });
+
+  // Initialize with one empty row
+  createRow();
+})();
+</script>
+</body>
+</html>
