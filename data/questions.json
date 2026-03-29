@@ -1,0 +1,5720 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "title": {
+      "hu": "Professzionális házvásárlási ellenőrző lista",
+      "en": "Professional House Buying Inspection Checklist"
+    },
+    "description": {
+      "hu": "Átfogó kérdéssor ingatlan állapotfelméréshez",
+      "en": "Comprehensive questionnaire for property condition assessment"
+    },
+    "languages": [
+      "hu",
+      "en"
+    ],
+    "defaultLanguage": "hu"
+  },
+  "groups": [
+    {
+      "id": "lot_environment",
+      "name": {
+        "hu": "Telek & környezet",
+        "en": "Lot & Environment"
+      },
+      "weight": 7,
+      "questions": [
+        {
+          "id": "q1",
+          "text": {
+            "hu": "Telekméret és határvonalak",
+            "en": "Lot size and boundaries"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q1_a",
+              "text": {
+                "hu": "Telekméret megegyezik a tulajdoni lappal",
+                "en": "Lot size matches the title deed"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q1_b",
+              "text": {
+                "hu": "Telekméret kisebb/eltér",
+                "en": "Lot size is smaller/differs from records"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "jogi rendezes 50k–300k"
+            },
+            {
+              "id": "q1_c",
+              "text": {
+                "hu": "Határvitás/kerítés hiány/eltérés",
+                "en": "Boundary disputes/fence missing/discrepancy"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "kerítes/jogi ügy 100k–600k"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "text": {
+            "hu": "Megközelíthetőség, út minősége",
+            "en": "Accessibility and road quality"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q2_a",
+              "text": {
+                "hu": "Aszfaltos út, jó megközelíthetőség",
+                "en": "Paved road, good accessibility"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q2_b",
+              "text": {
+                "hu": "Murvás/rossz állapotú út, nehéz megközelítés",
+                "en": "Gravel/poor road, difficult access"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "útjavítás 200k–1M"
+            },
+            {
+              "id": "q2_c",
+              "text": {
+                "hu": "Zárt út/közlekedési korlátozás",
+                "en": "Closed road/traffic restrictions"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "text": {
+            "hu": "Parkolás / garázs elérhetőség",
+            "en": "Parking / garage availability"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q3_a",
+              "text": {
+                "hu": "Garázs + udvari fedett parkoló",
+                "en": "Garage + covered yard parking"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q3_b",
+              "text": {
+                "hu": "Csak utcai parkolás, korlátozott hely",
+                "en": "Street parking only, limited space"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "parkoló kiepítese 200k–1M"
+            },
+            {
+              "id": "q3_c",
+              "text": {
+                "hu": "Beállás pincébe vagy belső udvarba lehetséges",
+                "en": "Basement or inner courtyard parking possible"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "text": {
+            "hu": "Környék zaj- és levegőviszonyok",
+            "en": "Neighborhood noise and air quality"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q4_a",
+              "text": {
+                "hu": "Csendes, zöldövezet",
+                "en": "Quiet, green area"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q4_b",
+              "text": {
+                "hu": "Forgalmi/zajterhelés közel (főút, ipar)",
+                "en": "Traffic/noise pollution nearby (main road, industry)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "zajvedőfal/ablak 200k+"
+            },
+            {
+              "id": "q4_c",
+              "text": {
+                "hu": "Ipari jelleg, szagok, por",
+                "en": "Industrial character, odors, dust"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "text": {
+            "hu": "Szolgáltatások és ellátottság (bolt, iskola, orvos)",
+            "en": "Services and amenities (shops, schools, doctor)"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q5_a",
+              "text": {
+                "hu": "Közeli szolgáltatások (5–10 perc)",
+                "en": "Nearby services (5-10 min)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q5_b",
+              "text": {
+                "hu": "Távolabb, gyenge ellátottság",
+                "en": "Far away, poor amenities"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q5_c",
+              "text": {
+                "hu": "Tömegközlekedés elérhetősége gyenge",
+                "en": "Poor public transport access"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "text": {
+            "hu": "Telek lejtése és vízelvezetés",
+            "en": "Terrain slope and drainage"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q6_a",
+              "text": {
+                "hu": "Síkság / enyhe lejtés, jó elvezetés",
+                "en": "Flat / gentle slope, good drainage"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q6_b",
+              "text": {
+                "hu": "Meredek lejtő vagy rossz csapadék-elvezetés",
+                "en": "Steep slope or poor rainwater drainage"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "tereprendezes / támfal 200k–2M"
+            },
+            {
+              "id": "q6_c",
+              "text": {
+                "hu": "Látható talajerózió, vízgyűjtő pontok",
+                "en": "Visible soil erosion, water collection points"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "jelentős beavatkozás 500k+"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "text": {
+            "hu": "Telek beültetettsége, fák, növényzet",
+            "en": "Vegetation, trees, landscaping"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q7_a",
+              "text": {
+                "hu": "Rendezetten karbantartott kert",
+                "en": "Well-maintained garden"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q7_b",
+              "text": {
+                "hu": "Nagy fák kockázattal (gyökérzet, lehullás)",
+                "en": "Large trees with risk (root system, falling)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "fa eltávolítás 50k+"
+            },
+            {
+              "id": "q7_c",
+              "text": {
+                "hu": "Ültetési lehetőség/szabad terület",
+                "en": "Planting opportunity/open space"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "text": {
+            "hu": "Kerítés és kapu állapota",
+            "en": "Fence and gate condition"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q8_a",
+              "text": {
+                "hu": "Szilárd, jó állapotú kerítés és működő kapu",
+                "en": "Solid, good condition fence and working gate"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q8_b",
+              "text": {
+                "hu": "Sérült/hiányos kerítés, nem zárható kapu",
+                "en": "Damaged/incomplete fence, gate won't lock"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás/epítes 200k–800k"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "text": {
+            "hu": "Telek közmű-csatlakozások a bejáratnál",
+            "en": "Utility connections at the property boundary"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q9_a",
+              "text": {
+                "hu": "Minden közmű (víz, gáz, villany) a telekhatáron",
+                "en": "All utilities (water, gas, electricity) at property line"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q9_b",
+              "text": {
+                "hu": "Közmű hiány (pl. csatorna)",
+                "en": "Missing utility (e.g., sewage)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csatornacsatlakozás 500k–2M"
+            }
+          ]
+        },
+        {
+          "id": "q10",
+          "text": {
+            "hu": "Közbiztonság és közterületi állapot",
+            "en": "Public safety and street conditions"
+          },
+          "tags": [
+            "lot",
+            "environment"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q10_a",
+              "text": {
+                "hu": "Rendezet környezet, jó közbiztonság",
+                "en": "Orderly environment, good public safety"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q10_b",
+              "text": {
+                "hu": "Gyenge világítás, rongálások, bűnözési jelenségek",
+                "en": "Poor lighting, vandalism, crime signs"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "világítás/kerítes 100k+"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exterior_structure",
+      "name": {
+        "hu": "Külső épületszerkezet és homlokzat",
+        "en": "Exterior Structure & Facade"
+      },
+      "weight": 11,
+      "questions": [
+        {
+          "id": "q11",
+          "text": {
+            "hu": "Alapozás és lábazat látható állapota",
+            "en": "Foundation and plinth visible condition"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q11_a",
+              "text": {
+                "hu": "Látható repedésmentes, száraz",
+                "en": "Visibly crack-free, dry"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q11_b",
+              "text": {
+                "hu": "Repedések / nedvességnyomok a lábazaton",
+                "en": "Cracks / moisture marks on plinth"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "lábazat javítás/szigeteles 200k–1M"
+            },
+            {
+              "id": "q11_c",
+              "text": {
+                "hu": "Süllyedés vagy erős repedés",
+                "en": "Subsidence or severe cracking"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "statikai beavatkozás tobb M Ft"
+            }
+          ]
+        },
+        {
+          "id": "q12",
+          "text": {
+            "hu": "Külső falazat típusa",
+            "en": "Exterior wall type"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q12_a",
+              "text": {
+                "hu": "Tömör tégla / jó minőségű fal",
+                "en": "Solid brick / good quality wall"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q12_b",
+              "text": {
+                "hu": "Porotherm / középfalazat",
+                "en": "Porotherm / medium-grade masonry"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q12_c",
+              "text": {
+                "hu": "Vegyes / gyenge anyag (pl. gyorsépítési technológiák)",
+                "en": "Mixed / weak material (e.g., rapid construction)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "hőszigeteles/felújítás 300k+"
+            }
+          ]
+        },
+        {
+          "id": "q13",
+          "text": {
+            "hu": "Homlokzati vakolat és festés",
+            "en": "Facade plaster and paint"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q13_a",
+              "text": {
+                "hu": "Jó állapotú vakolat és festés",
+                "en": "Good condition plaster and paint"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q13_b",
+              "text": {
+                "hu": "Repedezett, leváló vakolat",
+                "en": "Cracked, peeling plaster"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás/festes 100k–400k"
+            },
+            {
+              "id": "q13_c",
+              "text": {
+                "hu": "Penész/szakadás jelei",
+                "en": "Mold/tear signs"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "nedvesseg forrás megszüntetese + javítás 200k+"
+            }
+          ]
+        },
+        {
+          "id": "q14",
+          "text": {
+            "hu": "Külső szigetelés megléte és rögzítése",
+            "en": "External insulation presence and fixing"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q14_a",
+              "text": {
+                "hu": "Szigetelés van, rendben rögzített",
+                "en": "Insulation present, properly fixed"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q14_b",
+              "text": {
+                "hu": "Szigetelés van, de ragasztás/kapcsok gyengék, hullámos",
+                "en": "Insulation present but adhesion/clips weak, wavy"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "reszjavítás 100k–400k"
+            },
+            {
+              "id": "q14_c",
+              "text": {
+                "hu": "Nincs külső szigetelés",
+                "en": "No external insulation"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "teljes szigeteles 500k–1,5M"
+            }
+          ]
+        },
+        {
+          "id": "q15",
+          "text": {
+            "hu": "Homlokzati elemek (erkély, erkélykorlát)",
+            "en": "Facade elements (balcony, railing)"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q15_a",
+              "text": {
+                "hu": "Stabil, karbantartott erkély/korlát",
+                "en": "Stable, maintained balcony/railing"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q15_b",
+              "text": {
+                "hu": "Rozsda/repedés, laza korlát",
+                "en": "Rust/cracking, loose railing"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            },
+            {
+              "id": "q15_c",
+              "text": {
+                "hu": "Vízszigetelés hiánya erkély alatt",
+                "en": "Missing waterproofing under balcony"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szigeteles 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q16",
+          "text": {
+            "hu": "Homlokzati kiegészítők (napellenző, spaletta, árnyékoló)",
+            "en": "Facade accessories (awning, shutters)"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q16_a",
+              "text": {
+                "hu": "Megfelelő, működő árnyékolók",
+                "en": "Adequate, working shading devices"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q16_b",
+              "text": {
+                "hu": "Hiányos vagy rossz állapotú árnyékolók",
+                "en": "Missing or poor condition shading"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q17",
+          "text": {
+            "hu": "Külső csatornarendszer / eresz",
+            "en": "External gutter system / eaves"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q17_a",
+              "text": {
+                "hu": "Eresz és lefolyók tiszták, jó lejtés",
+                "en": "Gutters and drains clean, good slope"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q17_b",
+              "text": {
+                "hu": "Dugulás, leszakadt eresz, hiányzó lefolyó",
+                "en": "Blockage, torn gutter, missing drain"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 20k–150k"
+            }
+          ]
+        },
+        {
+          "id": "q18",
+          "text": {
+            "hu": "Homlokzati nyílások (szellőzők, beépített kéményfedél)",
+            "en": "Facade openings (vents, chimney caps)"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q18_a",
+              "text": {
+                "hu": "Minden nyílás felszerelt, rágcsálóvédett",
+                "en": "All openings fitted, rodent-proof"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q18_b",
+              "text": {
+                "hu": "Hiányos szellőzés, rágcsálók bejutása lehetséges",
+                "en": "Inadequate ventilation, rodent entry possible"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szellőzes/javítás 20k–100k"
+            }
+          ]
+        },
+        {
+          "id": "q19",
+          "text": {
+            "hu": "Külső burkolatok (lépcsők, járda)",
+            "en": "External surfaces (stairs, walkways)"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q19_a",
+              "text": {
+                "hu": "Járda és lépcsők egyben, balesetmentesek",
+                "en": "Walkways and stairs intact, accident-free"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q19_b",
+              "text": {
+                "hu": "Repedések, süllyedés, csúszós felület",
+                "en": "Cracks, settling, slippery surface"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q20",
+          "text": {
+            "hu": "Külső világítás és elektromos csatlakozások",
+            "en": "External lighting and electrical connections"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q20_a",
+              "text": {
+                "hu": "Kívül világítás, kerti dugaljak rendben",
+                "en": "Outdoor lighting, garden outlets working"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q20_b",
+              "text": {
+                "hu": "Világítás hiányos vagy nem működik",
+                "en": "Lighting missing or not working"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–100k"
+            }
+          ]
+        },
+        {
+          "id": "q21",
+          "text": {
+            "hu": "Külső festési / esztétikai állapot",
+            "en": "Exterior painting / aesthetic condition"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q21_a",
+              "text": {
+                "hu": "Friss festés, egyenletes megjelenés",
+                "en": "Fresh paint, uniform appearance"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q21_b",
+              "text": {
+                "hu": "Elhasznált, foltos, elavult homlokzat",
+                "en": "Worn, stained, outdated facade"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q22",
+          "text": {
+            "hu": "Homlokzaton látható beázások, sókivirágzás",
+            "en": "Facade water damage and efflorescence"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q22_a",
+              "text": {
+                "hu": "Nincs jele a beázásnak vagy sókivirágzásnak",
+                "en": "No signs of water damage or efflorescence"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q22_b",
+              "text": {
+                "hu": "Sókivirágzás, vizes foltok",
+                "en": "Efflorescence, water stains"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "ok feltárása + javítás 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q23",
+          "text": {
+            "hu": "Hőképek / látható hőhidak (ha van gyors vizsgálat)",
+            "en": "Thermal images / visible thermal bridges"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q23_a",
+              "text": {
+                "hu": "Nincsenek feltűnő hőhidak",
+                "en": "No noticeable thermal bridges"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q23_b",
+              "text": {
+                "hu": "Hőhidak a csatlakozásoknál/ablakonál",
+                "en": "Thermal bridges at connections/windows"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szigeteles javítása 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q24",
+          "text": {
+            "hu": "Homlokzat biztonsági problémák (pl. laza díszítőelem)",
+            "en": "Facade safety issues (loose elements)"
+          },
+          "tags": [
+            "exterior",
+            "structure"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q24_a",
+              "text": {
+                "hu": "Minden elem stabil",
+                "en": "All elements stable"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q24_b",
+              "text": {
+                "hu": "Laza elemek, veszélyes részek",
+                "en": "Loose elements, hazardous parts"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "rogzítes/eltávolítás 20k–200k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roof_attic",
+      "name": {
+        "hu": "Tető és padlástér",
+        "en": "Roof & Attic"
+      },
+      "weight": 9,
+      "questions": [
+        {
+          "id": "q25",
+          "text": {
+            "hu": "Tetőfedés anyaga",
+            "en": "Roofing material"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q25_a",
+              "text": {
+                "hu": "Cserép (jó állapot)",
+                "en": "Tile (good condition)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q25_b",
+              "text": {
+                "hu": "Cserép (töredezett, részjavítás szükséges)",
+                "en": "Tile (cracked, partial repair needed)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "200k–800k"
+            },
+            {
+              "id": "q25_c",
+              "text": {
+                "hu": "Betoncserép / pala / zsindely / alumínium",
+                "en": "Concrete tile / slate / shingle / aluminum"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "anyagtól függ 200k–2M"
+            }
+          ]
+        },
+        {
+          "id": "q26",
+          "text": {
+            "hu": "Tető korának és várható maradványélettartamának becslése",
+            "en": "Estimated roof age and remaining lifespan"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q26_a",
+              "text": {
+                "hu": "Újszerű / fiatal (>=15 év)",
+                "en": "New / young (>=15 years remaining)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q26_b",
+              "text": {
+                "hu": "Közepes (15–30 év)",
+                "en": "Medium age (15-30 years)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "karbantartás 100k–400k"
+            },
+            {
+              "id": "q26_c",
+              "text": {
+                "hu": "Korszerűtlen / csere szükséges (<30 év maradványélettartam)",
+                "en": "Korszerűtlen / csere szükséges (<30 év maradványélettartam)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "tetőcsere 1–6M"
+            }
+          ]
+        },
+        {
+          "id": "q27",
+          "text": {
+            "hu": "Tetőszerkezet állapota (szarufák, fedélszék)",
+            "en": "Roof structure condition (rafters, trusses)"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q27_a",
+              "text": {
+                "hu": "Szilárd, száraz faelemek",
+                "en": "Solid, dry timber elements"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q27_b",
+              "text": {
+                "hu": "Rot, rovarkár, nedvességnyom",
+                "en": "Rot, insect damage, moisture marks"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szerkezeti javítás 200k–2M"
+            }
+          ]
+        },
+        {
+          "id": "q28",
+          "text": {
+            "hu": "Padlás hőszigetelés és szellőzés",
+            "en": "Attic insulation and ventilation"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q28_a",
+              "text": {
+                "hu": "Megfelelő vastagságú szigetelés és jó szellőzés",
+                "en": "Adequate insulation thickness and good ventilation"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q28_b",
+              "text": {
+                "hu": "Hiányos vagy töredezett szigetelés",
+                "en": "Missing or fragmented insulation"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–400k"
+            },
+            {
+              "id": "q28_c",
+              "text": {
+                "hu": "Szellőzés hiánya / penészesedés",
+                "en": "Lack of ventilation / mold growth"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szellőzes kiepítese 50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q29",
+          "text": {
+            "hu": "Tetőáttörések, kémények, bádogozások állapota",
+            "en": "Roof penetrations, chimneys, flashing condition"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q29_a",
+              "text": {
+                "hu": "Jó tömítés, bádogozás rendben",
+                "en": "Good sealing, flashing in order"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q29_b",
+              "text": {
+                "hu": "Beszivárgásra utaló nyomok a csatlakozásoknál",
+                "en": "Signs of seepage at connections"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            },
+            {
+              "id": "q29_c",
+              "text": {
+                "hu": "Kémény omladozó, bélelés szükséges",
+                "en": "Chimney crumbling, lining needed"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "beleles 100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q30",
+          "text": {
+            "hu": "Tető hozzáférhetősége és biztonsága",
+            "en": "Roof accessibility and safety"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q30_a",
+              "text": {
+                "hu": "Kényelmes hozzáférés, biztonsági elemek",
+                "en": "Comfortable access, safety elements"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q30_b",
+              "text": {
+                "hu": "Nehezen hozzáférhető, hiányzó biztonsági korlátok",
+                "en": "Difficult access, missing safety barriers"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "korlát, járda 50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q31",
+          "text": {
+            "hu": "Tetőn található berendezések (napelem, antenna)",
+            "en": "Roof-mounted equipment (solar panels, antenna)"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q31_a",
+              "text": {
+                "hu": "Napelem / antenna stabilan rögzítve és működik",
+                "en": "Solar panel / antenna securely mounted and working"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q31_b",
+              "text": {
+                "hu": "Rögzítés laza, lehet korrózió",
+                "en": "Mounting loose, possible corrosion"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "rogzítes 20k–100k"
+            }
+          ]
+        },
+        {
+          "id": "q32",
+          "text": {
+            "hu": "Tető vízelvezetése és csapadék elleni védelem",
+            "en": "Roof drainage and rain protection"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q32_a",
+              "text": {
+                "hu": "Jó lejtés, lefolyók működnek",
+                "en": "Good slope, drains working"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q32_b",
+              "text": {
+                "hu": "Pangó víz, hiányzó ereszcsatorna",
+                "en": "Standing water, missing gutter"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csatorna 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q33",
+          "text": {
+            "hu": "Tető rétegrend (vízszigetelés, párazáró)",
+            "en": "Roof layer system (waterproofing, vapor barrier)"
+          },
+          "tags": [
+            "roof",
+            "attic"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q33_a",
+              "text": {
+                "hu": "Megfelelő rétegrend és épség",
+                "en": "Proper layer system and integrity"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q33_b",
+              "text": {
+                "hu": "Hiányos rétegrend, párazáró sérült",
+                "en": "Incomplete layer system, vapor barrier damaged"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 100k–500k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exterior_openings",
+      "name": {
+        "hu": "Külső nyílászárók és bejárat",
+        "en": "Exterior Openings & Entrance"
+      },
+      "weight": 7,
+      "questions": [
+        {
+          "id": "q34",
+          "text": {
+            "hu": "Ablakok anyaga és hőszigetelése",
+            "en": "Window material and thermal insulation"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q34_a",
+              "text": {
+                "hu": "Modern műanyag vagy fa-műanyag, dupla/triplarétegű üveg",
+                "en": "Modern PVC or wood-PVC, double/triple glazing"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q34_b",
+              "text": {
+                "hu": "Régi faablak, gyenge tömítés",
+                "en": "Old wooden window, weak sealing"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csereje 150k–400k/ablak"
+            },
+            {
+              "id": "q34_c",
+              "text": {
+                "hu": "Egyrétegű üveg / elavult",
+                "en": "Single-pane glass / outdated"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "150k+/db"
+            }
+          ]
+        },
+        {
+          "id": "q35",
+          "text": {
+            "hu": "Ablakok működése (nyitás, záródás, tömítés)",
+            "en": "Window operation (opening, closing, sealing)"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q35_a",
+              "text": {
+                "hu": "Simán nyílnak/záródnak, tömítések jók",
+                "en": "Open/close smoothly, seals good"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q35_b",
+              "text": {
+                "hu": "Nehezen mozognak, tömítések hibásak",
+                "en": "Hard to move, seals faulty"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 10k–50k"
+            }
+          ]
+        },
+        {
+          "id": "q36",
+          "text": {
+            "hu": "Bejárati ajtó biztonsága és állapota",
+            "en": "Entry door security and condition"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q36_a",
+              "text": {
+                "hu": "Biztonsági ajtó, többpontos zár",
+                "en": "Security door, multi-point lock"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q36_b",
+              "text": {
+                "hu": "Gyenge ajtó, öreg zár",
+                "en": "Weak door, old lock"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "ajtó/zár csere 50k–250k"
+            }
+          ]
+        },
+        {
+          "id": "q37",
+          "text": {
+            "hu": "Külső redőnyök/reluxák állapota",
+            "en": "External shutters/blinds condition"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q37_a",
+              "text": {
+                "hu": "Működő redőny, árnyékolás",
+                "en": "Working shutters, shading"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q37_b",
+              "text": {
+                "hu": "Hibás/hiányzó redőny",
+                "en": "Faulty/missing shutters"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csere 20k–100k/db"
+            }
+          ]
+        },
+        {
+          "id": "q38",
+          "text": {
+            "hu": "Küszöbök, párkányok állapota",
+            "en": "Thresholds and sills condition"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q38_a",
+              "text": {
+                "hu": "Sérülésmentes, jól vízelvezetett",
+                "en": "Undamaged, well-drained"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q38_b",
+              "text": {
+                "hu": "Kopott, beázásra hajlamos",
+                "en": "Worn, prone to water ingress"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 10k–80k"
+            }
+          ]
+        },
+        {
+          "id": "q39",
+          "text": {
+            "hu": "Hőhidak / hideg pontok az ablakok körül",
+            "en": "Thermal bridges / cold spots around windows"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q39_a",
+              "text": {
+                "hu": "Nincs feltűnő hőhíd",
+                "en": "No noticeable thermal bridge"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q39_b",
+              "text": {
+                "hu": "Hideg felület, páralecsapódás jelei",
+                "en": "Cold surface, condensation signs"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "ablakcsere + hőszigeteles 150k+/ablak"
+            }
+          ]
+        },
+        {
+          "id": "q40",
+          "text": {
+            "hu": "Külső ajtók/vízállóság (garázsajtó, tárolóajtók)",
+            "en": "Exterior doors / waterproofing (garage door, storage)"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q40_a",
+              "text": {
+                "hu": "Jó állapotú, tömített ajtók",
+                "en": "Good condition, sealed doors"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q40_b",
+              "text": {
+                "hu": "Beázás/hibás záródás",
+                "en": "Water ingress/faulty closing"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q41",
+          "text": {
+            "hu": "Bejárat előtti fedettség (tornác, előtető)",
+            "en": "Entry area coverage (porch, canopy)"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q41_a",
+              "text": {
+                "hu": "Van fedett előtér, jó állapot",
+                "en": "Covered entry area, good condition"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q41_b",
+              "text": {
+                "hu": "Nincs, vagy rossz állapotú",
+                "en": "None, or poor condition"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "előtető epítes 100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q42",
+          "text": {
+            "hu": "Külső ablakok szúnyoghálóval / rovarvédelemmel",
+            "en": "Window screens / insect protection"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q42_a",
+              "text": {
+                "hu": "Van és jó állapotú",
+                "en": "Present and in good condition"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q42_b",
+              "text": {
+                "hu": "Hiányzik vagy rossz",
+                "en": "Missing or poor"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "5k–30k/db"
+            }
+          ]
+        },
+        {
+          "id": "q43",
+          "text": {
+            "hu": "Bejárat biztonsági elemei (világítás, kaputelefon)",
+            "en": "Entry security features (lighting, intercom)"
+          },
+          "tags": [
+            "windows",
+            "doors",
+            "entrance"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q43_a",
+              "text": {
+                "hu": "Működő világítás, kaputelefon, csengő",
+                "en": "Working lighting, intercom, doorbell"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q43_b",
+              "text": {
+                "hu": "Hiányos vagy hibás",
+                "en": "Missing or faulty"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–150k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interior_general",
+      "name": {
+        "hu": "Belső terek — általános (folyosók, nappali, hálók)",
+        "en": "Interior Spaces - General"
+      },
+      "weight": 9,
+      "questions": [
+        {
+          "id": "q44",
+          "text": {
+            "hu": "Padlók típusa és állapota (parketta, laminált, csempe)",
+            "en": "Floor types and condition (parquet, laminate, tile)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q44_a",
+              "text": {
+                "hu": "Jó állapotú parketta / csempe",
+                "en": "Jó állapotú parketta / csempe"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q44_b",
+              "text": {
+                "hu": "Kisebb karcok, helyi javítás szükséges",
+                "en": "Kisebb karcok, helyi javítás szükséges"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "10k–80k"
+            },
+            {
+              "id": "q44_c",
+              "text": {
+                "hu": "Erősen sérült, cserés",
+                "en": "Erősen sérült, cserés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–300k/ helyiseg"
+            }
+          ]
+        },
+        {
+          "id": "q45",
+          "text": {
+            "hu": "Belső falak (repedés, nedvesség, esztétika)",
+            "en": "Interior walls (cracks, moisture, aesthetics)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q45_a",
+              "text": {
+                "hu": "Festés/asztikus állapot jó",
+                "en": "Festés/asztikus állapot jó"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q45_b",
+              "text": {
+                "hu": "Hajszálrepedés / kis javítás",
+                "en": "Hajszálrepedés / kis javítás"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "10k–50k"
+            },
+            {
+              "id": "q45_c",
+              "text": {
+                "hu": "Nagy repedés / fugázási probléma / nedvesség",
+                "en": "Nagy repedés / fugázási probléma / nedvesség"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q46",
+          "text": {
+            "hu": "Beltéri ajtók és zárak",
+            "en": "Interior doors and locks"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q46_a",
+              "text": {
+                "hu": "Működnek, esztétikusak",
+                "en": "Működnek, esztétikusak"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q46_b",
+              "text": {
+                "hu": "Javítandó zsanérok, kilincsek",
+                "en": "Javítandó zsanérok, kilincsek"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "5k–30k/db"
+            },
+            {
+              "id": "q46_c",
+              "text": {
+                "hu": "Cserére szorulnak",
+                "en": "Cserére szorulnak"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–100k/db"
+            }
+          ]
+        },
+        {
+          "id": "q47",
+          "text": {
+            "hu": "Világítás és elektromos kapcsolók beltéren",
+            "en": "Lighting and electrical switches indoors"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q47_a",
+              "text": {
+                "hu": "Minden világítás jól működik, energiahatékony izzók",
+                "en": "Minden világítás jól működik, energiahatékony izzók"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q47_b",
+              "text": {
+                "hu": "Hiányos, rossz kapcsolók, rossz elosztás",
+                "en": "Hiányos, rossz kapcsolók, rossz elosztás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–100k"
+            }
+          ]
+        },
+        {
+          "id": "q48",
+          "text": {
+            "hu": "Szigetelés (szobák hőérzete, hideg sarok)",
+            "en": "Insulation (room temperature feel, cold corners)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q48_a",
+              "text": {
+                "hu": "Egyenletes hőérzet, nincs hideg sarok",
+                "en": "Egyenletes hőérzet, nincs hideg sarok"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q48_b",
+              "text": {
+                "hu": "Hideg pontok, hőhidak gyanúja",
+                "en": "Hideg pontok, hőhidak gyanúja"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "hőszigeteles 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q49",
+          "text": {
+            "hu": "Légkondicionálás / hűtési lehetőség",
+            "en": "Air conditioning / cooling options"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q49_a",
+              "text": {
+                "hu": "Van működő légkondi / hűtés",
+                "en": "Van működő légkondi / hűtés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q49_b",
+              "text": {
+                "hu": "Nincs, vagy elavult",
+                "en": "Nincs, vagy elavult"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": "klíma beszereles 150k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q50",
+          "text": {
+            "hu": "Központi porszívó / extra rendszerek",
+            "en": "Central vacuum / extra systems"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q50_a",
+              "text": {
+                "hu": "Van és működik",
+                "en": "Van és működik"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q50_b",
+              "text": {
+                "hu": "Nincs",
+                "en": "Nincs"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "telepítes 200k+"
+            }
+          ]
+        },
+        {
+          "id": "q51",
+          "text": {
+            "hu": "Szigetelések, hangszigetelés beltéren (szomszéd zaj)",
+            "en": "Sound insulation indoors (neighbor noise)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q51_a",
+              "text": {
+                "hu": "Jó hangszigetelés",
+                "en": "Jó hangszigetelés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q51_b",
+              "text": {
+                "hu": "Rossz hangszigetelés",
+                "en": "Rossz hangszigetelés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k+"
+            }
+          ]
+        },
+        {
+          "id": "q52",
+          "text": {
+            "hu": "Tárolási lehetőségek (beépített szekrények, kamra)",
+            "en": "Storage options (built-in closets, pantry)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q52_a",
+              "text": {
+                "hu": "Kényelmes tárolóhelyek",
+                "en": "Kényelmes tárolóhelyek"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q52_b",
+              "text": {
+                "hu": "Hiányos tárolás",
+                "en": "Hiányos tárolás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "beepítes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q53",
+          "text": {
+            "hu": "Általános tisztaság és esztétika",
+            "en": "Interior layout and room proportions"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q53_a",
+              "text": {
+                "hu": "Rendezett, tiszta, karbantartott",
+                "en": "Rendezett, tiszta, karbantartott"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q53_b",
+              "text": {
+                "hu": "Általános tisztítás/rákészülés szükséges",
+                "en": "Általános tisztítás/rákészülés szükséges"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "10k–50k"
+            },
+            {
+              "id": "q53_c",
+              "text": {
+                "hu": "Leromlott állapot, rendszerszintű felújítás szükséges",
+                "en": "Leromlott állapot, rendszerszintű felújítás szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "200k+"
+            }
+          ]
+        },
+        {
+          "id": "q54",
+          "text": {
+            "hu": "Szintek közötti hozzáférhetőség, lépcső állapota",
+            "en": "Staircase condition and safety (if multi-story)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q54_a",
+              "text": {
+                "hu": "Biztonságos, stabil lépcső, korlát",
+                "en": "Biztonságos, stabil lépcső, korlát"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q54_b",
+              "text": {
+                "hu": "Laikusan/ediatlan lépcső, balesetveszély",
+                "en": "Laikusan/ediatlan lépcső, balesetveszély"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q55",
+          "text": {
+            "hu": "Absztrakt esztétikai érték – belső dizájn, korszerűség",
+            "en": "Ceiling condition (cracks, water stains)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q55_a",
+              "text": {
+                "hu": "Modern, ízléses belső",
+                "en": "Modern, ízléses belső"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q55_b",
+              "text": {
+                "hu": "Konzervatív / elavult belső",
+                "en": "Konzervatív / elavult belső"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "felújítás 200k–1M"
+            }
+          ]
+        },
+        {
+          "id": "q56",
+          "text": {
+            "hu": "Padló és ajtó csatlakozások, peremek állapota (bútorozhatóság)",
+            "en": "Window sill interior condition"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q56_a",
+              "text": {
+                "hu": "Rendben, könnyen bútorozható",
+                "en": "Rendben, könnyen bútorozható"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q56_b",
+              "text": {
+                "hu": "Magasságkülönbség, átjárhatósági gond",
+                "en": "Magasságkülönbség, átjárhatósági gond"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "korrekció 20k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q57",
+          "text": {
+            "hu": "Nyílászárók biztonsági elemei (zárbetét, többpontú zár)",
+            "en": "Interior painting / wallpaper condition"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q57_a",
+              "text": {
+                "hu": "Teljesen biztonságos rendszer",
+                "en": "Teljesen biztonságos rendszer"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q57_b",
+              "text": {
+                "hu": "Régi zárbetét, biztonság javításra szorul",
+                "en": "Régi zárbetét, biztonság javításra szorul"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–120k"
+            }
+          ]
+        },
+        {
+          "id": "q58",
+          "text": {
+            "hu": "Villamos aljzatok elhelyezése és száma szobánként",
+            "en": "Interior odors (musty, chemical, sewage)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q58_a",
+              "text": {
+                "hu": "Megfelelő szám és elhelyezés",
+                "en": "Megfelelő szám és elhelyezés"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q58_b",
+              "text": {
+                "hu": "Kevés konnektor, korszerűsítés javasolt",
+                "en": "Kevés konnektor, korszerűsítés javasolt"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "elektromos bővítes 30k–150k"
+            }
+          ]
+        },
+        {
+          "id": "q59",
+          "text": {
+            "hu": "Beltéri csatornázás (látható cső/vezetékek)",
+            "en": "Electrical outlets count and placement"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q59_a",
+              "text": {
+                "hu": "Rejtve/kulturáltan vezetékezve",
+                "en": "Rejtve/kulturáltan vezetékezve"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q59_b",
+              "text": {
+                "hu": "Látványos, utólagos vezetékek",
+                "en": "Látványos, utólagos vezetékek"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "elrejtes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q60",
+          "text": {
+            "hu": "Beltéri légáramlás, penész-ellenőrzés (szag, folt)",
+            "en": "Interior fire safety (smoke detectors, extinguisher)"
+          },
+          "tags": [
+            "interior",
+            "rooms"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q60_a",
+              "text": {
+                "hu": "Nincs penész, jó szellőzés",
+                "en": "Nincs penész, jó szellőzés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q60_b",
+              "text": {
+                "hu": "Penész / dohos szag kis felületen",
+                "en": "Penész / dohos szag kis felületen"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "takarítás + ok feltárás 20k–100k"
+            },
+            {
+              "id": "q60_c",
+              "text": {
+                "hu": "Kiterjedt penész vagy nedvesség",
+                "en": "Kiterjedt penész vagy nedvesség"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–1M"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kitchen_bathroom",
+      "name": {
+        "hu": "Konyha és fürdők",
+        "en": "Kitchen & Bathrooms"
+      },
+      "weight": 7,
+      "questions": [
+        {
+          "id": "q61",
+          "text": {
+            "hu": "Konyha beépített gépek állapota",
+            "en": "Fireplace / stove condition (if applicable)"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q61_a",
+              "text": {
+                "hu": "Modern, jól működő gépek (sütő, főzőlap, páraelszívó)",
+                "en": "Modern, jól működő gépek (sütő, főzőlap, páraelszívó)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q61_b",
+              "text": {
+                "hu": "Régi/hibás gépek, részleges csere szükséges",
+                "en": "Régi/hibás gépek, részleges csere szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–300k"
+            },
+            {
+              "id": "q61_c",
+              "text": {
+                "hu": "Nincs beépített gép",
+                "en": "Nincs beépített gép"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "új konyha 200k–1M"
+            }
+          ]
+        },
+        {
+          "id": "q62",
+          "text": {
+            "hu": "Konyhai víz- és gázbekötések, szivárgás",
+            "en": "Accessibility features (wide doors, ramps)"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q62_a",
+              "text": {
+                "hu": "Nincsenek szivárgások, csövek jól láthatóak",
+                "en": "Nincsenek szivárgások, csövek jól láthatóak"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q62_b",
+              "text": {
+                "hu": "Kis szivárgás / illesztési probléma",
+                "en": "Kis szivárgás / illesztési probléma"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "10k–50k"
+            },
+            {
+              "id": "q62_c",
+              "text": {
+                "hu": "Rejtett szivárgás, sok javítás szükséges",
+                "en": "Rejtett szivárgás, sok javítás szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q63",
+          "text": {
+            "hu": "Konyha páraelszívás, szellőzés",
+            "en": "Natural light quality per room"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q63_a",
+              "text": {
+                "hu": "Működő elszívó vagy jó szellőzés",
+                "en": "Működő elszívó vagy jó szellőzés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q63_b",
+              "text": {
+                "hu": "Gyenge/hiányos elszívás",
+                "en": "Gyenge/hiányos elszívás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "30k–150k"
+            }
+          ]
+        },
+        {
+          "id": "q64",
+          "text": {
+            "hu": "Fürdőszoba (zuhanyzó) vízszigetelés és fuga",
+            "en": "Kitchen size and layout functionality"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q64_a",
+              "text": {
+                "hu": "Vízszigetelés rendben, fuga ép",
+                "en": "Vízszigetelés rendben, fuga ép"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q64_b",
+              "text": {
+                "hu": "Repedt fuga, helyi vízbehatolás",
+                "en": "Repedt fuga, helyi vízbehatolás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "10k–80k"
+            },
+            {
+              "id": "q64_c",
+              "text": {
+                "hu": "Vízszigetelés hiánya / beázás",
+                "en": "Vízszigetelés hiánya / beázás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q65",
+          "text": {
+            "hu": "Fürdőszoba (kád, hidromasszázs) állapota",
+            "en": "Kitchen cabinets and countertop condition"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q65_a",
+              "text": {
+                "hu": "Jó állapotú, működő",
+                "en": "Jó állapotú, működő"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q65_b",
+              "text": {
+                "hu": "Szivárgás, tömítés probléma",
+                "en": "Szivárgás, tömítés probléma"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–100k"
+            },
+            {
+              "id": "q65_c",
+              "text": {
+                "hu": "Elavult berendezés, cserés",
+                "en": "Elavult berendezés, cserés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q66",
+          "text": {
+            "hu": "Csaptelepek, WC-k és lefolyók állapota",
+            "en": "Kitchen appliance condition (oven, cooktop, hood)"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q66_a",
+              "text": {
+                "hu": "Minden rendben, jó víznyomás",
+                "en": "Minden rendben, jó víznyomás"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q66_b",
+              "text": {
+                "hu": "Csöpögések, lassú lefolyó",
+                "en": "Csöpögések, lassú lefolyó"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "5k–30k"
+            },
+            {
+              "id": "q66_c",
+              "text": {
+                "hu": "Csőtörés/komoly szivárgás",
+                "en": "Csőtörés/komoly szivárgás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "30k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q67",
+          "text": {
+            "hu": "Fürdőszobai szellőzés (ablak / gépi)",
+            "en": "Kitchen plumbing (sink, faucet, drainage)"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q67_a",
+              "text": {
+                "hu": "Ablak + elszívó gép / jó szellőzés",
+                "en": "Ablak + elszívó gép / jó szellőzés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q67_b",
+              "text": {
+                "hu": "Szagok, párásodás gyakori",
+                "en": "Szagok, párásodás gyakori"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szellőzes javítás 20k–150k"
+            }
+          ]
+        },
+        {
+          "id": "q68",
+          "text": {
+            "hu": "Konyha- és fürdő burkolatok (repedés, csere igény)",
+            "en": "Kitchen ventilation and extractor"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q68_a",
+              "text": {
+                "hu": "Jó állapot, esztétikus burkolat",
+                "en": "Jó állapot, esztétikus burkolat"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q68_b",
+              "text": {
+                "hu": "Részben sérült, helyi csere szükséges",
+                "en": "Részben sérült, helyi csere szükséges"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "20k–100k"
+            },
+            {
+              "id": "q68_c",
+              "text": {
+                "hu": "Teljes csere szükséges",
+                "en": "Teljes csere szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "200k–1M"
+            }
+          ]
+        },
+        {
+          "id": "q69",
+          "text": {
+            "hu": "Vízkő, vízminőség problémák",
+            "en": "Kitchen tile and wall condition"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q69_a",
+              "text": {
+                "hu": "Látható vízkő nincs, vízminőség jó",
+                "en": "Látható vízkő nincs, vízminőség jó"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q69_b",
+              "text": {
+                "hu": "Erős vízkő, vízlágyító hiánya",
+                "en": "Erős vízkő, vízlágyító hiánya"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "vízlágyító 100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q70",
+          "text": {
+            "hu": "Víznyomás és melegvíz ellátás",
+            "en": "Bathroom count and sizes"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q70_a",
+              "text": {
+                "hu": "Stabil víznyomás, elegendő melegvíz",
+                "en": "Stabil víznyomás, elegendő melegvíz"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q70_b",
+              "text": {
+                "hu": "Gyenge nyomás, hosszú melegvíz-út",
+                "en": "Gyenge nyomás, hosszú melegvíz-út"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szivattyú / rendszer módosítás 50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q71",
+          "text": {
+            "hu": "Szifonok, szennyvíz szagok, túlfolyók",
+            "en": "Bathroom waterproofing and grouting"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q71_a",
+              "text": {
+                "hu": "Nincs szag, túlfolyó rendszerek rendben",
+                "en": "Nincs szag, túlfolyó rendszerek rendben"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q71_b",
+              "text": {
+                "hu": "Szag vagy visszaáramlás jelei",
+                "en": "Szag vagy visszaáramlás jelei"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szennyvízellenőrzes 20k–100k"
+            }
+          ]
+        },
+        {
+          "id": "q72",
+          "text": {
+            "hu": "Konyha-elrendezés funkcionalitása (tárolás, munkapult)",
+            "en": "Bathroom fixtures (toilet, shower, bathtub)"
+          },
+          "tags": [
+            "kitchen",
+            "bathroom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q72_a",
+              "text": {
+                "hu": "Jól tervezett, ergonomikus",
+                "en": "Jól tervezett, ergonomikus"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q72_b",
+              "text": {
+                "hu": "Átalakítást igényel",
+                "en": "Átalakítást igényel"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "áttervezes 50k–300k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basement_garage",
+      "name": {
+        "hu": "Pince, garázs, mellékhelyiségek",
+        "en": "Basement, Garage & Outbuildings"
+      },
+      "weight": 6,
+      "questions": [
+        {
+          "id": "q73",
+          "text": {
+            "hu": "Pince szárazsága, vízbetörés jelei",
+            "en": "Bathroom ventilation"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q73_a",
+              "text": {
+                "hu": "Száraz, rendben",
+                "en": "Száraz, rendben"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q73_b",
+              "text": {
+                "hu": "Nedves foltok, korábbi beázás",
+                "en": "Nedves foltok, korábbi beázás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "vízszigeteles 200k–1M"
+            },
+            {
+              "id": "q73_c",
+              "text": {
+                "hu": "Állandó víz, komoly szárazságtalanítás szükséges",
+                "en": "Állandó víz, komoly szárazságtalanítás szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "500k+"
+            }
+          ]
+        },
+        {
+          "id": "q74",
+          "text": {
+            "hu": "Pince szerkezete (fal, mennyezet)",
+            "en": "Bathroom hot water supply and pressure"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q74_a",
+              "text": {
+                "hu": "Stabil, repedésmentes",
+                "en": "Stabil, repedésmentes"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q74_b",
+              "text": {
+                "hu": "Repedések, penész, korhadás",
+                "en": "Repedések, penész, korhadás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q75",
+          "text": {
+            "hu": "Garázs beállás, padlóállapot, ajtó",
+            "en": "Bathroom mold and moisture signs"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q75_a",
+              "text": {
+                "hu": "Jó állapotú padló és ajtó, elektromos kapu",
+                "en": "Jó állapotú padló és ajtó, elektromos kapu"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q75_b",
+              "text": {
+                "hu": "Repedett padló, nem működő kapu",
+                "en": "Repedett padló, nem működő kapu"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–400k"
+            },
+            {
+              "id": "q75_c",
+              "text": {
+                "hu": "Garázs beállás pincébe/alsó szinten",
+                "en": "Garázs beállás pincébe/alsó szinten"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q76",
+          "text": {
+            "hu": "Konditerem / hobbi helyiség (korábbi átalakítás)",
+            "en": "Basement existence and accessibility"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q76_a",
+              "text": {
+                "hu": "Rendben, szellőzés, padló jó",
+                "en": "Rendben, szellőzés, padló jó"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q76_b",
+              "text": {
+                "hu": "Átalakítás nem szakszerű, nedvesség vagy rossz burkolat",
+                "en": "Átalakítás nem szakszerű, nedvesség vagy rossz burkolat"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "felújítás 100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q77",
+          "text": {
+            "hu": "Tárolók, kerti tároló állapota",
+            "en": "Basement moisture and waterproofing"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q77_a",
+              "text": {
+                "hu": "Száraz, zárható tároló",
+                "en": "Száraz, zárható tároló"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q77_b",
+              "text": {
+                "hu": "Rossz állapot, beázik",
+                "en": "Rossz állapot, beázik"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 30k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q78",
+          "text": {
+            "hu": "Pincegépészet (kazán, tárolók)",
+            "en": "Basement structural condition (walls, floor)"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q78_a",
+              "text": {
+                "hu": "Gépek rendezettek, hozzáférhetőek",
+                "en": "Gépek rendezettek, hozzáférhetőek"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q78_b",
+              "text": {
+                "hu": "Rendetlen, veszélyes elhelyezés, tűzveszély",
+                "en": "Rendetlen, veszélyes elhelyezés, tűzveszély"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "áthelyezes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q79",
+          "text": {
+            "hu": "Pince hőszigetelése / páramentesítés",
+            "en": "Basement ventilation and air quality"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q79_a",
+              "text": {
+                "hu": "Megfelelő, nincs kondenzáció",
+                "en": "Megfelelő, nincs kondenzáció"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q79_b",
+              "text": {
+                "hu": "Kondenzáció / pára problémák",
+                "en": "Kondenzáció / pára problémák"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "páraelszívó / szigeteles 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q80",
+          "text": {
+            "hu": "Fűtés csatlakozás a pincében (kombikazán / vegyes)",
+            "en": "Basement electrical installation"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q80_a",
+              "text": {
+                "hu": "Szakszerűen telepített, karbantartott",
+                "en": "Szakszerűen telepített, karbantartott"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q80_b",
+              "text": {
+                "hu": "Vegyes tüzelésű kazán karbantartást igényel",
+                "en": "Vegyes tüzelésű kazán karbantartást igényel"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "karbantartás 20k–80k"
+            },
+            {
+              "id": "q80_c",
+              "text": {
+                "hu": "Elavult, cserére szorul",
+                "en": "Elavult, cserére szorul"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "kazáncsere 150k–600k"
+            }
+          ]
+        },
+        {
+          "id": "q81",
+          "text": {
+            "hu": "Pince és garázs szellőzése és szagok",
+            "en": "Garage condition and door operation"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q81_a",
+              "text": {
+                "hu": "Nincs szag, jó szellőzés",
+                "en": "Nincs szag, jó szellőzés"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q81_b",
+              "text": {
+                "hu": "Zárt, dohos, rossz levegő",
+                "en": "Zárt, dohos, rossz levegő"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szellőzes 20k–150k"
+            }
+          ]
+        },
+        {
+          "id": "q82",
+          "text": {
+            "hu": "Vízmentesítési megoldások (vízszint figyelés, szivattyú)",
+            "en": "Outbuildings (shed, workshop) condition"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q82_a",
+              "text": {
+                "hu": "Megoldott (szivattyú, csatorna)",
+                "en": "Megoldott (szivattyú, csatorna)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q82_b",
+              "text": {
+                "hu": "Hiányos, szükséges telepítés",
+                "en": "Hiányos, szükséges telepítés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q83",
+          "text": {
+            "hu": "Garázs elektromos csatlakozás, világítás",
+            "en": "Cellar/storage usability"
+          },
+          "tags": [
+            "basement",
+            "garage"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q83_a",
+              "text": {
+                "hu": "Van, működik",
+                "en": "Van, működik"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q83_b",
+              "text": {
+                "hu": "Nincs / hibás",
+                "en": "Nincs / hibás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–100k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "utilities",
+      "name": {
+        "hu": "Elektromos, gáz, víz, csatorna",
+        "en": "Electrical, Gas, Water & Sewage"
+      },
+      "weight": 11,
+      "questions": [
+        {
+          "id": "q84",
+          "text": {
+            "hu": "Elektromos betáplálás — fázisok",
+            "en": "Basement heating / insulation"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q84_a",
+              "text": {
+                "hu": "Háromfázisú bekötés elérhető és jó állapotú",
+                "en": "Háromfázisú bekötés elérhető és jó állapotú"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q84_b",
+              "text": {
+                "hu": "Egyfázisú / nincsen háromfázis",
+                "en": "Egyfázisú / nincsen háromfázis"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "3fázis kiepítes 100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q85",
+          "text": {
+            "hu": "Elosztó tábla és biztosítékok",
+            "en": "Basement drainage system"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q85_a",
+              "text": {
+                "hu": "Korszerű elosztó, FI-relé, megfelelő biztosítékok",
+                "en": "Korszerű elosztó, FI-relé, megfelelő biztosítékok"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q85_b",
+              "text": {
+                "hu": "Régi, karbantartást igényel, nincs FI-relé",
+                "en": "Régi, karbantartást igényel, nincs FI-relé"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "korszerűsítes 100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q86",
+          "text": {
+            "hu": "Falon belüli vezetékek anyaga",
+            "en": "Main electrical panel condition"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q86_a",
+              "text": {
+                "hu": "Réz vezetékek",
+                "en": "Réz vezetékek"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q86_b",
+              "text": {
+                "hu": "Alumínium / vegyes (cserélendő)",
+                "en": "Alumínium / vegyes (cserélendő)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "vezetekcsere 150k–600k"
+            }
+          ]
+        },
+        {
+          "id": "q87",
+          "text": {
+            "hu": "Villamos földelés megléte és állapota",
+            "en": "Wiring type (copper vs aluminum)"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q87_a",
+              "text": {
+                "hu": "Földelés rendben, mérve",
+                "en": "Földelés rendben, mérve"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q87_b",
+              "text": {
+                "hu": "Földelés hiányzik vagy bizonytalan",
+                "en": "Földelés hiányzik vagy bizonytalan"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "foldeles kiepítes 50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q88",
+          "text": {
+            "hu": "Gázóra és gázvezeték érzékelhető állapota",
+            "en": "Phase count (single vs three-phase)"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q88_a",
+              "text": {
+                "hu": "Gázóra rendben, vezetékek szakember által ellenőrizve",
+                "en": "Gázóra rendben, vezetékek szakember által ellenőrizve"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q88_b",
+              "text": {
+                "hu": "Korrodált / régi cső, gázszag",
+                "en": "Korrodált / régi cső, gázszag"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csőcsere 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q89",
+          "text": {
+            "hu": "Gázkészülék (kazán) kora és karbantartása",
+            "en": "Circuit breaker and safety switches"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q89_a",
+              "text": {
+                "hu": "Új / karbantartott, dokumentált szerviz",
+                "en": "Új / karbantartott, dokumentált szerviz"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q89_b",
+              "text": {
+                "hu": "Régi, nem dokumentált, karbantartás szükséges",
+                "en": "Régi, nem dokumentált, karbantartás szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "karbantartás 20k–80k"
+            },
+            {
+              "id": "q89_c",
+              "text": {
+                "hu": "Cserére szorul",
+                "en": "Cserére szorul"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "kazáncsere 150k–600k"
+            }
+          ]
+        },
+        {
+          "id": "q90",
+          "text": {
+            "hu": "Vízvezetékek anyaga (réz, műanyag, ólom)",
+            "en": "Grounding and lightning protection"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q90_a",
+              "text": {
+                "hu": "Réz / korszerű műanyag",
+                "en": "Réz / korszerű műanyag"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q90_b",
+              "text": {
+                "hu": "Régi ólom / korróziós cső",
+                "en": "Régi ólom / korróziós cső"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csere 100k–600k"
+            }
+          ]
+        },
+        {
+          "id": "q91",
+          "text": {
+            "hu": "Víznyomás és melegvíz-kapacitás",
+            "en": "Gas supply and meter condition"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q91_a",
+              "text": {
+                "hu": "Normál víznyomás, elegendő melegvíz",
+                "en": "Normál víznyomás, elegendő melegvíz"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q91_b",
+              "text": {
+                "hu": "Gyenge nyomás, hosszú melegvíz-várakozás",
+                "en": "Gyenge nyomás, hosszú melegvíz-várakozás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "nyomásfokozó / bojler csere 50k–250k"
+            }
+          ]
+        },
+        {
+          "id": "q92",
+          "text": {
+            "hu": "Csatorna / emésztő rendszere",
+            "en": "Heating system type and condition"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q92_a",
+              "text": {
+                "hu": "Közcsatorna csatlakozás van és funkcionál",
+                "en": "Közcsatorna csatlakozás van és funkcionál"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q92_b",
+              "text": {
+                "hu": "Egyedi emésztőgödör jelenléte (szippantás dokumentált?)",
+                "en": "Egyedi emésztőgödör jelenléte (szippantás dokumentált?)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szippantás/műkodtetes 20k–100k/ev"
+            },
+            {
+              "id": "q92_c",
+              "text": {
+                "hu": "Nincs megoldott szennyvízkezelés",
+                "en": "Nincs megoldott szennyvízkezelés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csatorna csatlakozás 500k–2M"
+            }
+          ]
+        },
+        {
+          "id": "q93",
+          "text": {
+            "hu": "Melegvíz előállítás módja (bojler, kombi, napkollektor)",
+            "en": "Boiler / furnace age and maintenance"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q93_a",
+              "text": {
+                "hu": "Hatékony és korszerű rendszer",
+                "en": "Hatékony és korszerű rendszer"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q93_b",
+              "text": {
+                "hu": "Régi bojler / pazarló megoldás",
+                "en": "Régi bojler / pazarló megoldás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csere 50k–250k"
+            },
+            {
+              "id": "q93_c",
+              "text": {
+                "hu": "Megújuló (napkollektor/napelem) része a rendszernek",
+                "en": "Megújuló (napkollektor/napelem) része a rendszernek"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q94",
+          "text": {
+            "hu": "Vész- és biztonsági rendszerek elektromos oldala",
+            "en": "Hot water system type"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q94_a",
+              "text": {
+                "hu": "FI-relé, túlfesz-védelem rendben",
+                "en": "FI-relé, túlfesz-védelem rendben"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q94_b",
+              "text": {
+                "hu": "Hiányos védelem",
+                "en": "Hiányos védelem"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q95",
+          "text": {
+            "hu": "Villamos terhelhetőség (aljzatok, méretezés)",
+            "en": "Water supply and pressure"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q95_a",
+              "text": {
+                "hu": "Megfelelő, korszerű méretezés",
+                "en": "Megfelelő, korszerű méretezés"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q95_b",
+              "text": {
+                "hu": "Szükséges bővítés (pl. elektromos autó töltőhez)",
+                "en": "Szükséges bővítés (pl. elektromos autó töltőhez)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–400k"
+            }
+          ]
+        },
+        {
+          "id": "q96",
+          "text": {
+            "hu": "Riasztórendszer megléte és dokumentáltsága",
+            "en": "Sewage connection type (sewer vs septic)"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q96_a",
+              "text": {
+                "hu": "Működő, karbantartott riasztó",
+                "en": "Működő, karbantartott riasztó"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q96_b",
+              "text": {
+                "hu": "Riasztó van, de nem működik / nincs dokumentáció",
+                "en": "Riasztó van, de nem működik / nincs dokumentáció"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 20k–100k"
+            },
+            {
+              "id": "q96_c",
+              "text": {
+                "hu": "Nincs riasztó",
+                "en": "Nincs riasztó"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "telepítes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q97",
+          "text": {
+            "hu": "Kamera, megfigyelő rendszer",
+            "en": "Pipe material and condition"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q97_a",
+              "text": {
+                "hu": "Van és működik, felvételek tárolása rendben",
+                "en": "Van és működik, felvételek tárolása rendben"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q97_b",
+              "text": {
+                "hu": "Részleges rendszer vagy hibás elemek",
+                "en": "Részleges rendszer vagy hibás elemek"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 20k–150k"
+            },
+            {
+              "id": "q97_c",
+              "text": {
+                "hu": "Nincs",
+                "en": "Nincs"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "telepítes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q98",
+          "text": {
+            "hu": "Tűzvédelmi elemek (füstérzékelők, poroltó)",
+            "en": "Water meter and gas meter condition"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q98_a",
+              "text": {
+                "hu": "Minden helyiségben érzékelő és poroltó",
+                "en": "Minden helyiségben érzékelő és poroltó"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q98_b",
+              "text": {
+                "hu": "Hiányos, lejárt eszközök",
+                "en": "Hiányos, lejárt eszközök"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "10k–50k"
+            }
+          ]
+        },
+        {
+          "id": "q99",
+          "text": {
+            "hu": "Internet / optika / mobil lefedettség",
+            "en": "Chimney condition and sweep certificate"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q99_a",
+              "text": {
+                "hu": "Optika/kábel elérhető, jó mobil lefedettség",
+                "en": "Optika/kábel elérhető, jó mobil lefedettség"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q99_b",
+              "text": {
+                "hu": "Csak ADSL / gyenge mobil lefedettség",
+                "en": "Csak ADSL / gyenge mobil lefedettség"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "esetleges antenna/optika kiepítes 50k+"
+            }
+          ]
+        },
+        {
+          "id": "q100",
+          "text": {
+            "hu": "Okosotthon / automatizálás (ha van)",
+            "en": "Alternative energy readiness (solar, heat pump)"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q100_a",
+              "text": {
+                "hu": "Részben/teljesen okosotthon rendszerek működnek",
+                "en": "Részben/teljesen okosotthon rendszerek működnek"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q100_b",
+              "text": {
+                "hu": "Rendszer része hiányos vagy elavult",
+                "en": "Rendszer része hiányos vagy elavult"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "frissítes 50k–300k"
+            },
+            {
+              "id": "q100_c",
+              "text": {
+                "hu": "Nincs",
+                "en": "Nincs"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "telepítes 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q101",
+          "text": {
+            "hu": "Kül- és beltéri világítás energiahatékonysága",
+            "en": "Security system (alarm, cameras)"
+          },
+          "tags": [
+            "electrical",
+            "plumbing",
+            "utilities"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q101_a",
+              "text": {
+                "hu": "LED / energiahatékony világítás",
+                "en": "LED / energiahatékony világítás"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q101_b",
+              "text": {
+                "hu": "Régi, pazaroló megoldás",
+                "en": "Régi, pazaroló megoldás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "csere 20k–150k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "safety_telecom",
+      "name": {
+        "hu": "Jogi, engedélyek, dokumentáció",
+        "en": "Safety, Telecom & Extra Services"
+      },
+      "weight": 5,
+      "questions": [
+        {
+          "id": "q102",
+          "text": {
+            "hu": "Tulajdoni lap — terhek, jelzálogok",
+            "en": "Internet and cable TV infrastructure"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q102_a",
+              "text": {
+                "hu": "Tiszta tulajdon, nincs terhelés",
+                "en": "Tiszta tulajdon, nincs terhelés"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q102_b",
+              "text": {
+                "hu": "Jelzálog/előjegyzés bejegyezve",
+                "en": "Jelzálog/előjegyzés bejegyezve"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "torles jogi úton 50k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q103",
+          "text": {
+            "hu": "Használati cél / besorolás (zártkert vs. lakóövezet)",
+            "en": "Intercom and smart home systems"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q103_a",
+              "text": {
+                "hu": "Rendben (általános lakóhasználat engedélyezett)",
+                "en": "Rendben (általános lakóhasználat engedélyezett)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q103_b",
+              "text": {
+                "hu": "Zártkerti besorolás / korlátozások",
+                "en": "Zártkerti besorolás / korlátozások"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "besorolás változtatás jogi/koltseg 100k–M"
+            }
+          ]
+        },
+        {
+          "id": "q104",
+          "text": {
+            "hu": "Építési engedélyek megléte korábbi átalakításokra",
+            "en": "Fire protection systems"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q104_a",
+              "text": {
+                "hu": "Minden átalakítás engedélyezett és dokumentált",
+                "en": "Minden átalakítás engedélyezett és dokumentált"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q104_b",
+              "text": {
+                "hu": "Utólagos legalizálás szükséges",
+                "en": "Utólagos legalizálás szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "100k–1M+"
+            }
+          ]
+        },
+        {
+          "id": "q105",
+          "text": {
+            "hu": "Használatbavételi engedély megléte",
+            "en": "Lightning protection"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q105_a",
+              "text": {
+                "hu": "Van érvényes használatbavételi engedély",
+                "en": "Van érvényes használatbavételi engedély"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q105_b",
+              "text": {
+                "hu": "Hiányzik / nincs rendezve",
+                "en": "Hiányzik / nincs rendezve"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "rendezes 100k–1M"
+            }
+          ]
+        },
+        {
+          "id": "q106",
+          "text": {
+            "hu": "Közműszerződések és fogyasztási mérőállások",
+            "en": "Emergency access routes"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q106_a",
+              "text": {
+                "hu": "Minden mérő és csatlakozás áttekinthető, dokumentált",
+                "en": "Minden mérő és csatlakozás áttekinthető, dokumentált"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q106_b",
+              "text": {
+                "hu": "Hiányos adatok / mérőhely bizonytalan",
+                "en": "Hiányos adatok / mérőhely bizonytalan"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "felülvizsgálat 10k–50k"
+            }
+          ]
+        },
+        {
+          "id": "q107",
+          "text": {
+            "hu": "Egyéb jogi kockázatok (szolgalmi jog, elővásárlási jog)",
+            "en": "Property deed / title verification"
+          },
+          "tags": [
+            "safety",
+            "telecom"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q107_a",
+              "text": {
+                "hu": "Nincs ilyen korlátozás",
+                "en": "Nincs ilyen korlátozás"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q107_b",
+              "text": {
+                "hu": "Van (szolgalmi, elővásárlási jog), dokumentált",
+                "en": "Van (szolgalmi, elővásárlási jog), dokumentált"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "jogi rendezes 50k–500k"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legal_permits",
+      "name": {
+        "hu": "SzakiEllenőr — rejtett hibák, kritikus ellenőrzési pontok",
+        "en": "Legal, Permits & Documentation"
+      },
+      "weight": 9,
+      "questions": [
+        {
+          "id": "q108",
+          "text": {
+            "hu": "Fürdőszobai fuga és vízszigetelés ellenőrzése",
+            "en": "Building and occupancy permits"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q108_a",
+              "text": {
+                "hu": "Fugák ép, nincs penész, tömítés jó",
+                "en": "Fugák ép, nincs penész, tömítés jó"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q108_b",
+              "text": {
+                "hu": "Fugák repedezettek, penész jelei",
+                "en": "Fugák repedezettek, penész jelei"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "fugázás/tisztítás 10k–50k"
+            },
+            {
+              "id": "q108_c",
+              "text": {
+                "hu": "Vízszigetelés hiánya / visszatérő beázás",
+                "en": "Vízszigetelés hiánya / visszatérő beázás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "komplett vízszigeteles 100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q109",
+          "text": {
+            "hu": "Hőszigetelés helyi csomópontjai (ablak/erkély-csatlakozás)",
+            "en": "Registered property vs actual state match"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q109_a",
+              "text": {
+                "hu": "Csatlakozások jól kivitelezettek",
+                "en": "Csatlakozások jól kivitelezettek"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q109_b",
+              "text": {
+                "hu": "Ragasztott hőszigetelés peremproblémával (levegő alá kerül)",
+                "en": "Ragasztott hőszigetelés peremproblémával (levegő alá kerül)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–200k"
+            },
+            {
+              "id": "q109_c",
+              "text": {
+                "hu": "Hőhidak jelentősek",
+                "en": "Hőhidak jelentősek"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szigeteles utólagos javítása 100k+"
+            }
+          ]
+        },
+        {
+          "id": "q110",
+          "text": {
+            "hu": "Tetőszerkezet saruszélesség és fesztáv, gerendák állapota",
+            "en": "Easements and encumbrances"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q110_a",
+              "text": {
+                "hu": "Szarufák fesztávja normál, gerendák jók",
+                "en": "Szarufák fesztávja normál, gerendák jók"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q110_b",
+              "text": {
+                "hu": "Szarufák túl nagy fesztáv, deformáció jelei",
+                "en": "Szarufák túl nagy fesztáv, deformáció jelei"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "megerősítes 200k–1M"
+            },
+            {
+              "id": "q110_c",
+              "text": {
+                "hu": "Gombásodás / korhadás",
+                "en": "Gombásodás / korhadás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "szerkezeti csere 500k+"
+            }
+          ]
+        },
+        {
+          "id": "q111",
+          "text": {
+            "hu": "Padló alatti rétegrend (padlószigetelés)",
+            "en": "Liens, mortgages, legal disputes"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q111_a",
+              "text": {
+                "hu": "Megfelelő rétegrend (pára, hőszigetelés)",
+                "en": "Megfelelő rétegrend (pára, hőszigetelés)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q111_b",
+              "text": {
+                "hu": "Hiányos rétegrend / kapilláris nedvesség",
+                "en": "Hiányos rétegrend / kapilláris nedvesség"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "padlófelújítás 100k–500k"
+            }
+          ]
+        },
+        {
+          "id": "q112",
+          "text": {
+            "hu": "Kémény állapota: repedés, bélelés szükségessége",
+            "en": "Energy performance certificate"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q112_a",
+              "text": {
+                "hu": "Kémény jó állapotú, bélelt",
+                "en": "Kémény jó állapotú, bélelt"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q112_b",
+              "text": {
+                "hu": "Kisebb repedések, tisztítást igényel",
+                "en": "Kisebb repedések, tisztítást igényel"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "tisztítás/beleles 50k–200k"
+            },
+            {
+              "id": "q112_c",
+              "text": {
+                "hu": "Szerkezeti probléma, bélelés/újraképezés szükséges",
+                "en": "Szerkezeti probléma, bélelés/újraképezés szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "200k–800k"
+            }
+          ]
+        },
+        {
+          "id": "q113",
+          "text": {
+            "hu": "Csatorna- és vízrendszer átfolyási problémák (visszaáramlás, tömítetlen csatlakozások)",
+            "en": "Thermal camera inspection (winter)"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q113_a",
+              "text": {
+                "hu": "Minden rendben, jó lefolyás",
+                "en": "Minden rendben, jó lefolyás"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q113_b",
+              "text": {
+                "hu": "Lassú lefolyás, részleges dugulás",
+                "en": "Lassú lefolyás, részleges dugulás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "duguláselhárítás 10k–80k"
+            },
+            {
+              "id": "q113_c",
+              "text": {
+                "hu": "Visszaáramlás, tervezési hiba",
+                "en": "Visszaáramlás, tervezési hiba"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "átalakítás 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q114",
+          "text": {
+            "hu": "Rejtett elektromos csomópontok (túlterhelés, égetés jelei)",
+            "en": "Foundation movement signs"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q114_a",
+              "text": {
+                "hu": "Nincs elváltozás, biztonságos",
+                "en": "Nincs elváltozás, biztonságos"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q114_b",
+              "text": {
+                "hu": "Melegedési, égett nyomok az elosztón vagy konnektoron",
+                "en": "Melegedési, égett nyomok az elosztón vagy konnektoron"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás/korszerűsítes 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q115",
+          "text": {
+            "hu": "Falakon belüli nedvesség jelei (kiszívott vakolat, sós virágzás)",
+            "en": "Hidden moisture behind walls"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q115_a",
+              "text": {
+                "hu": "Nincs nedvesség",
+                "en": "Nincs nedvesség"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q115_b",
+              "text": {
+                "hu": "Sókivirágzás / elszíneződés",
+                "en": "Sókivirágzás / elszíneződés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "ok feltárása + javítás 100k–500k"
+            },
+            {
+              "id": "q115_c",
+              "text": {
+                "hu": "Állandó nedvesedés",
+                "en": "Állandó nedvesedés"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "jelentős beavatkozás 500k+"
+            }
+          ]
+        },
+        {
+          "id": "q116",
+          "text": {
+            "hu": "Rejtett korhadás fa szerkezetekben (ajtókeret, padlógerenda)",
+            "en": "Unauthorized structural modifications"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q116_a",
+              "text": {
+                "hu": "Nincs látható korhadás",
+                "en": "Nincs látható korhadás"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q116_b",
+              "text": {
+                "hu": "Helyi korhadás, javítandó",
+                "en": "Helyi korhadás, javítandó"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "20k–200k"
+            },
+            {
+              "id": "q116_c",
+              "text": {
+                "hu": "Kiterjedt szerkezeti korhadás",
+                "en": "Kiterjedt szerkezeti korhadás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "tobb 100k–1M+"
+            }
+          ]
+        },
+        {
+          "id": "q117",
+          "text": {
+            "hu": "Szigetelési csomópontok (erkély, teraszcsatlakozás)",
+            "en": "Load-bearing wall integrity"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q117_a",
+              "text": {
+                "hu": "Csatlakozások jók, vízmentesek",
+                "en": "Csatlakozások jók, vízmentesek"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q117_b",
+              "text": {
+                "hu": "Vízzáróság hiányos, foltos beázás",
+                "en": "Vízzáróság hiányos, foltos beázás"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "javítás 50k–300k"
+            }
+          ]
+        },
+        {
+          "id": "q118",
+          "text": {
+            "hu": "Különleges korábbi átalakítások (pl. télikert beépítés dokumentáltsága)",
+            "en": "Radon or hazardous material presence"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q118_a",
+              "text": {
+                "hu": "Engedélyezett, szakszerű",
+                "en": "Engedélyezett, szakszerű"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q118_b",
+              "text": {
+                "hu": "Nem dokumentált átalakítás, kétes minőség",
+                "en": "Nem dokumentált átalakítás, kétes minőség"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "legalizálás/javítás 100k–1M"
+            }
+          ]
+        },
+        {
+          "id": "q119",
+          "text": {
+            "hu": "Vegyszer- vagy olajszennyezés a teleken (régi gépkocsiszerviz, tároló)",
+            "en": "Insulation quality (full surface vs edge bonding)"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q119_a",
+              "text": {
+                "hu": "Nincs ilyen nyom",
+                "en": "Nincs ilyen nyom"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q119_b",
+              "text": {
+                "hu": "Gyanú / foltok, vizsgálat szükséges",
+                "en": "Gyanú / foltok, vizsgálat szükséges"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "talajvizsgálat 50k–200k"
+            }
+          ]
+        },
+        {
+          "id": "q120",
+          "text": {
+            "hu": "Rendszeres karbantartás dokumentáltsága (szervizjegyek, számlák)",
+            "en": "Night / rain visit check"
+          },
+          "tags": [
+            "legal",
+            "permits",
+            "documentation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q120_a",
+              "text": {
+                "hu": "Dokumentált karbantartás minden fontos berendezésről",
+                "en": "Dokumentált karbantartás minden fontos berendezésről"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "q120_b",
+              "text": {
+                "hu": "Hiányos dokumentáció",
+                "en": "Hiányos dokumentáció"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hidden_defects",
+      "name": {
+        "hu": "Összegzés / Általános javaslatok (záró sorok)",
+        "en": "Hidden Defects - Critical Inspection Points"
+      },
+      "weight": 7,
+      "questions": [
+        {
+          "id": "q121",
+          "text": {
+            "hu": "Főbb azonnali teendők (jelöld meg a top 3 problémát):",
+            "en": "Neighbor discreet inquiry"
+          },
+          "tags": [
+            "hidden",
+            "critical",
+            "inspection"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q121_a",
+              "text": {
+                "hu": "Probléma 1: __________",
+                "en": "Probléma 1: __________"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q121_b",
+              "text": {
+                "hu": "Probléma 2: __________",
+                "en": "Probléma 2: __________"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q121_c",
+              "text": {
+                "hu": "Probléma 3: __________",
+                "en": "Probléma 3: __________"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q122",
+          "text": {
+            "hu": "Ajánlott szakértői vizsgálatok (kiemelni)",
+            "en": "Smoke test on windows (draft check)"
+          },
+          "tags": [
+            "hidden",
+            "critical",
+            "inspection"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q122_a",
+              "text": {
+                "hu": "Statikai műszaki szakvélemény",
+                "en": "Statikai műszaki szakvélemény"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q122_b",
+              "text": {
+                "hu": "Villamos felülvizsgálat (mérés, részletes)",
+                "en": "Villamos felülvizsgálat (mérés, részletes)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q122_c",
+              "text": {
+                "hu": "Geotechnikai / talajvizsgálat (szükség esetén)",
+                "en": "Geotechnikai / talajvizsgálat (szükség esetén)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q122_d",
+              "text": {
+                "hu": "Víz- és csatornarendszer műszeres ellenőrzése",
+                "en": "Víz- és csatornarendszer műszeres ellenőrzése"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q123",
+          "text": {
+            "hu": "Javasolt alku-pozíciók (ha találtál értékcsökkentőket)",
+            "en": "Floor level measurement (laser level)"
+          },
+          "tags": [
+            "hidden",
+            "critical",
+            "inspection"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q123_a",
+              "text": {
+                "hu": "Statikai / tető problémák → jelentős árengedmény igényelhető",
+                "en": "Statikai / tető problémák → jelentős árengedmény igényelhető"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q123_b",
+              "text": {
+                "hu": "Csatorna / szennyvíz hiánya → kötöttségi költség levonható az árból",
+                "en": "Csatorna / szennyvíz hiánya → kötöttségi költség levonható az árból"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q123_c",
+              "text": {
+                "hu": "Rejtett elektromos / gáz veszély → szerviz + csere költsége levonható",
+                "en": "Rejtett elektromos / gáz veszély → szerviz + csere költsége levonható"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "q124",
+          "text": {
+            "hu": "Végső minősítés (helyszíni skála)",
+            "en": "Humidity measurement in basement"
+          },
+          "tags": [
+            "hidden",
+            "critical",
+            "inspection"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "q124_a",
+              "text": {
+                "hu": "Ajánlott vétel",
+                "en": "Ajánlott vétel"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q124_b",
+              "text": {
+                "hu": "Alkudni javasolt, feltételekkel",
+                "en": "Alkudni javasolt, feltételekkel"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "q124_c",
+              "text": {
+                "hu": "Nem ajánlott (nagyon kockázatos)",
+                "en": "Nem ajánlott (nagyon kockázatos)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "name": {
+        "hu": "Összegzés és javaslatok",
+        "en": "Summary & Recommendations"
+      },
+      "weight": 2,
+      "questions": []
+    },
+    {
+      "id": "essential_extra",
+      "name": {
+        "hu": "Alapvető kérdések - kiegészítő",
+        "en": "Essential Questions - Additional"
+      },
+      "weight": 5,
+      "questions": [
+        {
+          "id": "eq1",
+          "text": {
+            "hu": "Ki az ingatlan hivatalos tulajdonosa? Van több tulajdonos?",
+            "en": "Who is the official owner? Are there multiple owners?"
+          },
+          "tags": [
+            "legal",
+            "ownership"
+          ],
+          "weight": 5,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "eq1_a",
+              "text": {
+                "hu": "Egy tulajdonos, tiszta jogi helyzet",
+                "en": "Single owner, clear legal situation"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq1_b",
+              "text": {
+                "hu": "Több tulajdonos, de megegyezés van",
+                "en": "Multiple owners, but agreement exists"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq1_c",
+              "text": {
+                "hu": "Több tulajdonos, bonyolult helyzet",
+                "en": "Multiple owners, complicated situation"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "eq2",
+          "text": {
+            "hu": "Miért adja el a tulajdonos a házat?",
+            "en": "Why is the owner selling the house?"
+          },
+          "tags": [
+            "negotiation",
+            "motivation"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": false,
+          "options": [
+            {
+              "id": "eq2_a",
+              "text": {
+                "hu": "Költözés, élethelyzet változás",
+                "en": "Moving, life situation change"
+              },
+              "score": 8,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq2_b",
+              "text": {
+                "hu": "Pénzügyi nehézségek - sürgős eladás",
+                "en": "Financial difficulties - urgent sale"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq2_c",
+              "text": {
+                "hu": "Komoly probléma az ingatlannal",
+                "en": "Serious problem with the property"
+              },
+              "score": 2,
+              "impact": "strong_value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "eq3",
+          "text": {
+            "hu": "Mikor volt utoljára nagyobb felújítás?",
+            "en": "When was the last major renovation?"
+          },
+          "tags": [
+            "renovation",
+            "maintenance"
+          ],
+          "weight": 4,
+          "type": "single_choice",
+          "allowImage": false,
+          "options": [
+            {
+              "id": "eq3_a",
+              "text": {
+                "hu": "5 éven belül",
+                "en": "Within the last 5 years"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq3_b",
+              "text": {
+                "hu": "5-15 éve",
+                "en": "5-15 years ago"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq3_c",
+              "text": {
+                "hu": "15 évnél régebben vagy soha",
+                "en": "More than 15 years ago or never"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "3-10M HUF"
+            }
+          ]
+        },
+        {
+          "id": "eq4",
+          "text": {
+            "hu": "Mennyi az átlagos havi rezsi?",
+            "en": "What is the average monthly utility cost?"
+          },
+          "tags": [
+            "costs",
+            "utilities",
+            "energy"
+          ],
+          "weight": 4,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "eq4_a",
+              "text": {
+                "hu": "Alacsony (< 40.000 Ft/hó)",
+                "en": "Low (< 40,000 HUF/month)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq4_b",
+              "text": {
+                "hu": "Közepes (40.000-80.000 Ft/hó)",
+                "en": "Medium (40,000-80,000 HUF/month)"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq4_c",
+              "text": {
+                "hu": "Magas (> 80.000 Ft/hó)",
+                "en": "High (> 80,000 HUF/month)"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "eq5",
+          "text": {
+            "hu": "Hajlandó-e az eladó árból engedni hibák feltárása esetén?",
+            "en": "Is the seller willing to negotiate price if defects are found?"
+          },
+          "tags": [
+            "negotiation",
+            "price"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": false,
+          "options": [
+            {
+              "id": "eq5_a",
+              "text": {
+                "hu": "Igen, nyitott az alkura",
+                "en": "Yes, open to negotiation"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq5_b",
+              "text": {
+                "hu": "Részben, korlátozott mértékben",
+                "en": "Partially, to a limited extent"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq5_c",
+              "text": {
+                "hu": "Nem, fix ár",
+                "en": "No, fixed price"
+              },
+              "score": 4,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "eq6",
+          "text": {
+            "hu": "A ház költözhető állapotban van?",
+            "en": "Is the house in move-in condition?"
+          },
+          "tags": [
+            "condition",
+            "renovation"
+          ],
+          "weight": 5,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "eq6_a",
+              "text": {
+                "hu": "Igen, azonnal beköltözhető",
+                "en": "Yes, immediately move-in ready"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "eq6_b",
+              "text": {
+                "hu": "Kisebb felújítás szükséges",
+                "en": "Minor renovation needed"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": "500k-2M HUF"
+            },
+            {
+              "id": "eq6_c",
+              "text": {
+                "hu": "Jelentős felújítás szükséges",
+                "en": "Major renovation needed"
+              },
+              "score": 3,
+              "impact": "value_decreasing",
+              "estimatedCost": "5-15M HUF"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "onsite_inspection",
+      "name": {
+        "hu": "Helyszíni vizsgálat",
+        "en": "On-site Visual Inspection"
+      },
+      "weight": 5,
+      "questions": [
+        {
+          "id": "bc1",
+          "text": {
+            "hu": "Körbeséta az utcában: zaj, forgalom",
+            "en": "Walk around the street: noise, traffic"
+          },
+          "tags": [
+            "environment",
+            "noise",
+            "inspection"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "bc1_a",
+              "text": {
+                "hu": "Csendes, nyugodt környék",
+                "en": "Quiet, calm neighborhood"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc1_b",
+              "text": {
+                "hu": "Mérsékelt zajterhelés",
+                "en": "Moderate noise levels"
+              },
+              "score": 7,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc1_c",
+              "text": {
+                "hu": "Állandó zajterhelés",
+                "en": "Constant noise pollution"
+              },
+              "score": 2,
+              "impact": "strong_value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "bc2",
+          "text": {
+            "hu": "Szomszédok megfigyelése: kert állapota, rend",
+            "en": "Neighbor observation: garden condition, order"
+          },
+          "tags": [
+            "environment",
+            "neighbors",
+            "inspection"
+          ],
+          "weight": 2,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "bc2_a",
+              "text": {
+                "hu": "Rendezett, gondozott szomszédság",
+                "en": "Orderly, well-maintained neighborhood"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc2_b",
+              "text": {
+                "hu": "Vegyes állapot",
+                "en": "Mixed condition"
+              },
+              "score": 6,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc2_c",
+              "text": {
+                "hu": "Elhanyagolt, rendezetlen",
+                "en": "Neglected, disorderly"
+              },
+              "score": 2,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "bc3",
+          "text": {
+            "hu": "Este/hajnalban környékbejárás: zaj- és forgalomterhelés",
+            "en": "Evening/dawn area walk: noise and traffic load"
+          },
+          "tags": [
+            "environment",
+            "noise",
+            "inspection",
+            "hidden"
+          ],
+          "weight": 3,
+          "type": "single_choice",
+          "allowImage": false,
+          "options": [
+            {
+              "id": "bc3_a",
+              "text": {
+                "hu": "Csendes este és hajnalban is",
+                "en": "Quiet in evening and at dawn"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc3_b",
+              "text": {
+                "hu": "Mérsékelt esti zaj",
+                "en": "Moderate evening noise"
+              },
+              "score": 6,
+              "impact": "neutral",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc3_c",
+              "text": {
+                "hu": "Zajos este/hajnalban is",
+                "en": "Noisy in evening/at dawn too"
+              },
+              "score": 2,
+              "impact": "value_decreasing",
+              "estimatedCost": null
+            }
+          ]
+        },
+        {
+          "id": "bc4",
+          "text": {
+            "hu": "Esős időben ellenőrzés: hol áll meg a víz",
+            "en": "Rainy weather check: where does water collect"
+          },
+          "tags": [
+            "drainage",
+            "inspection",
+            "hidden"
+          ],
+          "weight": 4,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "bc4_a",
+              "text": {
+                "hu": "Nincs pangó víz, jó elvezetés",
+                "en": "No standing water, good drainage"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc4_b",
+              "text": {
+                "hu": "Kisebb vízgyűjtő pontok",
+                "en": "Minor water collection points"
+              },
+              "score": 6,
+              "impact": "neutral",
+              "estimatedCost": "100k-500k HUF"
+            },
+            {
+              "id": "bc4_c",
+              "text": {
+                "hu": "Jelentős pangó víz a telken/garázsban",
+                "en": "Significant standing water on lot/in garage"
+              },
+              "score": 2,
+              "impact": "strong_value_decreasing",
+              "estimatedCost": "500k-2M HUF"
+            }
+          ]
+        },
+        {
+          "id": "bc5",
+          "text": {
+            "hu": "Hőkamerás vizsgálat: hőhidak, szigetelési hibák",
+            "en": "Thermal camera inspection: thermal bridges, insulation defects"
+          },
+          "tags": [
+            "insulation",
+            "inspection",
+            "thermal",
+            "hidden"
+          ],
+          "weight": 5,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "bc5_a",
+              "text": {
+                "hu": "Nincs jelentős hőhíd",
+                "en": "No significant thermal bridges"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc5_b",
+              "text": {
+                "hu": "Kisebb hőhidak a csatlakozásoknál",
+                "en": "Minor thermal bridges at connections"
+              },
+              "score": 6,
+              "impact": "value_decreasing",
+              "estimatedCost": "200k-800k HUF"
+            },
+            {
+              "id": "bc5_c",
+              "text": {
+                "hu": "Komoly szigetelési hiányosságok",
+                "en": "Serious insulation deficiencies"
+              },
+              "score": 2,
+              "impact": "strong_value_decreasing",
+              "estimatedCost": "1-5M HUF"
+            }
+          ]
+        },
+        {
+          "id": "bc6",
+          "text": {
+            "hu": "Pince levegő páratartalom mérése",
+            "en": "Basement air humidity measurement"
+          },
+          "tags": [
+            "basement",
+            "moisture",
+            "inspection",
+            "hidden"
+          ],
+          "weight": 4,
+          "type": "single_choice",
+          "allowImage": true,
+          "options": [
+            {
+              "id": "bc6_a",
+              "text": {
+                "hu": "Normál páratartalom (< 60%)",
+                "en": "Normal humidity (< 60%)"
+              },
+              "score": 10,
+              "impact": "value_increasing",
+              "estimatedCost": null
+            },
+            {
+              "id": "bc6_b",
+              "text": {
+                "hu": "Emelt páratartalom (60-80%)",
+                "en": "Elevated humidity (60-80%)"
+              },
+              "score": 5,
+              "impact": "value_decreasing",
+              "estimatedCost": "500k-2M HUF"
+            },
+            {
+              "id": "bc6_c",
+              "text": {
+                "hu": "Magas páratartalom (> 80%)",
+                "en": "High humidity (> 80%)"
+              },
+              "score": 1,
+              "impact": "strong_value_decreasing",
+              "estimatedCost": "2-5M HUF"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

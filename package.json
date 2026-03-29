@@ -1,0 +1,29 @@
+{
+  "name": "house-hunt-helper",
+  "version": "1.0.0",
+  "description": "**House Hunt Helper** is your all-in-one toolkit for finding, planning, and swapping your dream home. Whether you're buying, selling, or renovating, this repository provides a collection of helpful resources and tools to make every step of your home journey easier and more organized.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harifaka/house-hunt-helper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/harifaka/house-hunt-helper/issues"
+  },
+  "homepage": "https://github.com/harifaka/house-hunt-helper#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.1.1",
+    "uuid": "^13.0.0"
+  }
+}
