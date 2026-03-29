@@ -4,11 +4,19 @@ const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
+const rateLimit = require('express-rate-limit');
 const { getDb } = require('../database');
 const { getAllQuestions, getGroups, getGroupQuestions, calculateScore } = require('../questions');
 const { getAIConfig, generateReport, analyzeImage, computeImageHash } = require('../ai-service');
 
 // --- Helpers ---
+
+const expensiveApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 async function getHouseExportData(houseId, lang) {
   const db = await getDb();
@@ -117,7 +125,7 @@ router.get('/export/:houseId/csv', async (req, res) => {
   res.send('\uFEFF' + rows.join('\r\n'));
 });
 
-router.get('/export/:houseId/pdf', async (req, res) => {
+router.get('/export/:houseId/pdf', expensiveApiLimiter, async (req, res) => {
   const lang = req.lang || 'hu';
   const data = await getHouseExportData(req.params.houseId, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
@@ -468,7 +476,7 @@ router.get('/ai/report/:reportId', async (req, res) => {
 });
 
 // POST /api/ai/analyze-image — Analyze image and cache description
-router.post('/ai/analyze-image', async (req, res) => {
+router.post('/ai/analyze-image', expensiveApiLimiter, async (req, res) => {
   const { imagePath, answerId } = req.body;
   if (!imagePath) return res.status(400).json({ error: 'imagePath required' });
 

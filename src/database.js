@@ -203,7 +203,7 @@ async function ensurePostgresDatabaseExists() {
       await adminPool.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);
     }
   } catch (error) {
-    if (error.code !== '42P04') {
+    if (!['42P04', '42710'].includes(error.code)) {
       throw error;
     }
   } finally {
