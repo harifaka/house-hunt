@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-header__title"><%= t.houses %></h1>
+        <p class="page-header__subtitle">
+          <%= houses.length %> <%= lang === 'en' ? 'properties' : 'ingatlan' %>
+        </p>
+      </div>
+      <button class="btn btn-accent" onclick="document.getElementById('add-house-modal').classList.add('is-active')">
+        ➕ <%= t.new_house %>
+      </button>
+    </div>
+
+    <% if (typeof successMsg !== 'undefined' && successMsg) { %>
+      <div class="alert alert-success mb-4"><%= successMsg %></div>
+    <% } %>
+
+    <% if (houses.length === 0) { %>
+      <!-- Empty State -->
+      <div class="card text-center p-8 animate-fade-in" id="add-house">
+        <div class="text-2xl mb-3">🏠</div>
+        <h3><%= t.no_houses %></h3>
+        <p class="text-muted mb-4"><%= t.add_first %></p>
+        <button class="btn btn-accent btn-lg" onclick="document.getElementById('add-house-modal').classList.add('is-active')">
+          ➕ <%= t.new_house %>
+        </button>
+      </div>
+    <% } else { %>
+      <!-- Houses Table (Desktop) -->
+      <div class="card d-none d-md-block mb-6">
+        <div class="table-responsive">
+          <table class="table table--striped">
+            <thead>
+              <tr>
+                <th><%= t.name %></th>
+                <th><%= t.address %></th>
+                <th><%= t.asking_price_label %></th>
+                <th><%= t.progress %></th>
+                <th><%= t.score %></th>
+                <th><%= t.created %></th>
+                <th><%= t.actions %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% houses.forEach(function(house) { %>
+                <%
+                  var scoreLevel = 'low';
+                  if (house.overallScore >= 75) scoreLevel = 'great';
+                  else if (house.overallScore >= 50) scoreLevel = 'good';
+                  else if (house.overallScore >= 25) scoreLevel = 'medium';
+
+                  var statusLabel = t.not_started;
+                  var statusBadge = '';
+                  if (house.progress === 100) { statusLabel = t.completed; statusBadge = 'badge--success'; }
+                  else if (house.progress > 0) { statusLabel = t.in_progress; statusBadge = 'badge--warning'; }
+                %>
+                <tr>
+                  <td class="font-bold">
+                    <a href="/houses/<%= house.id %>" class="text-primary"><%= house.name %></a>
+                  </td>
+                  <td class="text-muted"><%= house.address || '—' %></td>
+                  <td class="font-medium">
+                    <% if (house.asking_price) { %>
+                      <%= Number(house.asking_price).toLocaleString() %> Ft
+                    <% } else { %>
+                      —
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="d-flex items-center gap-2">
+                      <div class="progress-bar" style="width: 80px;">
+                        <div class="progress-bar__fill" style="width: <%= house.progress %>%"></div>
+                      </div>
+                      <span class="text-xs text-muted"><%= house.progress %>%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <% if (house.answeredCount > 0) { %>
+                      <span class="score-badge score-badge--sm" data-score-level="<%= scoreLevel %>"><%= house.overallScore %>%</span>
+                    <% } else { %>
+                      <span class="text-muted text-xs">—</span>
+                    <% } %>
+                  </td>
+                  <td class="text-xs text-muted"><%= new Date(house.created_at).toLocaleDateString() %></td>
+                  <td>
+                    <div class="btn-group">
+                      <a href="/houses/<%= house.id %>" class="btn btn-sm btn-outline-primary" title="<%= t.house_details %>">📋</a>
+                      <a href="/quiz/<%= house.id %>" class="btn btn-sm btn-accent" title="<%= house.answeredCount > 0 ? t.continue_quiz : t.start_quiz %>">
+                        <%= house.answeredCount > 0 ? '▶️' : '🔍' %>
+                      </a>
+                      <form method="POST" action="/houses/<%= house.id %>/delete" style="display:inline;"
+                            onsubmit="return confirm('<%= t.confirm_delete %>')">
+                        <button type="submit" class="btn btn-sm btn-danger" title="<%= t.delete %>">🗑️</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Houses Cards (Mobile) -->
+      <div class="d-md-none">
+        <div class="grid grid-2">
+          <% houses.forEach(function(house) { %>
+            <%
+              var scoreLevel = 'low';
+              if (house.overallScore >= 75) scoreLevel = 'great';
+              else if (house.overallScore >= 50) scoreLevel = 'good';
+              else if (house.overallScore >= 25) scoreLevel = 'medium';
+            %>
+            <div class="card card--house animate-slide-up">
+              <div class="card__header d-flex justify-between items-center">
+                <h4 class="card__title mb-0 truncate"><%= house.name %></h4>
+                <% if (house.answeredCount > 0) { %>
+                  <span class="score-badge score-badge--sm" data-score-level="<%= scoreLevel %>"><%= house.overallScore %>%</span>
+                <% } %>
+              </div>
+              <div class="card__body">
+                <% if (house.address) { %>
+                  <p class="text-muted text-sm mb-1">📍 <%= house.address %></p>
+                <% } %>
+                <% if (house.asking_price) { %>
+                  <p class="font-bold text-sm mb-2">💰 <%= Number(house.asking_price).toLocaleString() %> Ft</p>
+                <% } %>
+                <div class="mb-2">
+                  <div class="d-flex justify-between text-xs text-muted mb-1">
+                    <span><%= t.progress %></span>
+                    <span><%= house.answeredCount %>/<%= house.totalQuestions %></span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-bar__fill" style="width: <%= house.progress %>%"></div>
+                  </div>
+                </div>
+                <p class="text-xs text-muted"><%= t.created %>: <%= new Date(house.created_at).toLocaleDateString() %></p>
+              </div>
+              <div class="card__footer d-flex flex-wrap gap-2">
+                <a href="/houses/<%= house.id %>" class="btn btn-sm btn-primary"><%= t.house_details %></a>
+                <a href="/quiz/<%= house.id %>" class="btn btn-sm btn-accent">
+                  <%= house.answeredCount > 0 ? t.continue_quiz : t.start_quiz %>
+                </a>
+                <form method="POST" action="/houses/<%= house.id %>/delete" style="display:inline;"
+                      onsubmit="return confirm('<%= t.confirm_delete %>')">
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t.delete %></button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Add House Modal -->
+    <div class="modal-overlay" id="add-house-modal">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title"><%= t.new_house %></h3>
+          <button class="modal__close" onclick="document.getElementById('add-house-modal').classList.remove('is-active')">&times;</button>
+        </div>
+        <form method="POST" action="/houses">
+          <div class="modal__body">
+            <div class="form-group">
+              <label class="form-label form-label--required" for="house-name"><%= t.name %></label>
+              <input type="text" id="house-name" name="name" class="form-control" required
+                     placeholder="<%= lang === 'en' ? 'e.g. Dream House on Main St.' : 'pl. Álomház a Fő utcán' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="house-address"><%= t.address %></label>
+              <input type="text" id="house-address" name="address" class="form-control"
+                     placeholder="<%= lang === 'en' ? 'Full address' : 'Teljes cím' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="house-price"><%= t.price %></label>
+              <input type="number" id="house-price" name="asking_price" class="form-control" min="0" step="1"
+                     placeholder="<%= lang === 'en' ? 'e.g. 45000000' : 'pl. 45000000' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="house-notes"><%= t.notes %></label>
+              <textarea id="house-notes" name="notes" class="form-control" rows="3"
+                        placeholder="<%= t.add_notes %>"></textarea>
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('add-house-modal').classList.remove('is-active')"><%= t.cancel %></button>
+            <button type="submit" class="btn btn-accent"><%= t.save %></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+  // Open modal if URL hash is #add-house
+  if (window.location.hash === '#add-house') {
+    document.getElementById('add-house-modal').classList.add('is-active');
+  }
+  // Close modal on overlay click
+  document.getElementById('add-house-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('is-active');
+  });
+</script>
+</body>
+</html>

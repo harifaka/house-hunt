@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="results-hero mb-6 animate-fade-in">
+      <h1 class="mb-2"><%= t.app_title %></h1>
+      <p class="results-hero__label"><%= t.tagline %></p>
+    </section>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-3 mb-6">
+      <div class="card card--stat animate-slide-up">
+        <div class="card__body text-center">
+          <div class="card__stat-value"><%= totalHouses %></div>
+          <div class="card__stat-label">🏡 <%= t.houses %></div>
+        </div>
+      </div>
+      <div class="card card--stat animate-slide-up">
+        <div class="card__body text-center">
+          <div class="card__stat-value"><%= avgScore %>%</div>
+          <div class="card__stat-label">📊 <%= t.overall_score %></div>
+        </div>
+      </div>
+      <div class="card card--stat animate-slide-up">
+        <div class="card__body text-center">
+          <div class="card__stat-value"><%= completedCount %></div>
+          <div class="card__stat-label">✅ <%= t.completed %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex flex-wrap gap-3 mb-6">
+      <a href="/houses" class="btn btn-primary btn-lg">🏡 <%= t.houses %></a>
+      <a href="/houses#add-house" class="btn btn-accent btn-lg">➕ <%= t.new_house %></a>
+      <a href="/calculators/energy" class="btn btn-outline">⚡ <%= lang === 'en' ? 'Energy Calculator' : 'Energia kalkulátor' %></a>
+      <a href="/calculators/heating" class="btn btn-outline">🔥 <%= lang === 'en' ? 'Heating Calculator' : 'Fűtés kalkulátor' %></a>
+    </div>
+
+    <% if (houses.length === 0) { %>
+      <!-- Empty State -->
+      <div class="card text-center p-8 animate-fade-in">
+        <div class="text-2xl mb-3">🏠</div>
+        <h3><%= t.no_houses %></h3>
+        <p class="text-muted mb-4"><%= t.add_first %></p>
+        <a href="/houses#add-house" class="btn btn-accent btn-lg">➕ <%= t.new_house %></a>
+      </div>
+    <% } else { %>
+      <!-- House Cards Grid -->
+      <h2 class="mb-4"><%= t.houses %></h2>
+      <div class="grid grid-3">
+        <% houses.forEach(function(house) { %>
+          <%
+            var scoreLevel = 'low';
+            if (house.overallScore >= 75) scoreLevel = 'great';
+            else if (house.overallScore >= 50) scoreLevel = 'good';
+            else if (house.overallScore >= 25) scoreLevel = 'medium';
+          %>
+          <div class="card card--house card--clickable animate-slide-up">
+            <div class="card__header d-flex justify-between items-center">
+              <h4 class="card__title mb-0 truncate"><%= house.name %></h4>
+              <% if (house.answeredCount > 0) { %>
+                <span class="score-badge score-badge--sm" data-score-level="<%= scoreLevel %>"><%= house.overallScore %>%</span>
+              <% } %>
+            </div>
+            <div class="card__body">
+              <% if (house.address) { %>
+                <p class="card--house__address text-muted text-sm mb-2">📍 <%= house.address %></p>
+              <% } %>
+              <% if (house.asking_price) { %>
+                <p class="card--house__price font-bold mb-3">
+                  💰 <%= Number(house.asking_price).toLocaleString() %> Ft
+                </p>
+              <% } %>
+              <div class="mb-2">
+                <div class="d-flex justify-between text-xs text-muted mb-1">
+                  <span><%= t.progress %></span>
+                  <span><%= house.answeredCount %> / <%= house.totalQuestions %></span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar__fill" style="width: <%= house.progress %>%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card__footer d-flex flex-wrap gap-2">
+              <a href="/houses/<%= house.id %>" class="btn btn-sm btn-primary">📋 <%= t.house_details %></a>
+              <% if (house.progress < 100) { %>
+                <a href="/quiz/<%= house.id %>" class="btn btn-sm btn-accent">
+                  <%= house.answeredCount > 0 ? t.continue_quiz : t.start_quiz %>
+                </a>
+              <% } else { %>
+                <a href="/houses/<%= house.id %>" class="btn btn-sm btn-success"><%= t.view_results %></a>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+</body>
+</html>

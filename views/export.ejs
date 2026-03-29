@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <h1 class="mb-2">📤 <%= t.export %></h1>
+    <p class="text-muted mb-6"><%= lang === 'en' ? 'Export inspection data in various formats' : 'Szemle adatok exportálása különböző formátumokban' %></p>
+
+    <% if (houses.length === 0) { %>
+      <div class="card text-center p-8">
+        <div class="text-2xl mb-3">🏠</div>
+        <h3><%= t.no_houses %></h3>
+        <p class="text-muted mb-4"><%= t.add_first %></p>
+        <a href="/houses#add-house" class="btn btn-accent btn-lg">➕ <%= t.new_house %></a>
+      </div>
+    <% } else { %>
+
+    <!-- House Selection -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Select House' : 'Válassz házat' %></h3>
+      </div>
+      <div class="card__body">
+        <select id="export-house" class="form-control mb-4" style="max-width:400px;">
+          <% houses.forEach(function(h) { %>
+            <option value="<%= h.id %>"><%= h.name %><%= h.address ? ' — ' + h.address : '' %> (<%= h.overallScore %>%)</option>
+          <% }); %>
+        </select>
+
+        <!-- Format Selection -->
+        <div class="mb-4">
+          <label class="form-label"><%= t.format %></label>
+          <div class="d-flex flex-wrap gap-3">
+            <label class="d-flex items-center gap-2">
+              <input type="radio" name="format" value="pdf" checked> PDF
+            </label>
+            <label class="d-flex items-center gap-2">
+              <input type="radio" name="format" value="json"> JSON
+            </label>
+            <label class="d-flex items-center gap-2">
+              <input type="radio" name="format" value="csv"> CSV
+            </label>
+          </div>
+        </div>
+
+        <!-- Language Selection -->
+        <div class="mb-4">
+          <label class="form-label"><%= t.language %></label>
+          <div class="d-flex flex-wrap gap-3">
+            <label class="d-flex items-center gap-2">
+              <input type="radio" name="export-lang" value="hu" <%= lang === 'hu' ? 'checked' : '' %>> Magyar (HU)
+            </label>
+            <label class="d-flex items-center gap-2">
+              <input type="radio" name="export-lang" value="en" <%= lang === 'en' ? 'checked' : '' %>> English (EN)
+            </label>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3">
+          <button type="button" class="btn btn-primary btn-lg" id="download-btn">
+            📥 <%= t.download %>
+          </button>
+          <button type="button" class="btn btn-outline" id="preview-btn">
+            👁️ <%= t.preview %>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Area -->
+    <div class="card mb-6" id="preview-card" style="display:none;">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= t.preview %></h3>
+      </div>
+      <div class="card__body">
+        <pre id="preview-content" style="max-height:500px; overflow:auto; background:var(--gray-50); padding:var(--sp-4); border-radius:var(--radius); font-size:var(--fs-sm); white-space:pre-wrap; word-break:break-word;"></pre>
+      </div>
+    </div>
+
+    <!-- Bulk Export -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Bulk Export' : 'Tömeges export' %></h3>
+      </div>
+      <div class="card__body">
+        <p class="text-muted mb-3"><%= lang === 'en' ? 'Export all houses at once' : 'Összes ház exportálása egyszerre' %></p>
+        <div class="d-flex flex-wrap gap-3">
+          <button type="button" class="btn btn-outline bulk-export" data-format="json">📄 JSON (<%= t.total %>)</button>
+          <button type="button" class="btn btn-outline bulk-export" data-format="csv">📊 CSV (<%= t.total %>)</button>
+        </div>
+      </div>
+    </div>
+
+    <% } %>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+(function() {
+  var downloadBtn = document.getElementById('download-btn');
+  var previewBtn = document.getElementById('preview-btn');
+  if (!downloadBtn) return;
+
+  function getSelectedFormat() {
+    var radios = document.querySelectorAll('input[name="format"]');
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) return radios[i].value;
+    }
+    return 'pdf';
+  }
+
+  function getSelectedLang() {
+    var radios = document.querySelectorAll('input[name="export-lang"]');
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) return radios[i].value;
+    }
+    return '<%= lang %>';
+  }
+
+  function getHouseId() {
+    return document.getElementById('export-house').value;
+  }
+
+  downloadBtn.addEventListener('click', function() {
+    var houseId = getHouseId();
+    var format = getSelectedFormat();
+    var exportLang = getSelectedLang();
+    window.location.href = '/api/export/' + houseId + '/' + format + '?lang=' + exportLang;
+  });
+
+  previewBtn.addEventListener('click', function() {
+    var houseId = getHouseId();
+    var format = getSelectedFormat();
+    var exportLang = getSelectedLang();
+    var previewCard = document.getElementById('preview-card');
+    var previewContent = document.getElementById('preview-content');
+
+    if (format === 'pdf') {
+      previewCard.style.display = 'block';
+      previewContent.textContent = '<%= lang === "en" ? "PDF preview is not available. Click Download to get the file." : "PDF előnézet nem elérhető. Kattints a Letöltés gombra a fájl letöltéséhez." %>';
+      return;
+    }
+
+    previewCard.style.display = 'block';
+    previewContent.textContent = '<%= lang === "en" ? "Loading..." : "Betöltés..." %>';
+
+    fetch('/api/export/' + houseId + '/' + format + '?lang=' + exportLang)
+      .then(function(r) { return r.text(); })
+      .then(function(text) {
+        if (format === 'json') {
+          try { text = JSON.stringify(JSON.parse(text), null, 2); } catch(e) {}
+        }
+        previewContent.textContent = text;
+      })
+      .catch(function(err) {
+        previewContent.textContent = 'Error: ' + err.message;
+      });
+  });
+
+  // Bulk export
+  document.querySelectorAll('.bulk-export').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var format = this.getAttribute('data-format');
+      var exportLang = getSelectedLang();
+      var houseSelect = document.getElementById('export-house');
+      var options = houseSelect.options;
+      for (var i = 0; i < options.length; i++) {
+        window.open('/api/export/' + options[i].value + '/' + format + '?lang=' + exportLang, '_blank');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

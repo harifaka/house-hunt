@@ -1,0 +1,16 @@
+<header class="header">
+  <button class="hamburger" id="hamburger-toggle" aria-label="Toggle menu">
+    <span class="hamburger__line"></span>
+    <span class="hamburger__line"></span>
+    <span class="hamburger__line"></span>
+  </button>
+
+  <a href="/" class="header__brand">
+    🏠 <%= t.app_title %>
+  </a>
+
+  <div class="header__actions">
+    <a href="<%= typeof currentPath !== 'undefined' ? currentPath : '/' %>?lang=hu"<%= lang === 'hu' ? ' class="font-bold"' : '' %>>HU</a>
+    <a href="<%= typeof currentPath !== 'undefined' ? currentPath : '/' %>?lang=en"<%= lang === 'en' ? ' class="font-bold"' : '' %>>EN</a>
+  </div>
+</header>

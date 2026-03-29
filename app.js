@@ -57,7 +57,19 @@ app.use((req, res, next) => {
     critical_issues: 'Critical issues found', add_notes: 'Add notes...',
     excellent: 'Excellent', good: 'Good', fair: 'Fair', poor: 'Poor',
     created: 'Created', asking_price_label: 'Asking Price',
-    confirm_delete: 'Are you sure you want to delete this house and all its inspection data?'
+    confirm_delete: 'Are you sure you want to delete this house and all its inspection data?',
+    energy_calculator: 'Energy Calculator', heating_calculator: 'Heating Calculator',
+    calculators: 'Calculators', export: 'Export', ai_analysis: 'AI Analysis',
+    wattage: 'Wattage', duty_cycle: 'Duty Cycle', daily_hours: 'Daily Hours',
+    consumption: 'Consumption', cost: 'Cost',
+    wall_type: 'Wall Type', insulation: 'Insulation', window: 'Window',
+    door: 'Door', glass_layers: 'Glass Layers', heat_loss: 'Heat Loss',
+    temperature: 'Temperature',
+    download: 'Download', format: 'Format', preview: 'Preview',
+    analyze: 'Analyze', provider: 'Provider', endpoint: 'Endpoint',
+    model: 'Model', api_key: 'API Key',
+    total: 'Total', monthly: 'Monthly', yearly: 'Yearly', daily: 'Daily',
+    add_row: 'Add Row', remove_row: 'Remove Row'
   } : {
     home: 'Főoldal', quiz: 'Szemle kérdőív', admin: 'Admin', houses: 'Házak',
     new_house: 'Új ház', score: 'Pontszám', results: 'Eredmények', save: 'Mentés',
@@ -82,7 +94,19 @@ app.use((req, res, next) => {
     critical_issues: 'Kritikus problémák', add_notes: 'Megjegyzés...',
     excellent: 'Kiváló', good: 'Jó', fair: 'Közepes', poor: 'Gyenge',
     created: 'Létrehozva', asking_price_label: 'Kért ár',
-    confirm_delete: 'Biztosan törölni szeretnéd ezt a házat és az összes szemle adatot?'
+    confirm_delete: 'Biztosan törölni szeretnéd ezt a házat és az összes szemle adatot?',
+    energy_calculator: 'Energia kalkulátor', heating_calculator: 'Fűtés kalkulátor',
+    calculators: 'Kalkulátorok', export: 'Exportálás', ai_analysis: 'AI elemzés',
+    wattage: 'Teljesítmény', duty_cycle: 'Üzemidő', daily_hours: 'Napi órák',
+    consumption: 'Fogyasztás', cost: 'Költség',
+    wall_type: 'Fal típusa', insulation: 'Szigetelés', window: 'Ablak',
+    door: 'Ajtó', glass_layers: 'Üvegrétegek', heat_loss: 'Hőveszteség',
+    temperature: 'Hőmérséklet',
+    download: 'Letöltés', format: 'Formátum', preview: 'Előnézet',
+    analyze: 'Elemzés', provider: 'Szolgáltató', endpoint: 'Végpont',
+    model: 'Modell', api_key: 'API kulcs',
+    total: 'Összesen', monthly: 'Havi', yearly: 'Éves', daily: 'Napi',
+    add_row: 'Sor hozzáadása', remove_row: 'Sor törlése'
   };
   next();
 });
@@ -92,6 +116,17 @@ app.use('/', require('./src/routes/home'));
 app.use('/quiz', require('./src/routes/quiz'));
 app.use('/admin', require('./src/routes/admin'));
 app.use('/api', require('./src/routes/api'));
+app.use('/calculators', require('./src/routes/calculators'));
+
+// Convenience routes that delegate to admin router handlers
+app.get('/export', (req, res, next) => {
+  req.url = '/export';
+  require('./src/routes/admin').handle(req, res, next);
+});
+app.get('/ai', (req, res, next) => {
+  req.url = '/ai-analysis';
+  require('./src/routes/admin').handle(req, res, next);
+});
 
 app.listen(PORT, () => {
   console.log(`House Hunt Helper running at http://localhost:${PORT}`);

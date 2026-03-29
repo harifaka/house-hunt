@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="/houses" class="btn btn-ghost btn-sm">← <%= t.back_to_houses %></a>
+    </div>
+
+    <!-- House Info Header -->
+    <div class="card mb-6 animate-fade-in">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-3">
+        <div>
+          <h1 class="card__title mb-1"><%= house.name %></h1>
+          <% if (house.address) { %>
+            <p class="text-muted text-sm">📍 <%= house.address %></p>
+          <% } %>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('edit-house-modal').classList.add('is-active')">
+            ✏️ <%= t.edit %>
+          </button>
+          <form method="POST" action="/houses/<%= house.id %>/delete" style="display:inline;"
+                onsubmit="return confirm('<%= t.confirm_delete %>')">
+            <button type="submit" class="btn btn-sm btn-danger">🗑️ <%= t.delete %></button>
+          </form>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="d-flex flex-wrap gap-4">
+          <% if (house.asking_price) { %>
+            <div>
+              <span class="text-xs text-muted uppercase"><%= t.asking_price_label %></span>
+              <p class="font-bold text-lg"><%= Number(house.asking_price).toLocaleString() %> Ft</p>
+            </div>
+          <% } %>
+          <div>
+            <span class="text-xs text-muted uppercase"><%= t.created %></span>
+            <p class="font-medium"><%= new Date(house.created_at).toLocaleDateString() %></p>
+          </div>
+          <div>
+            <span class="text-xs text-muted uppercase"><%= t.progress %></span>
+            <p class="font-medium"><%= house.answeredCount %> / <%= house.totalQuestions %> (<%= house.progress %>%)</p>
+          </div>
+        </div>
+        <% if (house.notes) { %>
+          <div class="mt-4">
+            <span class="text-xs text-muted uppercase"><%= t.notes %></span>
+            <p class="mt-1"><%= house.notes %></p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Score Overview -->
+    <%
+      var scoreLevel = 'low';
+      if (house.overallScore >= 75) scoreLevel = 'great';
+      else if (house.overallScore >= 50) scoreLevel = 'good';
+      else if (house.overallScore >= 25) scoreLevel = 'medium';
+
+      var recLabel = t.critical_issues;
+      var recClass = 'alert-danger';
+      if (house.overallScore >= 75) { recLabel = t.good_condition; recClass = 'alert-success'; }
+      else if (house.overallScore >= 50) { recLabel = t.needs_attention; recClass = 'alert-warning'; }
+    %>
+
+    <% if (house.answeredCount > 0) { %>
+      <div class="results-hero mb-6 animate-slide-up">
+        <div class="results-hero__score"><%= house.overallScore %>%</div>
+        <div class="results-hero__label"><%= t.overall_score %></div>
+      </div>
+
+      <% if (house.progress > 0) { %>
+        <div class="alert <%= recClass %> mb-6">
+          <div class="alert__title"><%= t.recommendation %></div>
+          <p><%= recLabel %></p>
+        </div>
+      <% } %>
+    <% } %>
+
+    <!-- Action Buttons -->
+    <div class="d-flex flex-wrap gap-3 mb-6">
+      <% if (house.progress < 100) { %>
+        <a href="/quiz/<%= house.id %>" class="btn btn-accent btn-lg">
+          <%= house.answeredCount > 0 ? '▶️ ' + t.continue_quiz : '🔍 ' + t.start_quiz %>
+        </a>
+      <% } else { %>
+        <a href="/quiz/<%= house.id %>" class="btn btn-success btn-lg">✅ <%= t.view_results %></a>
+      <% } %>
+      <a href="/ai?house=<%= house.id %>" class="btn btn-outline">🤖 <%= lang === 'en' ? 'AI Analysis' : 'AI elemzés' %></a>
+    </div>
+
+    <!-- Inspection Progress by Category -->
+    <div class="card mb-6 animate-slide-up">
+      <div class="card__header">
+        <h3 class="card__title"><%= t.inspection_progress %></h3>
+      </div>
+      <div class="card__body">
+        <% groups.forEach(function(group) { %>
+          <%
+            var gs = house.groupScores[group.id] || { answered: 0, total: group.questionCount, score: 0 };
+            var gProgress = gs.total > 0 ? Math.round((gs.answered / gs.total) * 100) : 0;
+            var gScoreLevel = 'low';
+            if (gs.score >= 75) gScoreLevel = 'great';
+            else if (gs.score >= 50) gScoreLevel = 'good';
+            else if (gs.score >= 25) gScoreLevel = 'medium';
+          %>
+          <div class="results-group">
+            <div class="results-group__header">
+              <span class="results-group__name"><%= group.name %></span>
+              <span class="d-flex items-center gap-2">
+                <span class="text-xs text-muted"><%= gs.answered %>/<%= gs.total %></span>
+                <% if (gs.answered > 0) { %>
+                  <span class="score-badge score-badge--sm" data-score-level="<%= gScoreLevel %>"><%= gs.score %>%</span>
+                <% } %>
+              </span>
+            </div>
+            <div class="score-bar score-bar--sm">
+              <div class="score-bar__fill" data-score-level="<%= gScoreLevel %>" style="width: <%= gProgress %>%"></div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <% if (house.answeredCount > 0) { %>
+      <!-- Category Scores -->
+      <div class="card mb-6 animate-slide-up">
+        <div class="card__header">
+          <h3 class="card__title"><%= t.category_scores %></h3>
+        </div>
+        <div class="card__body">
+          <div class="grid grid-2">
+            <% groups.forEach(function(group) { %>
+              <%
+                var gs = house.groupScores[group.id] || { score: 0, answered: 0, total: group.questionCount, weight: group.weight };
+                var gScoreLevel = 'low';
+                if (gs.score >= 75) gScoreLevel = 'great';
+                else if (gs.score >= 50) gScoreLevel = 'good';
+                else if (gs.score >= 25) gScoreLevel = 'medium';
+
+                var condLabel = t.poor;
+                if (gs.score >= 75) condLabel = t.excellent;
+                else if (gs.score >= 50) condLabel = t.good;
+                else if (gs.score >= 25) condLabel = t.fair;
+              %>
+              <% if (gs.answered > 0) { %>
+                <div class="card card--stat">
+                  <div class="card__body text-center">
+                    <div class="card__stat-value" style="color: var(--<%= gScoreLevel === 'great' ? 'success' : gScoreLevel === 'good' ? 'success' : gScoreLevel === 'medium' ? 'warning' : 'danger' %>)">
+                      <%= gs.score %>%
+                    </div>
+                    <div class="card__stat-label"><%= group.name %></div>
+                    <span class="badge badge--<%= gScoreLevel === 'great' ? 'success' : gScoreLevel === 'good' ? 'success' : gScoreLevel === 'medium' ? 'warning' : 'danger' %> mt-2">
+                      <%= condLabel %>
+                    </span>
+                  </div>
+                </div>
+              <% } %>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Options -->
+      <div class="card mb-6 animate-slide-up">
+        <div class="card__header">
+          <h3 class="card__title"><%= lang === 'en' ? 'Export' : 'Exportálás' %></h3>
+        </div>
+        <div class="card__body">
+          <div class="export-options">
+            <a href="/api/houses/<%= house.id %>/export/pdf" class="export-option">
+              <div class="export-option__icon">📄</div>
+              <div class="export-option__info">
+                <div class="export-option__title">PDF</div>
+                <div class="export-option__desc"><%= lang === 'en' ? 'Download full inspection report' : 'Teljes szemle jelentés letöltése' %></div>
+              </div>
+            </a>
+            <a href="/api/houses/<%= house.id %>/export/json" class="export-option">
+              <div class="export-option__icon">📋</div>
+              <div class="export-option__info">
+                <div class="export-option__title">JSON</div>
+                <div class="export-option__desc"><%= lang === 'en' ? 'Export raw data' : 'Nyers adatok exportálása' %></div>
+              </div>
+            </a>
+            <a href="/api/houses/<%= house.id %>/export/csv" class="export-option">
+              <div class="export-option__icon">📊</div>
+              <div class="export-option__info">
+                <div class="export-option__title">CSV</div>
+                <div class="export-option__desc"><%= lang === 'en' ? 'Export for spreadsheet' : 'Export táblázatkezelőhöz' %></div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Edit House Modal -->
+    <div class="modal-overlay" id="edit-house-modal">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title"><%= t.edit %> — <%= house.name %></h3>
+          <button class="modal__close" onclick="document.getElementById('edit-house-modal').classList.remove('is-active')">&times;</button>
+        </div>
+        <form method="POST" action="/houses/<%= house.id %>">
+          <div class="modal__body">
+            <div class="form-group">
+              <label class="form-label form-label--required" for="edit-name"><%= t.name %></label>
+              <input type="text" id="edit-name" name="name" class="form-control" required value="<%= house.name %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-address"><%= t.address %></label>
+              <input type="text" id="edit-address" name="address" class="form-control" value="<%= house.address || '' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-price"><%= t.price %></label>
+              <input type="number" id="edit-price" name="asking_price" class="form-control" min="0" step="1"
+                     value="<%= house.asking_price || '' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-notes"><%= t.notes %></label>
+              <textarea id="edit-notes" name="notes" class="form-control" rows="3"><%= house.notes || '' %></textarea>
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-house-modal').classList.remove('is-active')"><%= t.cancel %></button>
+            <button type="submit" class="btn btn-primary"><%= t.save %></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('is-active');
+    });
+  });
+</script>
+</body>
+</html>

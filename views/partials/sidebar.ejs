@@ -1,0 +1,39 @@
+<%
+  var cp = typeof currentPath !== 'undefined' ? currentPath : '';
+%>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<aside class="sidebar" id="sidebar">
+  <nav class="nav">
+    <a href="/" class="nav__link<%= cp === '/' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">🏠</span> <%= t.home %>
+    </a>
+    <a href="/houses" class="nav__link<%= cp.startsWith('/houses') ? ' is-active' : '' %>">
+      <span class="nav__link-icon">🏡</span> <%= t.houses %>
+    </a>
+    <a href="/quiz" class="nav__link<%= cp.startsWith('/quiz') ? ' is-active' : '' %>">
+      <span class="nav__link-icon">📋</span> <%= t.quiz %>
+    </a>
+
+    <div class="nav__section-title"><%= lang === 'en' ? 'Calculators' : 'Kalkulátorok' %></div>
+    <a href="/calculators/energy" class="nav__link<%= cp === '/calculators/energy' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">⚡</span> <%= lang === 'en' ? 'Energy Calculator' : 'Energia kalkulátor' %>
+    </a>
+    <a href="/calculators/heating" class="nav__link<%= cp === '/calculators/heating' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">🔥</span> <%= lang === 'en' ? 'Heating Calculator' : 'Fűtés kalkulátor' %>
+    </a>
+
+    <div class="nav__section-title"><%= lang === 'en' ? 'Tools' : 'Eszközök' %></div>
+    <a href="/export" class="nav__link<%= cp === '/export' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">📤</span> <%= lang === 'en' ? 'Export' : 'Exportálás' %>
+    </a>
+    <a href="/ai" class="nav__link<%= cp === '/ai' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">🤖</span> <%= lang === 'en' ? 'AI Analysis' : 'AI elemzés' %>
+    </a>
+
+    <!-- Spacer before settings -->
+    <div class="nav__section-title">&nbsp;</div>
+    <a href="/admin" class="nav__link<%= cp === '/admin' ? ' is-active' : '' %>">
+      <span class="nav__link-icon">⚙️</span> <%= t.settings %>
+    </a>
+  </nav>
+</aside>

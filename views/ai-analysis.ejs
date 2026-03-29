@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <h1 class="mb-2">🤖 <%= t.ai_analysis %></h1>
+    <p class="text-muted mb-6"><%= lang === 'en' ? 'Use AI to analyze inspection results' : 'AI használata a szemle eredmények elemzéséhez' %></p>
+
+    <!-- Provider Info -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'AI Provider' : 'AI szolgáltató' %></h3>
+        <a href="/admin" class="btn btn-sm btn-outline">⚙️ <%= t.settings %></a>
+      </div>
+      <div class="card__body">
+        <% if (aiConfig.provider) { %>
+          <p><strong><%= t.provider %>:</strong> <%= aiConfig.provider %></p>
+          <p><strong><%= t.model %>:</strong> <%= aiConfig.model || 'N/A' %></p>
+          <p><strong><%= t.endpoint %>:</strong> <%= aiConfig.endpoint || 'N/A' %></p>
+        <% } else { %>
+          <div class="text-center p-4">
+            <p class="text-muted"><%= lang === 'en' ? 'AI is not configured yet.' : 'Az AI még nincs konfigurálva.' %></p>
+            <a href="/admin" class="btn btn-primary mt-2">⚙️ <%= lang === 'en' ? 'Configure AI' : 'AI konfigurálás' %></a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (aiConfig.provider) { %>
+    <!-- House Selection -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Select House' : 'Válassz házat' %></h3>
+      </div>
+      <div class="card__body">
+        <% if (houses.length === 0) { %>
+          <p class="text-muted"><%= t.no_houses %></p>
+        <% } else { %>
+          <select id="ai-house" class="form-control mb-4" style="max-width:400px;">
+            <option value=""><%= lang === 'en' ? '— Select house —' : '— Válassz házat —' %></option>
+            <% houses.forEach(function(h) { %>
+              <option value="<%= h.id %>"><%= h.name %><%= h.address ? ' — ' + h.address : '' %></option>
+            <% }); %>
+          </select>
+
+          <!-- Analysis Options -->
+          <div class="mb-4">
+            <label class="form-label"><%= lang === 'en' ? 'Analysis Options' : 'Elemzési opciók' %></label>
+            <div class="d-flex flex-wrap gap-3">
+              <label class="d-flex items-center gap-2">
+                <input type="checkbox" id="opt-condition" checked>
+                <%= lang === 'en' ? 'Overall condition assessment' : 'Általános állapotértékelés' %>
+              </label>
+              <label class="d-flex items-center gap-2">
+                <input type="checkbox" id="opt-cost" checked>
+                <%= lang === 'en' ? 'Cost estimation review' : 'Költségbecslés áttekintése' %>
+              </label>
+              <label class="d-flex items-center gap-2">
+                <input type="checkbox" id="opt-priority" checked>
+                <%= lang === 'en' ? 'Priority recommendations' : 'Prioritási javaslatok' %>
+              </label>
+              <label class="d-flex items-center gap-2">
+                <input type="checkbox" id="opt-images">
+                <%= lang === 'en' ? 'Image analysis (if available)' : 'Képelemzés (ha elérhető)' %>
+              </label>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary btn-lg" id="run-analysis">
+            🚀 <%= t.analyze %>
+          </button>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Results Area -->
+    <div class="card mb-6" id="results-card" style="display:none;">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Analysis Results' : 'Elemzés eredménye' %></h3>
+      </div>
+      <div class="card__body">
+        <div id="ai-results" class="text-muted">
+          <%= lang === 'en' ? 'Waiting for analysis...' : 'Várakozás az elemzésre...' %>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+(function() {
+  var runBtn = document.getElementById('run-analysis');
+  if (!runBtn) return;
+
+  runBtn.addEventListener('click', function() {
+    var houseId = document.getElementById('ai-house').value;
+    if (!houseId) {
+      alert('<%= lang === "en" ? "Please select a house" : "Kérlek válassz házat" %>');
+      return;
+    }
+
+    var resultsCard = document.getElementById('results-card');
+    var resultsDiv = document.getElementById('ai-results');
+    resultsCard.style.display = 'block';
+    resultsDiv.innerHTML = '<p class="text-muted"><%= lang === "en" ? "Analyzing..." : "Elemzés folyamatban..." %></p>';
+    runBtn.disabled = true;
+
+    var options = {
+      condition: document.getElementById('opt-condition').checked,
+      cost: document.getElementById('opt-cost').checked,
+      priority: document.getElementById('opt-priority').checked,
+      images: document.getElementById('opt-images').checked
+    };
+
+    fetch('/api/ai/analyze/' + houseId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ options: options })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      runBtn.disabled = false;
+      if (data.error) {
+        resultsDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + data.error + '</p>';
+      } else {
+        resultsDiv.innerHTML =
+          '<div class="mb-3"><strong><%= lang === "en" ? "Status" : "Állapot" %>:</strong> ' + data.message + '</div>' +
+          '<div class="mb-3"><strong><%= lang === "en" ? "Provider" : "Szolgáltató" %>:</strong> ' + (data.config ? data.config.provider : 'N/A') + '</div>' +
+          '<div class="mb-3"><strong><%= lang === "en" ? "Model" : "Modell" %>:</strong> ' + (data.config ? data.config.model : 'N/A') + '</div>' +
+          '<div class="mb-3"><strong><%= lang === "en" ? "House" : "Ház" %>:</strong> ' + (data.houseData ? data.houseData.name : '') + ' (' + (data.houseData ? data.houseData.overallScore : 0) + '%)</div>';
+      }
+    })
+    .catch(function(err) {
+      runBtn.disabled = false;
+      resultsDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + err.message + '</p>';
+    });
+  });
+})();
+</script>
+</body>
+</html>

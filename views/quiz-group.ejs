@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Sticky Progress Bar -->
+    <div class="quiz-progress">
+      <div class="d-flex justify-between items-center mb-1">
+        <span class="quiz-progress__text"><%= group.name %></span>
+        <span class="quiz-progress__text"><%= answeredInGroup %> / <%= totalInGroup %> <%= t.answered %></span>
+      </div>
+      <div class="quiz-progress__bar">
+        <div class="quiz-progress__fill" style="width: <%= totalInGroup > 0 ? Math.round((answeredInGroup / totalInGroup) * 100) : 0 %>%"></div>
+      </div>
+      <div class="quiz-progress__text"><%= t.group %> <%= groupIndex + 1 %> <%= t.of %> <%= totalGroups %></div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="/quiz/<%= house.id %>" class="btn btn-ghost btn-sm">← <%= t.quiz %></a>
+    </div>
+
+    <form method="POST" action="/quiz/<%= house.id %>/<%= group.id %>" id="quiz-form">
+      <% group.questions.forEach(function(q, qi) { %>
+        <div class="card mb-4 animate-fade-in quiz-question" id="question-<%= q.id %>">
+          <div class="card__body">
+            <div class="quiz-question__weight"><%= t.weight %>: <%= q.weight %></div>
+            <div class="quiz-question__text"><%= qi + 1 %>. <%= q.text %></div>
+
+            <!-- Options -->
+            <div class="quiz-options">
+              <% q.options.forEach(function(opt) { %>
+                <%
+                  var isSelected = q.currentAnswer && q.currentAnswer.option_id === opt.id;
+                  var impactClass = 'neutral';
+                  var impactLabel = t.neutral;
+                  if (opt.impact === 'value_increasing') { impactClass = 'positive'; impactLabel = t.value_increasing; }
+                  else if (opt.impact === 'value_decreasing') { impactClass = 'negative'; impactLabel = t.value_decreasing; }
+                  else if (opt.impact === 'strong_value_decreasing') { impactClass = 'negative'; impactLabel = t.strong_value_decreasing; }
+                %>
+                <label class="quiz-option<%= isSelected ? ' is-selected' : '' %>"
+                       data-house-id="<%= house.id %>"
+                       data-question-id="<%= q.id %>">
+                  <input type="radio"
+                         name="option_<%= q.id %>"
+                         value="<%= opt.id %>"
+                         <%= isSelected ? 'checked' : '' %>
+                         style="display:none">
+                  <div class="quiz-option__radio"></div>
+                  <div class="quiz-option__label">
+                    <div><%= opt.text %></div>
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                      <span class="quiz-option__impact quiz-option__impact--<%= impactClass %>"><%= impactLabel %></span>
+                      <span class="text-xs text-muted"><%= t.score %>: <%= opt.score %>/10</span>
+                      <% if (opt.estimatedCost) { %>
+                        <span class="text-xs text-muted">💰 <%= t.estimated_cost %>: <%= opt.estimatedCost %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </label>
+              <% }); %>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group mt-3">
+              <textarea name="notes_<%= q.id %>"
+                        class="form-control quiz-notes-input"
+                        rows="2"
+                        placeholder="<%= t.add_notes %>"
+                        data-house-id="<%= house.id %>"
+                        data-question-id="<%= q.id %>"><%= q.currentAnswer && q.currentAnswer.notes ? q.currentAnswer.notes : '' %></textarea>
+            </div>
+
+            <!-- Image Upload -->
+            <% if (q.allowImage) { %>
+              <div class="mt-3">
+                <% if (q.currentAnswer && q.currentAnswer.image_path) { %>
+                  <div class="mb-2">
+                    <img src="/uploads/<%= q.currentAnswer.image_path %>"
+                         alt="<%= q.text %>"
+                         style="max-width:100%; max-height:200px; border-radius:var(--radius); object-fit:cover;">
+                  </div>
+                <% } %>
+                <label class="quiz-upload" data-house-id="<%= house.id %>" data-question-id="<%= q.id %>">
+                  📷 <%= t.upload_image %>
+                  <input type="file"
+                         accept="image/*"
+                         style="display:none"
+                         class="quiz-image-input"
+                         data-house-id="<%= house.id %>"
+                         data-question-id="<%= q.id %>">
+                </label>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }); %>
+
+      <!-- Navigation -->
+      <div class="quiz-nav">
+        <div>
+          <% if (prevGroup) { %>
+            <a href="/quiz/<%= house.id %>/<%= prevGroup.id %>" class="btn btn-secondary">← <%= t.prev %></a>
+          <% } %>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" name="action" value="save" class="btn btn-primary"><%= t.save %></button>
+          <% if (nextGroup) { %>
+            <input type="hidden" name="nextGroup" value="<%= nextGroup.id %>">
+            <button type="submit" name="action" value="next" class="btn btn-accent"><%= t.next %> →</button>
+          <% } else { %>
+            <a href="/quiz/<%= house.id %>/results" class="btn btn-accent"><%= t.finish %> →</a>
+          <% } %>
+        </div>
+      </div>
+    </form>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+(function() {
+  // Auto-save on option change (AJAX)
+  document.querySelectorAll('.quiz-option input[type="radio"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      var label = this.closest('.quiz-option');
+      var houseId = label.dataset.houseId;
+      var questionId = label.dataset.questionId;
+      var optionId = this.value;
+
+      // Update visual state
+      var parent = this.closest('.quiz-options');
+      parent.querySelectorAll('.quiz-option').forEach(function(opt) {
+        opt.classList.remove('is-selected');
+      });
+      label.classList.add('is-selected');
+
+      // Send AJAX
+      fetch('/quiz/' + houseId + '/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: questionId, optionId: optionId })
+      }).catch(function() {});
+    });
+  });
+
+  // Auto-save notes on blur
+  var notesTimeout;
+  document.querySelectorAll('.quiz-notes-input').forEach(function(textarea) {
+    textarea.addEventListener('blur', function() {
+      var houseId = this.dataset.houseId;
+      var questionId = this.dataset.questionId;
+      var notes = this.value;
+      var form = document.getElementById('quiz-form');
+      var optionInput = form.querySelector('input[name="option_' + questionId + '"]:checked');
+      var optionId = optionInput ? optionInput.value : null;
+
+      fetch('/quiz/' + houseId + '/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: questionId, optionId: optionId, notes: notes })
+      }).catch(function() {});
+    });
+  });
+
+  // Image upload
+  function handleImageUpload(input) {
+    var houseId = input.dataset.houseId;
+    var questionId = input.dataset.questionId;
+    var file = input.files[0];
+    if (!file) return;
+
+    var formData = new FormData();
+    formData.append('image', file);
+
+    var uploadLabel = input.closest('.quiz-upload');
+    uploadLabel.textContent = '⏳ ...';
+
+    fetch('/quiz/' + encodeURIComponent(houseId) + '/upload/' + encodeURIComponent(questionId), {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        var container = uploadLabel.parentElement;
+        var existingImg = container.querySelector('img');
+        if (existingImg) {
+          existingImg.src = '/uploads/' + data.filename;
+        } else {
+          var wrapper = document.createElement('div');
+          wrapper.className = 'mb-2';
+          var img = document.createElement('img');
+          img.src = '/uploads/' + data.filename;
+          img.style.cssText = 'max-width:100%;max-height:200px;border-radius:var(--radius);object-fit:cover;';
+          wrapper.appendChild(img);
+          container.insertBefore(wrapper, uploadLabel);
+        }
+        // Rebuild the upload label
+        while (uploadLabel.firstChild) uploadLabel.removeChild(uploadLabel.firstChild);
+        uploadLabel.appendChild(document.createTextNode('📷 <%= t.upload_image %>'));
+        var newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.accept = 'image/*';
+        newInput.style.display = 'none';
+        newInput.className = 'quiz-image-input';
+        newInput.dataset.houseId = houseId;
+        newInput.dataset.questionId = questionId;
+        newInput.addEventListener('change', function() { handleImageUpload(this); });
+        uploadLabel.appendChild(newInput);
+      }
+    })
+    .catch(function() {
+      uploadLabel.textContent = '📷 <%= t.upload_image %>';
+    });
+  }
+
+  document.querySelectorAll('.quiz-image-input').forEach(function(input) {
+    input.addEventListener('change', function() { handleImageUpload(this); });
+  });
+})();
+</script>
+</body>
+</html>

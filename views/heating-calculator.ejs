@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <h1 class="mb-2">🔥 <%= t.heating_calculator %></h1>
+    <p class="text-muted mb-6"><%= lang === 'en' ? 'Calculate heating requirements and costs' : 'Fűtési igény és költségek kiszámítása' %></p>
+
+    <!-- Building Parameters -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Building Parameters' : 'Épület paraméterei' %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-2 mb-4">
+          <div>
+            <label class="form-label"><%= t.wall_type %></label>
+            <select id="wall-type" class="form-control">
+              <option value="0.60"><%= lang === 'en' ? 'Brick (38cm)' : 'Tégla (38cm)' %></option>
+              <option value="1.40"><%= lang === 'en' ? 'Concrete' : 'Beton' %></option>
+              <option value="0.45"><%= lang === 'en' ? 'Wood Frame' : 'Favázas' %></option>
+              <option value="1.00"><%= lang === 'en' ? 'Stone' : 'Kő' %></option>
+              <option value="0.50"><%= lang === 'en' ? 'Adobe' : 'Vályog' %></option>
+              <option value="0.80"><%= lang === 'en' ? 'Hollow Block' : 'Üreges blokk' %></option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Wall Thickness (cm)' : 'Fal vastagság (cm)' %></label>
+            <input type="number" id="wall-thickness" class="form-control" value="38" min="10" max="100" step="1">
+          </div>
+        </div>
+        <div class="grid grid-2 mb-4">
+          <div>
+            <label class="form-label"><%= t.insulation %></label>
+            <select id="insulation-type" class="form-control">
+              <option value="0"><%= lang === 'en' ? 'None' : 'Nincs' %></option>
+              <option value="0.035"><%= lang === 'en' ? 'EPS (Expanded Polystyrene)' : 'EPS (Expandált polisztirol)' %></option>
+              <option value="0.030"><%= lang === 'en' ? 'XPS (Extruded Polystyrene)' : 'XPS (Extrudált polisztirol)' %></option>
+              <option value="0.038"><%= lang === 'en' ? 'Mineral Wool' : 'Ásványgyapot' %></option>
+              <option value="0.022"><%= lang === 'en' ? 'PIR (Polyisocyanurate)' : 'PIR (Poliizocianurát)' %></option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Insulation Thickness (cm)' : 'Szigetelés vastagsága (cm)' %></label>
+            <input type="number" id="insulation-thickness" class="form-control" value="0" min="0" max="30" step="1">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label"><%= lang === 'en' ? 'Total Wall Area (m²)' : 'Összes falfelület (m²)' %></label>
+          <input type="number" id="wall-area" class="form-control" value="120" min="0" step="1" style="max-width:200px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Windows & Doors -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Windows & Doors' : 'Ablakok és ajtók' %></h3>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-accent" id="add-window">➕ <%= t.add_row %></button>
+          <button type="button" class="btn btn-sm btn-outline" id="remove-window">➖ <%= t.remove_row %></button>
+        </div>
+      </div>
+      <div class="card__body" style="overflow-x:auto;">
+        <table class="table" id="window-table">
+          <thead>
+            <tr>
+              <th><%= lang === 'en' ? 'Name / Location' : 'Megnevezés / Helye' %></th>
+              <th><%= lang === 'en' ? 'Width (m)' : 'Szélesség (m)' %></th>
+              <th><%= lang === 'en' ? 'Height (m)' : 'Magasság (m)' %></th>
+              <th><%= lang === 'en' ? 'Type' : 'Típus' %></th>
+              <th>U-value (W/m²K)</th>
+              <th><%= lang === 'en' ? 'Area (m²)' : 'Terület (m²)' %></th>
+            </tr>
+          </thead>
+          <tbody id="window-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Temperature Parameters -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= t.temperature %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-3">
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Indoor Target (°C)' : 'Belső célhőmérséklet (°C)' %></label>
+            <input type="number" id="temp-indoor" class="form-control" value="20" step="0.5">
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Outdoor Design (°C)' : 'Külső tervezési (°C)' %></label>
+            <input type="number" id="temp-outdoor" class="form-control" value="-15" step="0.5">
+          </div>
+          <div>
+            <label class="form-label">ΔT (°C)</label>
+            <input type="number" id="delta-t" class="form-control" value="35" step="0.5">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fuel Type -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Fuel / Heating Type' : 'Tüzelőanyag / Fűtéstípus' %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-2">
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Heating Type' : 'Fűtéstípus' %></label>
+            <select id="fuel-type" class="form-control">
+              <option value="gas" data-price="25" data-eff="0.90"><%= lang === 'en' ? 'Natural Gas' : 'Földgáz' %></option>
+              <option value="electric" data-price="68" data-eff="1.00"><%= lang === 'en' ? 'Electric' : 'Elektromos' %></option>
+              <option value="heatpump" data-price="68" data-eff="3.50"><%= lang === 'en' ? 'Heat Pump (COP 3.5)' : 'Hőszivattyú (COP 3.5)' %></option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label"><%= lang === 'en' ? 'Heating Season (days)' : 'Fűtési szezon (nap)' %></label>
+            <input type="number" id="heating-days" class="form-control" value="180" min="1" max="365" step="1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Results' : 'Eredmények' %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-3 mb-4">
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-wall-loss">0</div>
+              <div class="card__stat-label"><%= lang === 'en' ? 'Wall Heat Loss (W)' : 'Fal hőveszteség (W)' %></div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-window-loss">0</div>
+              <div class="card__stat-label"><%= lang === 'en' ? 'Window/Door Loss (W)' : 'Ablak/ajtó veszteség (W)' %></div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-total-loss">0</div>
+              <div class="card__stat-label"><%= t.heat_loss %> (W)</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-power">0</div>
+              <div class="card__stat-label"><%= lang === 'en' ? 'Required Power (kW)' : 'Szükséges teljesítmény (kW)' %></div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-annual-kwh">0</div>
+              <div class="card__stat-label"><%= t.yearly %> kWh</div>
+            </div>
+          </div>
+          <div class="card card--stat">
+            <div class="card__body text-center">
+              <div class="card__stat-value" id="res-annual-cost">0</div>
+              <div class="card__stat-label"><%= lang === 'en' ? 'Annual Cost' : 'Éves költség' %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+<script>
+(function() {
+  var windowTypes = {
+    'single':  { label: '<%= lang === "en" ? "Single Glass" : "Egyrétegű üveg" %>', u: 5.8 },
+    'double':  { label: '<%= lang === "en" ? "Double Glass" : "Kétrétegű üveg" %>', u: 2.8 },
+    'double_le': { label: '<%= lang === "en" ? "Double Low-E" : "Kétrétegű Low-E" %>', u: 1.6 },
+    'triple':  { label: '<%= lang === "en" ? "Triple Glass" : "Háromrétegű üveg" %>', u: 0.8 },
+    'triple_le': { label: '<%= lang === "en" ? "Triple Low-E" : "Háromrétegű Low-E" %>', u: 0.6 }
+  };
+
+  var tbody = document.getElementById('window-tbody');
+
+  function buildTypeOptions() {
+    var html = '';
+    for (var k in windowTypes) {
+      html += '<option value="' + k + '" data-u="' + windowTypes[k].u + '">' + windowTypes[k].label + '</option>';
+    }
+    return html;
+  }
+
+  function addWindowRow(data) {
+    var d = data || {};
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" class="form-control" data-field="name" value="' + (d.name || '') + '"></td>' +
+      '<td><input type="number" class="form-control" data-field="width" min="0" step="0.01" value="' + (d.width || 1.2) + '" style="width:80px"></td>' +
+      '<td><input type="number" class="form-control" data-field="height" min="0" step="0.01" value="' + (d.height || 1.4) + '" style="width:80px"></td>' +
+      '<td><select class="form-control" data-field="type">' + buildTypeOptions() + '</select></td>' +
+      '<td><input type="number" class="form-control" data-field="uval" min="0" step="0.1" value="' + (d.u || 2.8) + '" style="width:80px"></td>' +
+      '<td class="win-area font-bold">0</td>';
+    tbody.appendChild(tr);
+
+    var typeSelect = tr.querySelector('[data-field="type"]');
+    var uInput = tr.querySelector('[data-field="uval"]');
+    if (d.type) typeSelect.value = d.type;
+
+    typeSelect.addEventListener('change', function() {
+      var opt = this.options[this.selectedIndex];
+      uInput.value = opt.getAttribute('data-u');
+      recalcAll();
+    });
+
+    tr.querySelectorAll('input').forEach(function(inp) {
+      inp.addEventListener('input', recalcAll);
+    });
+    recalcAll();
+  }
+
+  document.getElementById('add-window').addEventListener('click', function() { addWindowRow(); });
+  document.getElementById('remove-window').addEventListener('click', function() {
+    var rows = tbody.querySelectorAll('tr');
+    if (rows.length > 0) { tbody.removeChild(rows[rows.length - 1]); recalcAll(); }
+  });
+
+  // Sync deltaT when indoor/outdoor change
+  var tempIndoor = document.getElementById('temp-indoor');
+  var tempOutdoor = document.getElementById('temp-outdoor');
+  var deltaT = document.getElementById('delta-t');
+
+  function syncDelta() {
+    deltaT.value = (parseFloat(tempIndoor.value) || 0) - (parseFloat(tempOutdoor.value) || 0);
+    recalcAll();
+  }
+  tempIndoor.addEventListener('input', syncDelta);
+  tempOutdoor.addEventListener('input', syncDelta);
+  deltaT.addEventListener('input', recalcAll);
+
+  // Bind all inputs for recalc
+  ['wall-type', 'wall-thickness', 'insulation-type', 'insulation-thickness', 'wall-area', 'fuel-type', 'heating-days'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', recalcAll);
+    el.addEventListener('change', recalcAll);
+  });
+
+  function recalcAll() {
+    var wallLambda = parseFloat(document.getElementById('wall-type').value) || 0.6;
+    var wallThickM = (parseFloat(document.getElementById('wall-thickness').value) || 38) / 100;
+    var insLambda = parseFloat(document.getElementById('insulation-type').value) || 0;
+    var insThickM = (parseFloat(document.getElementById('insulation-thickness').value) || 0) / 100;
+    var wallArea = parseFloat(document.getElementById('wall-area').value) || 0;
+    var dT = parseFloat(deltaT.value) || 35;
+
+    // Wall U-value: U = 1 / (R_si + R_wall + R_ins + R_se)
+    var rWall = wallThickM / wallLambda;
+    var rIns = (insLambda > 0 && insThickM > 0) ? (insThickM / insLambda) : 0;
+    var rTotal = 0.13 + rWall + rIns + 0.04; // interior + exterior surface resistance
+    var uWall = 1 / rTotal;
+
+    // Subtract window area from wall area
+    var totalWinArea = 0;
+    var windowLoss = 0;
+    var winRows = tbody.querySelectorAll('tr');
+    winRows.forEach(function(tr) {
+      var w = parseFloat(tr.querySelector('[data-field="width"]').value) || 0;
+      var h = parseFloat(tr.querySelector('[data-field="height"]').value) || 0;
+      var u = parseFloat(tr.querySelector('[data-field="uval"]').value) || 0;
+      var area = w * h;
+      tr.querySelector('.win-area').textContent = area.toFixed(2);
+      totalWinArea += area;
+      windowLoss += u * area * dT;
+    });
+
+    var netWallArea = Math.max(0, wallArea - totalWinArea);
+    var wallLoss = uWall * netWallArea * dT;
+    var totalLoss = wallLoss + windowLoss;
+    var powerKw = totalLoss / 1000;
+
+    // Annual energy
+    var heatingDays = parseFloat(document.getElementById('heating-days').value) || 180;
+    // Approximate: average dT is ~60% of design dT
+    var annualKwh = (totalLoss * 0.6 * heatingDays * 24) / 1000;
+
+    // Cost
+    var fuelSel = document.getElementById('fuel-type');
+    var selOpt = fuelSel.options[fuelSel.selectedIndex];
+    var pricePerKwh = parseFloat(selOpt.getAttribute('data-price')) || 0;
+    var efficiency = parseFloat(selOpt.getAttribute('data-eff')) || 1;
+    var annualCost = (annualKwh / efficiency) * pricePerKwh;
+
+    document.getElementById('res-wall-loss').textContent = Math.round(wallLoss).toLocaleString();
+    document.getElementById('res-window-loss').textContent = Math.round(windowLoss).toLocaleString();
+    document.getElementById('res-total-loss').textContent = Math.round(totalLoss).toLocaleString();
+    document.getElementById('res-power').textContent = powerKw.toFixed(1);
+    document.getElementById('res-annual-kwh').textContent = Math.round(annualKwh).toLocaleString();
+    document.getElementById('res-annual-cost').textContent = Math.round(annualCost).toLocaleString() + ' HUF';
+  }
+
+  // Init with one default window row
+  addWindowRow({ name: '<%= lang === "en" ? "Living room window" : "Nappali ablak" %>', width: 1.5, height: 1.4, type: 'double', u: 2.8 });
+  addWindowRow({ name: '<%= lang === "en" ? "Front door" : "Bejárati ajtó" %>', width: 1.0, height: 2.1, type: 'double', u: 2.8 });
+  recalcAll();
+})();
+</script>
+</body>
+</html>
