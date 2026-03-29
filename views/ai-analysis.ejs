@@ -45,7 +45,7 @@
           <select id="ai-house" class="form-control mb-4" style="max-width:400px;">
             <option value=""><%= lang === 'en' ? '— Select house —' : '— Válassz házat —' %></option>
             <% houses.forEach(function(h) { %>
-              <option value="<%= h.id %>"><%= h.name %><%= h.address ? ' — ' + h.address : '' %></option>
+              <option value="<%= h.id %>" <%= typeof selectedHouse !== 'undefined' && selectedHouse === h.id ? 'selected' : '' %>><%= h.name %><%= h.address ? ' — ' + h.address : '' %></option>
             <% }); %>
           </select>
 
@@ -79,16 +79,32 @@
       </div>
     </div>
 
-    <!-- Results Area -->
-    <div class="card mb-6" id="results-card" style="display:none;">
+    <!-- Status / Notification Area -->
+    <div class="card mb-6" id="status-card" style="display:none;">
       <div class="card__header">
-        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Analysis Results' : 'Elemzés eredménye' %></h3>
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Analysis Status' : 'Elemzés állapota' %></h3>
       </div>
       <div class="card__body">
-        <div id="ai-results" class="text-muted">
-          <%= lang === 'en' ? 'Waiting for analysis...' : 'Várakozás az elemzésre...' %>
-        </div>
+        <div id="ai-status"></div>
       </div>
+    </div>
+
+    <!-- Previous Reports -->
+    <div class="card mb-6" id="reports-card" style="display:none;">
+      <div class="card__header">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'AI Reports' : 'AI jelentések' %></h3>
+      </div>
+      <div class="card__body" id="reports-list">
+      </div>
+    </div>
+
+    <!-- Report Detail View -->
+    <div class="card mb-6" id="report-detail-card" style="display:none;">
+      <div class="card__header d-flex justify-between items-center">
+        <h3 class="card__title mb-0"><%= lang === 'en' ? 'Report Detail' : 'Jelentés részletei' %></h3>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('report-detail-card').style.display='none'">✕</button>
+      </div>
+      <div class="card__body" id="report-detail"></div>
     </div>
     <% } %>
 
@@ -99,52 +115,177 @@
 <script>
 (function() {
   var runBtn = document.getElementById('run-analysis');
-  if (!runBtn) return;
+  var houseSelect = document.getElementById('ai-house');
+  if (!runBtn || !houseSelect) return;
+
+  var pollTimer = null;
+  var lang = '<%= lang %>';
+
+  // Load reports when house is selected
+  houseSelect.addEventListener('change', function() {
+    if (this.value) loadReports(this.value);
+  });
+
+  // Auto-load if house pre-selected
+  if (houseSelect.value) loadReports(houseSelect.value);
 
   runBtn.addEventListener('click', function() {
-    var houseId = document.getElementById('ai-house').value;
+    var houseId = houseSelect.value;
     if (!houseId) {
-      alert('<%= lang === "en" ? "Please select a house" : "Kérlek válassz házat" %>');
+      alert(lang === 'en' ? 'Please select a house' : 'Kérlek válassz házat');
       return;
     }
 
-    var resultsCard = document.getElementById('results-card');
-    var resultsDiv = document.getElementById('ai-results');
-    resultsCard.style.display = 'block';
-    resultsDiv.innerHTML = '<p class="text-muted"><%= lang === "en" ? "Analyzing..." : "Elemzés folyamatban..." %></p>';
+    var statusCard = document.getElementById('status-card');
+    var statusDiv = document.getElementById('ai-status');
+    statusCard.style.display = 'block';
+    statusDiv.innerHTML = '<div class="d-flex items-center gap-3"><div class="spinner"></div><span>' +
+      (lang === 'en' ? 'Starting AI analysis... This may take a few minutes.' : 'AI elemzés indítása... Ez néhány percig tarthat.') +
+      '</span></div>';
     runBtn.disabled = true;
-
-    var options = {
-      condition: document.getElementById('opt-condition').checked,
-      cost: document.getElementById('opt-cost').checked,
-      priority: document.getElementById('opt-priority').checked,
-      images: document.getElementById('opt-images').checked
-    };
 
     fetch('/api/ai/analyze/' + houseId, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ options: options })
+      body: JSON.stringify({})
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      runBtn.disabled = false;
       if (data.error) {
-        resultsDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + data.error + '</p>';
-      } else {
-        resultsDiv.innerHTML =
-          '<div class="mb-3"><strong><%= lang === "en" ? "Status" : "Állapot" %>:</strong> ' + data.message + '</div>' +
-          '<div class="mb-3"><strong><%= lang === "en" ? "Provider" : "Szolgáltató" %>:</strong> ' + (data.config ? data.config.provider : 'N/A') + '</div>' +
-          '<div class="mb-3"><strong><%= lang === "en" ? "Model" : "Modell" %>:</strong> ' + (data.config ? data.config.model : 'N/A') + '</div>' +
-          '<div class="mb-3"><strong><%= lang === "en" ? "House" : "Ház" %>:</strong> ' + (data.houseData ? data.houseData.name : '') + ' (' + (data.houseData ? data.houseData.overallScore : 0) + '%)</div>';
+        runBtn.disabled = false;
+        statusDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + data.error + '</p>';
+        return;
       }
+
+      statusDiv.innerHTML = '<div class="d-flex items-center gap-3"><div class="spinner"></div><span>' +
+        (lang === 'en' ? 'Analysis in progress... Generating section-by-section report.' : 'Elemzés folyamatban... Részletenkénti jelentés generálása.') +
+        '</span></div>';
+
+      // Start polling for completion
+      startPolling(houseId);
     })
     .catch(function(err) {
       runBtn.disabled = false;
-      resultsDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + err.message + '</p>';
+      statusDiv.innerHTML = '<p style="color:var(--danger)">❌ ' + err.message + '</p>';
     });
   });
+
+  function startPolling(houseId) {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(function() {
+      fetch('/api/ai/reports/' + houseId)
+        .then(function(r) { return r.json(); })
+        .then(function(reports) {
+          if (reports.length > 0) {
+            var latest = reports[0];
+            if (latest.status === 'completed') {
+              clearInterval(pollTimer);
+              pollTimer = null;
+              runBtn.disabled = false;
+
+              var statusDiv = document.getElementById('ai-status');
+              statusDiv.innerHTML = '<div class="alert alert-success"><strong>✅ ' +
+                (lang === 'en' ? 'Analysis complete!' : 'Elemzés kész!') +
+                '</strong></div>';
+
+              loadReports(houseId);
+              showReportDetail(latest.id);
+            } else if (latest.status === 'failed') {
+              clearInterval(pollTimer);
+              pollTimer = null;
+              runBtn.disabled = false;
+
+              var statusDiv2 = document.getElementById('ai-status');
+              statusDiv2.innerHTML = '<div class="alert alert-danger"><strong>❌ ' +
+                (lang === 'en' ? 'Analysis failed' : 'Az elemzés sikertelen') +
+                '</strong></div>';
+            }
+          }
+        });
+    }, 3000);
+  }
+
+  function loadReports(houseId) {
+    fetch('/api/ai/reports/' + houseId)
+      .then(function(r) { return r.json(); })
+      .then(function(reports) {
+        var reportsCard = document.getElementById('reports-card');
+        var reportsList = document.getElementById('reports-list');
+
+        if (reports.length === 0) {
+          reportsCard.style.display = 'none';
+          return;
+        }
+
+        reportsCard.style.display = 'block';
+        var html = '';
+        reports.forEach(function(r) {
+          var statusBadge = r.status === 'completed'
+            ? '<span class="badge badge--success">\u2705 ' + (lang === 'en' ? 'Completed' : 'Kész') + '</span>'
+            : r.status === 'generating'
+              ? '<span class="badge badge--warning">\u23f3 ' + (lang === 'en' ? 'Generating' : 'Generálás') + '</span>'
+              : '<span class="badge badge--danger">\u274c ' + (lang === 'en' ? 'Failed' : 'Sikertelen') + '</span>';
+
+          html += '<div class="d-flex justify-between items-center mb-3" style="padding:var(--sp-3);background:var(--gray-50);border-radius:var(--radius);">' +
+            '<div>' +
+              '<div class="d-flex items-center gap-2 mb-1">' + statusBadge + ' <span class="text-xs text-muted">' + r.created_at + '</span></div>' +
+              (r.summary ? '<div class="text-sm" style="max-width:600px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.summary.substring(0, 120)) + '...</div>' : '') +
+            '</div>' +
+            (r.status === 'completed' ? '<button class="btn btn-sm btn-outline-primary" onclick="showReportDetail(\'' + r.id + '\')">' + (lang === 'en' ? 'View' : 'Megtekintés') + '</button>' : '') +
+          '</div>';
+        });
+
+        reportsList.innerHTML = html;
+      });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  window.showReportDetail = function(reportId) {
+    fetch('/api/ai/report/' + reportId)
+      .then(function(r) { return r.json(); })
+      .then(function(report) {
+        var card = document.getElementById('report-detail-card');
+        var detail = document.getElementById('report-detail');
+        card.style.display = 'block';
+
+        var html = '<div class="text-xs text-muted mb-3">' +
+          (lang === 'en' ? 'Generated' : 'Generálva') + ': ' + escapeHtml(report.created_at) + '</div>';
+
+        if (report.summary) {
+          html += '<div class="mb-4"><h4 class="mb-2">' + (lang === 'en' ? 'Summary' : 'Összefoglaló') + '</h4>' +
+            '<div style="line-height:1.7;text-align:justify;">' + escapeHtml(report.summary).replace(/\n/g, '<br>') + '</div></div>';
+        }
+
+        if (report.sections && report.sections.length > 0) {
+          html += '<h4 class="mb-2">' + (lang === 'en' ? 'Detailed Sections' : 'Részletes szekciók') + '</h4>';
+          report.sections.forEach(function(sec) {
+            html += '<details class="mb-3" open><summary class="font-bold" style="cursor:pointer;padding:var(--sp-2) 0;">' +
+              escapeHtml(sec.section_name) + '</summary>' +
+              '<div style="padding:var(--sp-3);background:var(--gray-50);border-radius:var(--radius);line-height:1.7;text-align:justify;">' +
+              escapeHtml(sec.report_text).replace(/\n/g, '<br>') + '</div></details>';
+          });
+        }
+
+        detail.innerHTML = html;
+        card.scrollIntoView({ behavior: 'smooth' });
+      });
+  };
 })();
 </script>
+<style>
+.spinner {
+  width: 24px; height: 24px;
+  border: 3px solid var(--gray-300);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </body>
 </html>

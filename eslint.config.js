@@ -20,6 +20,7 @@ module.exports = [
         clearTimeout: "readonly",
         clearInterval: "readonly",
         URL: "readonly",
+        AbortSignal: "readonly",
         fetch: "readonly",
         describe: "readonly",
         it: "readonly",

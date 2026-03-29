@@ -138,6 +138,32 @@
                            alt="<%= q.text %>"
                            style="max-width:150px;max-height:100px;border-radius:var(--radius-sm);object-fit:cover;">
                     </div>
+                    <% if (q.answer.image_description) { %>
+                      <div class="mt-1 text-xs" style="padding:var(--sp-2);background:var(--info-light);border-radius:var(--radius-sm);">
+                        🖼️ <%= q.answer.image_description %>
+                      </div>
+                    <% } %>
+                    <div class="mt-1 d-flex gap-2">
+                      <button class="btn btn-sm btn-ghost text-xs"
+                              onclick="toggleDescEdit(<%= q.answer.id %>)"
+                              title="<%= lang === 'en' ? 'Edit image description' : 'Kép leírás szerkesztése' %>">
+                        ✏️ <%= lang === 'en' ? 'Description' : 'Leírás' %>
+                      </button>
+                    </div>
+                    <div id="desc-edit-<%= q.answer.id %>" style="display:none;" class="mt-2">
+                      <textarea class="form-control text-xs" rows="2"
+                                id="desc-text-<%= q.answer.id %>"
+                                placeholder="<%= lang === 'en' ? 'Image description...' : 'Kép leírás...' %>"
+                      ><%= q.answer.image_description || '' %></textarea>
+                      <div class="d-flex gap-2 mt-1">
+                        <button class="btn btn-sm btn-primary" onclick="saveDescription(<%= q.answer.id %>)">
+                          <%= t.save %>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="toggleDescEdit(<%= q.answer.id %>)">
+                          <%= t.cancel %>
+                        </button>
+                      </div>
+                    </div>
                   <% } %>
                 </div>
               <% }); %>
@@ -189,5 +215,29 @@
   </main>
 </div>
 <%- include('partials/scripts') %>
+<script>
+function toggleDescEdit(answerId) {
+  var el = document.getElementById('desc-edit-' + answerId);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveDescription(answerId) {
+  var textarea = document.getElementById('desc-text-' + answerId);
+  if (!textarea) return;
+
+  fetch('/api/answers/' + answerId + '/description', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description: textarea.value })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      toggleDescEdit(answerId);
+      location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>

@@ -98,6 +98,38 @@
       <a href="/ai?house=<%= house.id %>" class="btn btn-outline">🤖 <%= lang === 'en' ? 'AI Analysis' : 'AI elemzés' %></a>
     </div>
 
+    <!-- AI Reports (if any) -->
+    <div class="card mb-6 animate-slide-up" id="ai-reports-section" style="display:none;">
+      <div class="card__header d-flex justify-between items-center">
+        <h3 class="card__title"><%= lang === 'en' ? 'AI Reports' : 'AI jelentések' %></h3>
+        <a href="/ai?house=<%= house.id %>" class="btn btn-sm btn-outline">+ <%= lang === 'en' ? 'New Analysis' : 'Új elemzés' %></a>
+      </div>
+      <div class="card__body" id="ai-reports-list"></div>
+    </div>
+    <script>
+    (function() {
+      fetch('/api/ai/reports/<%= house.id %>')
+        .then(function(r) { return r.json(); })
+        .then(function(reports) {
+          if (!reports.length) return;
+          document.getElementById('ai-reports-section').style.display = 'block';
+          var html = '';
+          reports.forEach(function(r) {
+            var badge = r.status === 'completed'
+              ? '<span class="badge badge--success">✅</span>'
+              : r.status === 'generating'
+                ? '<span class="badge badge--warning">⏳</span>'
+                : '<span class="badge badge--danger">❌</span>';
+            html += '<div class="d-flex justify-between items-center mb-2" style="padding:var(--sp-2);background:var(--gray-50);border-radius:var(--radius-sm);">' +
+              '<div class="d-flex items-center gap-2">' + badge + ' <span class="text-xs text-muted">' + r.created_at + '</span></div>' +
+              (r.status === 'completed' ? '<a href="/ai?house=<%= house.id %>" class="btn btn-sm btn-ghost text-xs"><%= lang === "en" ? "View" : "Megtekintés" %></a>' : '') +
+            '</div>';
+          });
+          document.getElementById('ai-reports-list').innerHTML = html;
+        });
+    })();
+    </script>
+
     <!-- Inspection Progress by Category -->
     <div class="card mb-6 animate-slide-up">
       <div class="card__header">

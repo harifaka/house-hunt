@@ -120,7 +120,8 @@ router.get('/ai-analysis', (req, res) => {
       pageTitle: res.locals.t.ai_analysis,
       currentPath: '/ai',
       houses,
-      aiConfig
+      aiConfig,
+      selectedHouse: req.query.house || ''
     });
   } finally {
     db.close();

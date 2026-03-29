@@ -91,7 +91,35 @@ function initDb() {
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (city_info_id) REFERENCES city_info(id)
     );
+
+    CREATE TABLE IF NOT EXISTS ai_reports (
+      id TEXT PRIMARY KEY,
+      house_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      section_name TEXT,
+      report_text TEXT,
+      summary TEXT,
+      lang TEXT DEFAULT 'hu',
+      input_snapshot TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT,
+      FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS image_descriptions (
+      id TEXT PRIMARY KEY,
+      image_hash TEXT NOT NULL UNIQUE,
+      image_path TEXT NOT NULL,
+      description TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
+
+  // Migrations: add columns if missing
+  const answerCols = db.prepare("PRAGMA table_info(answers)").all().map(c => c.name);
+  if (!answerCols.includes('image_description')) {
+    db.exec("ALTER TABLE answers ADD COLUMN image_description TEXT");
+  }
 
   const upsert = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
   upsert.run('language', 'hu');
