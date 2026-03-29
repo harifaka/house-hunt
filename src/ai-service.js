@@ -13,7 +13,7 @@ async function callLLM(prompt, config) {
 
   const headers = { 'Content-Type': 'application/json' };
   if (config.api_key) {
-    headers['Authorization'] = 'Bearer ' + config.api_key;
+    headers.Authorization = 'Bearer ' + config.api_key;
   }
 
   const body = {
@@ -45,15 +45,15 @@ async function callLLM(prompt, config) {
 /**
  * Get the AI configuration from settings.
  */
-function getAIConfig() {
-  const db = getDb();
+async function getAIConfig() {
+  const db = await getDb();
   try {
-    const rows = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'ai_%'").all();
+    const rows = await db.prepare("SELECT key, value FROM settings WHERE key LIKE 'ai_%'").all();
     const config = {};
     for (const r of rows) config[r.key.replace('ai_', '')] = r.value;
     return config;
   } finally {
-    db.close();
+    await db.close();
   }
 }
 
@@ -78,12 +78,12 @@ async function analyzeImage(imagePath, config, lang) {
   if (!hash) return null;
 
   // Check cache
-  const db = getDb();
+  const db = await getDb();
   try {
-    const cached = db.prepare('SELECT description FROM image_descriptions WHERE image_hash = ?').get(hash);
+    const cached = await db.prepare('SELECT description FROM image_descriptions WHERE image_hash = ?').get(hash);
     if (cached) return cached.description;
   } finally {
-    db.close();
+    await db.close();
   }
 
   // Attempt vision API call
@@ -100,7 +100,7 @@ async function analyzeImage(imagePath, config, lang) {
 
   const headers = { 'Content-Type': 'application/json' };
   if (config.api_key) {
-    headers['Authorization'] = 'Bearer ' + config.api_key;
+    headers.Authorization = 'Bearer ' + config.api_key;
   }
 
   const body = {
@@ -132,13 +132,13 @@ async function analyzeImage(imagePath, config, lang) {
 
     if (description) {
       // Cache the result
-      const db2 = getDb();
+      const db2 = await getDb();
       try {
-        db2.prepare(
+        await db2.prepare(
           'INSERT OR REPLACE INTO image_descriptions (id, image_hash, image_path, description) VALUES (?, ?, ?, ?)'
         ).run(crypto.randomUUID(), hash, imagePath, description);
       } finally {
-        db2.close();
+        await db2.close();
       }
     }
 
@@ -229,11 +229,11 @@ Write in natural, flowing prose — like a professional report summary. No bulle
  * Stores results in ai_reports table (old reports preserved).
  */
 async function generateReport(houseId, houseData, lang) {
-  const config = getAIConfig();
+  const config = await getAIConfig();
   const reportId = crypto.randomUUID();
 
   // Create initial pending report
-  const db = getDb();
+  const db = await getDb();
   try {
     const inputSnapshot = JSON.stringify({
       overallScore: houseData.overallScore,
@@ -252,11 +252,11 @@ async function generateReport(houseId, houseData, lang) {
       }))
     });
 
-    db.prepare(
-      'INSERT INTO ai_reports (id, house_id, status, lang, input_snapshot, created_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'))'
-    ).run(reportId, houseId, 'generating', lang, inputSnapshot);
+    await db.prepare(
+      'INSERT INTO ai_reports (id, house_id, status, lang, input_snapshot, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(reportId, houseId, 'generating', lang, inputSnapshot, new Date().toISOString());
   } finally {
-    db.close();
+    await db.close();
   }
 
   try {
@@ -283,26 +283,26 @@ async function generateReport(houseId, houseData, lang) {
     }
 
     // Save completed report
-    const db2 = getDb();
+    const db2 = await getDb();
     try {
       const reportData = JSON.stringify({ sections: sectionReports });
-      db2.prepare(
-        'UPDATE ai_reports SET status = ?, report_text = ?, summary = ?, completed_at = datetime(\'now\') WHERE id = ?'
-      ).run('completed', reportData, summary, reportId);
+      await db2.prepare(
+        'UPDATE ai_reports SET status = ?, report_text = ?, summary = ?, completed_at = ? WHERE id = ?'
+      ).run('completed', reportData, summary, new Date().toISOString(), reportId);
     } finally {
-      db2.close();
+      await db2.close();
     }
 
     return { id: reportId, status: 'completed' };
   } catch (err) {
     // Mark as failed
-    const db3 = getDb();
+    const db3 = await getDb();
     try {
-      db3.prepare(
-        'UPDATE ai_reports SET status = ?, report_text = ?, completed_at = datetime(\'now\') WHERE id = ?'
-      ).run('failed', err.message, reportId);
+      await db3.prepare(
+        'UPDATE ai_reports SET status = ?, report_text = ?, completed_at = ? WHERE id = ?'
+      ).run('failed', err.message, new Date().toISOString(), reportId);
     } finally {
-      db3.close();
+      await db3.close();
     }
 
     return { id: reportId, status: 'failed', error: err.message };

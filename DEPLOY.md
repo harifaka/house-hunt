@@ -40,6 +40,7 @@ The repository includes a `render.yaml` blueprint that configures everything aut
 | `NODE_ENV` | `production` |
 | `SESSION_SECRET` | *(click "Generate" for a random value)* |
 | `DATABASE_PATH` | `/var/data/house_hunt.sqlite` |
+| `DATABASE_URL` | *(optional external PostgreSQL connection string, e.g. Neon/Render Postgres)* |
 
 6. Add a **Persistent Disk**:
 
@@ -52,17 +53,31 @@ The repository includes a `render.yaml` blueprint that configures everything aut
 7. Click **Create Web Service**
 
 > **Important:** The persistent disk ensures your SQLite database is preserved across deploys and restarts. Without it, your data will be lost each time the service restarts.
+>
+> If you set `DATABASE_URL`, the app will prefer PostgreSQL instead of SQLite. It will automatically create the required tables on startup, and it will also try to create the target PostgreSQL database first when the connected user has permission to do so.
 
 ---
 
 ## Persistent Database
 
-The application uses SQLite by default. The database file location is controlled by the `DATABASE_PATH` environment variable.
+The application now supports two persistence modes:
+
+1. **SQLite (default)** — controlled by `DATABASE_PATH`
+2. **PostgreSQL (preferred when `DATABASE_URL` is set)** — useful for external managed databases such as Neon
+
+### SQLite
 
 - **Local development:** defaults to `./db/house_hunt.sqlite` (project directory)
 - **Render.com:** set to `/var/data/house_hunt.sqlite` (persistent disk)
 
-To migrate to a different database in the future, you only need to update `src/database.js` to use your preferred database driver and connection string.
+### PostgreSQL
+
+- Set `DATABASE_URL` to your external PostgreSQL connection string
+- If the URL includes `sslmode=require`, the app will enable SSL automatically
+- On startup the app initializes the schema automatically
+- On startup the app also attempts to create the target database if it does not exist yet and the database user has enough privileges
+
+If `DATABASE_URL` is present, it takes precedence over `DATABASE_PATH`.
 
 ---
 
@@ -72,7 +87,8 @@ To migrate to a different database in the future, you only need to update `src/d
 |---|---|---|---|
 | `PORT` | No | HTTP server port | `3000` |
 | `SESSION_SECRET` | Recommended | Secret for session encryption | Random (changes on restart) |
-| `DATABASE_PATH` | No | Full path to SQLite database file | `./db/house_hunt.sqlite` |
+| `DATABASE_PATH` | No | Full path to SQLite database file (ignored when `DATABASE_URL` is set) | `./db/house_hunt.sqlite` |
+| `DATABASE_URL` | No | External PostgreSQL connection string | unset |
 | `NODE_ENV` | No | Environment (`production`, `development`) | `development` |
 
 ---
@@ -126,3 +142,24 @@ git push heroku main
 ```
 
 > **Note:** Heroku's ephemeral filesystem means SQLite data will not persist across dyno restarts. Consider upgrading to a PostgreSQL add-on for production use.
+
+---
+
+## Scraping on Render Free Tier
+
+If web scraping works locally but fails on Render free tier, the most common reasons are:
+
+- the target site blocks requests from cloud/datacenter IP ranges
+- the target site serves anti-bot pages to non-browser traffic
+- cold starts and free-tier CPU limits make long scraping requests time out
+- some sites require a full browser runtime instead of simple HTTP fetching
+
+This app already includes **demo scraping endpoints** for environments where real scraping is unreliable.
+
+If you need more reliable production scraping, use a compliant approach such as:
+
+- an external managed PostgreSQL database plus the current app on Render
+- a paid Render plan or another host with more stable resources
+- a dedicated scraping worker/provider that allows the target site under its terms
+
+Do **not** try to bypass Render limits or a target site's anti-bot protections. That can break platform terms or the target site's rules, and this project does not include any such bypass mechanism.

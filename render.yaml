@@ -10,6 +10,8 @@ services:
         value: production
       - key: SESSION_SECRET
         generateValue: true
+      # Optional: set DATABASE_URL in the Render dashboard to use external Postgres.
+      # When DATABASE_URL is present, the app prefers Postgres and ignores DATABASE_PATH.
       - key: DATABASE_PATH
         value: /var/data/house_hunt.sqlite
     disk:

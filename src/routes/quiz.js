@@ -15,20 +15,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // GET /quiz — Quiz landing page (house selection)
-router.get('/', (req, res) => {
-  const db = getDb();
+router.get('/', async (req, res) => {
+  const db = await getDb();
   try {
     const lang = req.lang;
-    const houses = db.prepare('SELECT * FROM houses ORDER BY created_at DESC').all();
+    const houses = await db.prepare('SELECT * FROM houses ORDER BY created_at DESC').all();
     const totalQuestions = getAllQuestions(lang).length;
 
-    const housesWithStats = houses.map(house => {
-      const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const housesWithStats = await Promise.all(houses.map(async house => {
+      const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
       const answeredCount = answers.filter(a => a.option_id).length;
       const { overallScore } = calculateScore(answers, lang);
       const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
       return { ...house, answeredCount, totalQuestions, overallScore, progress };
-    });
+    }));
 
     res.render('quiz-landing', {
       pageTitle: res.locals.t.quiz,
@@ -36,20 +36,20 @@ router.get('/', (req, res) => {
       houses: housesWithStats
     });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // GET /quiz/:houseId — Quiz overview (groups list with progress)
-router.get('/:houseId', (req, res) => {
-  const db = getDb();
+router.get('/:houseId', async (req, res) => {
+  const db = await getDb();
   try {
     const lang = req.lang;
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.redirect('/houses');
 
     const groups = getGroups(lang);
-    const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
     const totalQuestions = getAllQuestions(lang).length;
     const answeredCount = answers.filter(a => a.option_id).length;
     const { overallScore, groupScores } = calculateScore(answers, lang);
@@ -72,20 +72,20 @@ router.get('/:houseId', (req, res) => {
       progress
     });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // GET /quiz/:houseId/results — Inspection results
-router.get('/:houseId/results', (req, res) => {
-  const db = getDb();
+router.get('/:houseId/results', async (req, res) => {
+  const db = await getDb();
   try {
     const lang = req.lang;
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.redirect('/houses');
 
     const groups = getGroups(lang);
-    const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
     const allQuestions = getAllQuestions(lang);
     const answeredCount = answers.filter(a => a.option_id).length;
     const { overallScore, groupScores } = calculateScore(answers, lang);
@@ -114,22 +114,22 @@ router.get('/:houseId/results', (req, res) => {
       groupScores
     });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // GET /quiz/:houseId/:groupId — Show group questions
-router.get('/:houseId/:groupId', (req, res) => {
-  const db = getDb();
+router.get('/:houseId/:groupId', async (req, res) => {
+  const db = await getDb();
   try {
     const lang = req.lang;
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.redirect('/houses');
 
     const group = getGroupQuestions(req.params.groupId, lang);
     if (!group) return res.redirect('/quiz/' + house.id);
 
-    const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
     const allGroups = getGroups(lang);
     const currentIdx = allGroups.findIndex(g => g.id === req.params.groupId);
     const prevGroup = currentIdx > 0 ? allGroups[currentIdx - 1] : null;
@@ -155,63 +155,63 @@ router.get('/:houseId/:groupId', (req, res) => {
       totalGroups: allGroups.length
     });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // POST /quiz/:houseId/answer — Save single answer (AJAX)
-router.post('/:houseId/answer', (req, res) => {
-  const db = getDb();
+router.post('/:houseId/answer', async (req, res) => {
+  const db = await getDb();
   try {
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.status(404).json({ error: 'House not found' });
 
     const { questionId, optionId, notes } = req.body;
     if (!questionId) return res.status(400).json({ error: 'questionId required' });
 
-    db.prepare(
+    await db.prepare(
       'INSERT OR REPLACE INTO answers (house_id, question_id, option_id, notes) VALUES (?, ?, ?, ?)'
     ).run(house.id, questionId, optionId || null, notes || null);
 
     res.json({ success: true });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // POST /quiz/:houseId/upload/:questionId — Upload image for question
-router.post('/:houseId/upload/:questionId', upload.single('image'), (req, res) => {
-  const db = getDb();
+router.post('/:houseId/upload/:questionId', upload.single('image'), async (req, res) => {
+  const db = await getDb();
   try {
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.status(404).json({ error: 'House not found' });
 
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const existing = db.prepare(
+    const existing = await db.prepare(
       'SELECT id FROM answers WHERE house_id = ? AND question_id = ?'
     ).get(house.id, req.params.questionId);
 
     if (existing) {
-      db.prepare('UPDATE answers SET image_path = ? WHERE house_id = ? AND question_id = ?')
+      await db.prepare('UPDATE answers SET image_path = ? WHERE house_id = ? AND question_id = ?')
         .run(req.file.filename, house.id, req.params.questionId);
     } else {
-      db.prepare(
+      await db.prepare(
         'INSERT INTO answers (house_id, question_id, option_id, notes, image_path) VALUES (?, ?, NULL, NULL, ?)'
       ).run(house.id, req.params.questionId, req.file.filename);
     }
 
     res.json({ success: true, filename: req.file.filename });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // POST /quiz/:houseId/:groupId — Save answers for group
-router.post('/:houseId/:groupId', (req, res) => {
-  const db = getDb();
+router.post('/:houseId/:groupId', async (req, res) => {
+  const db = await getDb();
   try {
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
     if (!house) return res.redirect('/houses');
 
     const group = getGroupQuestions(req.params.groupId, req.lang);
@@ -220,23 +220,23 @@ router.post('/:houseId/:groupId', (req, res) => {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO answers (house_id, question_id, option_id, notes) VALUES (?, ?, ?, ?)'
     );
-    const saveAll = db.transaction(() => {
+
+    await db.transaction(async () => {
       for (const q of group.questions) {
         const optionId = req.body['option_' + q.id] || null;
         const notes = req.body['notes_' + q.id] || null;
         if (optionId || notes) {
-          stmt.run(house.id, q.id, optionId, notes);
+          await stmt.run(house.id, q.id, optionId, notes);
         }
       }
     });
-    saveAll();
 
     const dest = req.body.action === 'next' && req.body.nextGroup
       ? '/quiz/' + house.id + '/' + req.body.nextGroup
       : '/quiz/' + house.id;
     res.redirect(dest);
   } finally {
-    db.close();
+    await db.close();
   }
 });
 

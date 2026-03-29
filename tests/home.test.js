@@ -44,23 +44,23 @@ describe('Home Routes', () => {
     expect(res.status).toBe(302);
     expect(res.headers.location).toMatch(/^\/houses\//);
 
-    const db = getDb();
+    const db = await getDb();
     try {
-      const house = db.prepare('SELECT * FROM houses WHERE name = ?').get('Test House');
+      const house = await db.prepare('SELECT * FROM houses WHERE name = ?').get('Test House');
       expect(house).toBeDefined();
       expect(house.address).toBe('123 Test St');
     } finally {
-      db.close();
+      await db.close();
     }
   });
 
   test('GET /houses/:id returns 200 for existing house', async () => {
-    const db = getDb();
+    const db = await getDb();
     let houseId;
     try {
-      houseId = db.prepare('SELECT id FROM houses WHERE name = ?').get('Test House')?.id;
+      houseId = (await db.prepare('SELECT id FROM houses WHERE name = ?').get('Test House'))?.id;
     } finally {
-      db.close();
+      await db.close();
     }
     expect(houseId).toBeDefined();
 
@@ -70,23 +70,23 @@ describe('Home Routes', () => {
   });
 
   test('POST /houses/:id/delete removes the house', async () => {
-    const db = getDb();
+    const db = await getDb();
     let houseId;
     try {
-      houseId = db.prepare('SELECT id FROM houses WHERE name = ?').get('Test House')?.id;
+      houseId = (await db.prepare('SELECT id FROM houses WHERE name = ?').get('Test House'))?.id;
     } finally {
-      db.close();
+      await db.close();
     }
 
     const res = await request(app).post(`/houses/${houseId}/delete`);
     expect(res.status).toBe(302);
 
-    const db2 = getDb();
+    const db2 = await getDb();
     try {
-      const deleted = db2.prepare('SELECT * FROM houses WHERE id = ?').get(houseId);
+      const deleted = await db2.prepare('SELECT * FROM houses WHERE id = ?').get(houseId);
       expect(deleted).toBeUndefined();
     } finally {
-      db2.close();
+      await db2.close();
     }
   });
 });

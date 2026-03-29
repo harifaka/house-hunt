@@ -17,14 +17,14 @@ afterAll(() => {
 describe('API Routes', () => {
   let houseId;
 
-  beforeAll(() => {
-    const db = getDb();
+  beforeAll(async () => {
+    const db = await getDb();
     try {
       houseId = crypto.randomUUID();
-      db.prepare('INSERT INTO houses (id, name, address, asking_price) VALUES (?, ?, ?, ?)')
+      await db.prepare('INSERT INTO houses (id, name, address, asking_price) VALUES (?, ?, ?, ?)')
         .run(houseId, 'API Test House', '789 API St', 40000000);
     } finally {
-      db.close();
+      await db.close();
     }
   });
 

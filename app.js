@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Initialize database
-initDb();
+const dbReady = initDb();
 
 // View engine
 app.set('view engine', 'ejs');
@@ -19,6 +19,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(async (_req, _res, next) => {
+  try {
+    await dbReady;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 app.use(session({
   secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave: false,
@@ -166,8 +174,13 @@ app.use((err, req, res, _next) => {
 
 // Start server only when run directly (not when imported for testing)
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`House Hunt running at http://localhost:${PORT}`);
+  dbReady.then(() => {
+    app.listen(PORT, () => {
+      console.log(`House Hunt running at http://localhost:${PORT}`);
+    });
+  }).catch((error) => {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
   });
 }
 

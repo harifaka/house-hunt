@@ -10,13 +10,13 @@ const { getAIConfig, generateReport, analyzeImage, computeImageHash } = require(
 
 // --- Helpers ---
 
-function getHouseExportData(houseId, lang) {
-  const db = getDb();
+async function getHouseExportData(houseId, lang) {
+  const db = await getDb();
   try {
-    const house = db.prepare('SELECT * FROM houses WHERE id = ?').get(houseId);
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(houseId);
     if (!house) return null;
 
-    const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
     const groups = getGroups(lang);
     const allQuestions = getAllQuestions(lang);
     const { overallScore, groupScores } = calculateScore(answers, lang);
@@ -36,7 +36,7 @@ function getHouseExportData(houseId, lang) {
 
     return { house, answers, groups: detailedGroups, overallScore, groupScores, totalQuestions: allQuestions.length };
   } finally {
-    db.close();
+    await db.close();
   }
 }
 
@@ -51,9 +51,9 @@ function escapeCsvField(val) {
 
 // --- Export Endpoints ---
 
-router.get('/export/:houseId/json', (req, res) => {
+router.get('/export/:houseId/json', async (req, res) => {
   const lang = req.lang || 'hu';
-  const data = getHouseExportData(req.params.houseId, lang);
+  const data = await getHouseExportData(req.params.houseId, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
 
   const exportData = {
@@ -89,9 +89,9 @@ router.get('/export/:houseId/json', (req, res) => {
   res.json(exportData);
 });
 
-router.get('/export/:houseId/csv', (req, res) => {
+router.get('/export/:houseId/csv', async (req, res) => {
   const lang = req.lang || 'hu';
-  const data = getHouseExportData(req.params.houseId, lang);
+  const data = await getHouseExportData(req.params.houseId, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
 
   const headers = ['Group', 'Question', 'Answer', 'Score', 'Impact', 'EstimatedCost', 'Notes'];
@@ -117,9 +117,9 @@ router.get('/export/:houseId/csv', (req, res) => {
   res.send('\uFEFF' + rows.join('\r\n'));
 });
 
-router.get('/export/:houseId/pdf', (req, res) => {
+router.get('/export/:houseId/pdf', async (req, res) => {
   const lang = req.lang || 'hu';
-  const data = getHouseExportData(req.params.houseId, lang);
+  const data = await getHouseExportData(req.params.houseId, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
 
   const labels = lang === 'en'
@@ -313,9 +313,9 @@ router.get('/export/:houseId/pdf', (req, res) => {
   // ==========================================
   // AI REPORTS (if any)
   // ==========================================
-  const db2 = getDb();
+  const db2 = await getDb();
   try {
-    const aiReports = db2.prepare(
+    const aiReports = await db2.prepare(
       'SELECT * FROM ai_reports WHERE house_id = ? AND status = ? ORDER BY created_at DESC'
     ).all(data.house.id, 'completed');
 
@@ -355,7 +355,7 @@ router.get('/export/:houseId/pdf', (req, res) => {
       }
     }
   } finally {
-    db2.close();
+    await db2.close();
   }
 
   // ==========================================
@@ -381,45 +381,44 @@ router.get('/export/:houseId/pdf', (req, res) => {
 
 // --- AI / LLM Endpoints ---
 
-router.get('/ai/config', (req, res) => {
-  const db = getDb();
+router.get('/ai/config', async (req, res) => {
+  const db = await getDb();
   try {
-    const rows = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'ai_%'").all();
+    const rows = await db.prepare("SELECT key, value FROM settings WHERE key LIKE 'ai_%'").all();
     const config = {};
     for (const r of rows) {
       config[r.key.replace('ai_', '')] = r.value;
     }
     res.json(config);
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
-router.post('/ai/config', (req, res) => {
-  const db = getDb();
+router.post('/ai/config', async (req, res) => {
+  const db = await getDb();
   try {
     const { provider, endpoint, model, apiKey } = req.body;
     const upsert = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
-    const save = db.transaction(() => {
-      if (provider) upsert.run('ai_provider', provider);
-      if (endpoint) upsert.run('ai_endpoint', endpoint);
-      if (model) upsert.run('ai_model', model);
-      if (apiKey !== undefined) upsert.run('ai_api_key', apiKey);
+    await db.transaction(async () => {
+      if (provider) await upsert.run('ai_provider', provider);
+      if (endpoint) await upsert.run('ai_endpoint', endpoint);
+      if (model) await upsert.run('ai_model', model);
+      if (apiKey !== undefined) await upsert.run('ai_api_key', apiKey);
     });
-    save();
     res.json({ success: true });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // POST /api/ai/analyze/:houseId — Start async AI analysis
-router.post('/ai/analyze/:houseId', (req, res) => {
+router.post('/ai/analyze/:houseId', async (req, res) => {
   const lang = req.lang || 'hu';
-  const data = getHouseExportData(req.params.houseId, lang);
+  const data = await getHouseExportData(req.params.houseId, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
 
-  const config = getAIConfig();
+  const config = await getAIConfig();
   if (!config.provider || !config.endpoint) {
     return res.status(400).json({ error: lang === 'en' ? 'AI not configured. Please set up AI provider in settings.' : 'Az AI nincs konfigur\u00e1lva. K\u00e9rlek \u00e1ll\u00edtsd be az AI szolg\u00e1ltat\u00f3t a be\u00e1ll\u00edt\u00e1sokban.' });
   }
@@ -437,23 +436,23 @@ router.post('/ai/analyze/:houseId', (req, res) => {
 });
 
 // GET /api/ai/reports/:houseId — List all AI reports for a house
-router.get('/ai/reports/:houseId', (req, res) => {
-  const db = getDb();
+router.get('/ai/reports/:houseId', async (req, res) => {
+  const db = await getDb();
   try {
-    const reports = db.prepare(
+    const reports = await db.prepare(
       'SELECT id, status, lang, summary, created_at, completed_at FROM ai_reports WHERE house_id = ? ORDER BY created_at DESC'
     ).all(req.params.houseId);
     res.json(reports);
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // GET /api/ai/report/:reportId — Get full AI report
-router.get('/ai/report/:reportId', (req, res) => {
-  const db = getDb();
+router.get('/ai/report/:reportId', async (req, res) => {
+  const db = await getDb();
   try {
-    const report = db.prepare('SELECT * FROM ai_reports WHERE id = ?').get(req.params.reportId);
+    const report = await db.prepare('SELECT * FROM ai_reports WHERE id = ?').get(req.params.reportId);
     if (!report) return res.status(404).json({ error: 'Report not found' });
 
     let sections = [];
@@ -464,7 +463,7 @@ router.get('/ai/report/:reportId', (req, res) => {
       sections
     });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
@@ -473,7 +472,7 @@ router.post('/ai/analyze-image', async (req, res) => {
   const { imagePath, answerId } = req.body;
   if (!imagePath) return res.status(400).json({ error: 'imagePath required' });
 
-  const config = getAIConfig();
+  const config = await getAIConfig();
   if (!config.provider || !config.endpoint) {
     return res.status(400).json({ error: 'AI not configured' });
   }
@@ -486,11 +485,11 @@ router.post('/ai/analyze-image', async (req, res) => {
 
     // Update answer image_description if answerId provided
     if (answerId) {
-      const db = getDb();
+      const db = await getDb();
       try {
-        db.prepare('UPDATE answers SET image_description = ? WHERE id = ?').run(description, answerId);
+        await db.prepare('UPDATE answers SET image_description = ? WHERE id = ?').run(description, answerId);
       } finally {
-        db.close();
+        await db.close();
       }
     }
 
@@ -501,20 +500,20 @@ router.post('/ai/analyze-image', async (req, res) => {
 });
 
 // PUT /api/answers/:answerId/description — Update image description (manual edit)
-router.put('/answers/:answerId/description', (req, res) => {
+router.put('/answers/:answerId/description', async (req, res) => {
   const { description } = req.body;
-  const db = getDb();
+  const db = await getDb();
   try {
-    const answer = db.prepare('SELECT id, image_path FROM answers WHERE id = ?').get(req.params.answerId);
+    const answer = await db.prepare('SELECT id, image_path FROM answers WHERE id = ?').get(req.params.answerId);
     if (!answer) return res.status(404).json({ error: 'Answer not found' });
 
-    db.prepare('UPDATE answers SET image_description = ? WHERE id = ?').run(description || null, answer.id);
+    await db.prepare('UPDATE answers SET image_description = ? WHERE id = ?').run(description || null, answer.id);
 
     // Also update cache if image exists
     if (answer.image_path && description) {
       const hash = computeImageHash(answer.image_path);
       if (hash) {
-        db.prepare(
+        await db.prepare(
           'INSERT OR REPLACE INTO image_descriptions (id, image_hash, image_path, description) VALUES (?, ?, ?, ?)'
         ).run(crypto.randomUUID(), hash, answer.image_path, description);
       }
@@ -522,34 +521,34 @@ router.put('/answers/:answerId/description', (req, res) => {
 
     res.json({ success: true });
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
 // --- General API ---
 
-router.get('/houses', (req, res) => {
-  const db = getDb();
+router.get('/houses', async (req, res) => {
+  const db = await getDb();
   try {
     const lang = req.lang || 'hu';
-    const houses = db.prepare('SELECT * FROM houses ORDER BY created_at DESC').all();
-    const result = houses.map(house => {
-      const answers = db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
+    const houses = await db.prepare('SELECT * FROM houses ORDER BY created_at DESC').all();
+    const result = await Promise.all(houses.map(async house => {
+      const answers = await db.prepare('SELECT * FROM answers WHERE house_id = ?').all(house.id);
       const answeredCount = answers.filter(a => a.option_id).length;
       const totalQuestions = getAllQuestions(lang).length;
       const { overallScore } = calculateScore(answers, lang);
       const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
       return { ...house, overallScore, progress, answeredCount, totalQuestions };
-    });
+    }));
     res.json(result);
   } finally {
-    db.close();
+    await db.close();
   }
 });
 
-router.get('/houses/:id', (req, res) => {
+router.get('/houses/:id', async (req, res) => {
   const lang = req.lang || 'hu';
-  const data = getHouseExportData(req.params.id, lang);
+  const data = await getHouseExportData(req.params.id, lang);
   if (!data) return res.status(404).json({ error: 'House not found' });
 
   res.json({
