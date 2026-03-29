@@ -102,9 +102,16 @@ router.get('/report/:id', (req, res) => {
 });
 
 // POST /property-finder/scrape — Scrape a single property URL
+// POST /property-finder/scrape — Scrape a single property URL
 router.post('/scrape', async (req, res) => {
   const { url } = req.body;
-  if (!url || !url.includes('ingatlan.com')) {
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return res.status(400).json({ error: 'Please provide a valid URL' });
+  }
+  if (parsedUrl.hostname !== 'ingatlan.com' && parsedUrl.hostname !== 'www.ingatlan.com') {
     return res.status(400).json({ error: 'Please provide a valid ingatlan.com URL' });
   }
 

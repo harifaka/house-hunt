@@ -166,7 +166,13 @@ async function searchCity(cityName, maxPages) {
         const itemTitle = $(this).find('[class*="title"], h2, h3').first().text().trim();
         const itemLocation = $(this).find('[class*="address"], [class*="location"]').first().text().trim();
 
-        if (fullUrl.includes('ingatlan.com/') && !results.some(r => r.url === fullUrl)) {
+        let isIngatlanUrl = false;
+        try {
+          const parsed = new URL(fullUrl);
+          isIngatlanUrl = parsed.hostname === 'ingatlan.com' || parsed.hostname === 'www.ingatlan.com';
+        } catch { /* ignore invalid URLs */ }
+
+        if (isIngatlanUrl && !results.some(r => r.url === fullUrl)) {
           results.push({
             url: fullUrl,
             title: itemTitle || null,
