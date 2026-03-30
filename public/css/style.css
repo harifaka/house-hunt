@@ -3067,6 +3067,25 @@ select.form-control {
   background: var(--surface-elevated);
   border-color: var(--border-color);
 }
+[data-theme="dark"] .cookie-banner {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+[data-theme="dark"] .cookie-banner__text a {
+  color: #7986cb;
+}
+[data-theme="dark"] footer,
+[data-theme="dark"] .footer-legal a {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .results-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #283593 50%, #1a237e 100%);
+  color: #e0e0e0;
+}
+[data-theme="dark"] .card--stat {
+  background: var(--surface-elevated);
+  border-color: var(--border-color);
+}
 
 /* ============================================================
    Theme Toggle Button
@@ -3160,6 +3179,14 @@ select.form-control {
     height: 100%;
     object-fit: cover;
   }
+}
+/* Hide mobile click-buttons on desktop when palette is visible */
+@media (min-width: 1024px) {
+  .image-palette-mobile-only { display: none !important; }
+}
+/* Hide palette on mobile (click buttons are shown instead) */
+@media (max-width: 1023px) {
+  .drop-zone { display: none; }
 }
 .drop-zone {
   border: 2px dashed var(--border-color);

@@ -10,6 +10,7 @@
   </a>
 
   <div class="header__actions">
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="<%= lang === 'en' ? 'Toggle theme' : 'Téma váltás' %>" title="<%= lang === 'en' ? 'Toggle dark/light mode' : 'Sötét/világos mód váltás' %>">🌙</button>
     <a href="<%= typeof currentUrl !== 'undefined' ? currentUrl : '/' %>?lang=hu"<%= lang === 'hu' ? ' class="font-bold"' : '' %>>HU</a>
     <a href="<%= typeof currentUrl !== 'undefined' ? currentUrl : '/' %>?lang=en"<%= lang === 'en' ? ' class="font-bold"' : '' %>>EN</a>
   </div>
