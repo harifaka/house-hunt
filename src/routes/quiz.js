@@ -146,6 +146,9 @@ router.get('/:houseId/:groupId', async (req, res) => {
 
     const answeredInGroup = group.questions.filter(q => answers.some(a => a.question_id === q.id && a.option_id)).length;
 
+    // Load house images for cooperative attachment (office user can attach to quiz questions)
+    const houseImages = await db.prepare('SELECT * FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at').all(house.id);
+
     const questionsWithAnswers = group.questions.map(q => {
       const ans = answers.find(a => a.question_id === q.id);
       return { ...q, currentAnswer: ans || null };
@@ -161,7 +164,8 @@ router.get('/:houseId/:groupId', async (req, res) => {
       answeredInGroup,
       totalInGroup: group.questions.length,
       groupIndex: currentIdx,
-      totalGroups: allGroups.length
+      totalGroups: allGroups.length,
+      houseImages
     });
   } finally {
     await db.close();
@@ -225,6 +229,44 @@ router.post('/:houseId/upload/:questionId', upload.single('image'), async (req, 
     // Audit: log image upload
     const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
     logger.imageUploaded(house.id, req.params.questionId, req.file.filename, meta).catch(() => {});
+  } finally {
+    await db.close();
+  }
+});
+
+// POST /quiz/:houseId/attach-image/:questionId — Attach existing house image to question
+router.post('/:houseId/attach-image/:questionId', async (req, res) => {
+  const db = await getDb();
+  try {
+    const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
+    if (!house) return res.status(404).json({ error: 'House not found' });
+
+    const { filename } = req.body;
+    if (!filename) return res.status(400).json({ error: 'filename required' });
+
+    // Verify the image belongs to this house
+    const houseImage = await db.prepare(
+      'SELECT * FROM house_images WHERE house_id = ? AND filename = ?'
+    ).get(house.id, filename);
+    if (!houseImage) return res.status(404).json({ error: 'Image not found' });
+
+    const existing = await db.prepare(
+      'SELECT id FROM answers WHERE house_id = ? AND question_id = ?'
+    ).get(house.id, req.params.questionId);
+
+    if (existing) {
+      await db.prepare('UPDATE answers SET image_path = ? WHERE house_id = ? AND question_id = ?')
+        .run(filename, house.id, req.params.questionId);
+    } else {
+      await db.prepare(
+        'INSERT INTO answers (house_id, question_id, option_id, notes, image_path) VALUES (?, ?, NULL, NULL, ?)'
+      ).run(house.id, req.params.questionId, filename);
+    }
+
+    res.json({ success: true, filename });
+
+    const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
+    logger.imageUploaded(house.id, req.params.questionId, filename, meta).catch(() => {});
   } finally {
     await db.close();
   }

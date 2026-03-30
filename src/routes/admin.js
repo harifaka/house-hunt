@@ -78,6 +78,22 @@ router.post('/ai', async (req, res) => {
   }
 });
 
+// POST /admin/image-storage — Save image storage config (imgbb, etc.)
+router.post('/image-storage', async (req, res) => {
+  const db = await getDb();
+  try {
+    const { image_storage_provider, imgbb_api_key } = req.body;
+    const upsert = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
+    await db.transaction(async () => {
+      await upsert.run('image_storage_provider', image_storage_provider || 'local');
+      await upsert.run('imgbb_api_key', imgbb_api_key || '');
+    });
+    res.redirect('/admin');
+  } finally {
+    await db.close();
+  }
+});
+
 // GET /admin/export — Export page
 router.get('/export', async (req, res) => {
   const db = await getDb();

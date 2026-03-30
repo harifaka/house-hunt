@@ -79,6 +79,43 @@
       </div>
     </div>
 
+    <!-- Image Storage Configuration -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0">📸 <%= lang === 'en' ? 'Image Storage' : 'Képtárolás' %></h3>
+      </div>
+      <div class="card__body">
+        <form method="POST" action="/admin/image-storage">
+          <div class="mb-4">
+            <label class="form-label" for="image_storage_provider"><%= lang === 'en' ? 'Storage Provider' : 'Tárolási szolgáltató' %></label>
+            <select class="form-control" id="image_storage_provider" name="image_storage_provider">
+              <option value="local" <%= (typeof settings !== 'undefined' && settings.image_storage_provider === 'local') || typeof settings === 'undefined' || !settings.image_storage_provider ? 'selected' : '' %>>
+                <%= lang === 'en' ? 'Local Storage (default)' : 'Helyi tárolás (alapértelmezett)' %>
+              </option>
+              <option value="imgbb" <%= (typeof settings !== 'undefined' && settings.image_storage_provider === 'imgbb') ? 'selected' : '' %>>
+                imgbb
+              </option>
+            </select>
+            <div class="text-xs text-muted mt-1">
+              <%= lang === 'en'
+                ? 'Images are stored locally by default. Select imgbb for cloud storage. EXIF/GPS data is stripped before upload.'
+                : 'A képek alapértelmezetten helyben tárolódnak. Válaszd az imgbb-t felhő tároláshoz. EXIF/GPS adatok feltöltés előtt eltávolításra kerülnek.' %>
+            </div>
+          </div>
+          <div class="mb-4" id="imgbb-settings" style="display:<%= (typeof settings !== 'undefined' && settings.image_storage_provider === 'imgbb') ? 'block' : 'none' %>;">
+            <label class="form-label" for="imgbb_api_key"><%= lang === 'en' ? 'imgbb API Key' : 'imgbb API kulcs' %></label>
+            <input type="password" class="form-control" id="imgbb_api_key" name="imgbb_api_key"
+                   value="<%= (typeof settings !== 'undefined' && settings.imgbb_api_key) ? settings.imgbb_api_key : '' %>"
+                   placeholder="<%= lang === 'en' ? 'Enter your imgbb API key' : 'Add meg az imgbb API kulcsot' %>">
+            <div class="text-xs text-muted mt-1">
+              <%= lang === 'en' ? 'Get your free API key at https://api.imgbb.com/' : 'Ingyenes API kulcsot a https://api.imgbb.com/ oldalon szerezhetsz.' %>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary"><%= t.save %></button>
+        </form>
+      </div>
+    </div>
+
     <%- include('partials/footer') %>
   </main>
 </div>
@@ -101,6 +138,11 @@ document.getElementById('test-connection').addEventListener('click', function() 
     .catch(function() {
       resultEl.innerHTML = '<span style="color:var(--danger)">❌ <%= lang === "en" ? "Connection failed — endpoint unreachable" : "Kapcsolat sikertelen — végpont nem elérhető" %></span>';
     });
+});
+
+// Toggle imgbb settings visibility
+document.getElementById('image_storage_provider').addEventListener('change', function() {
+  document.getElementById('imgbb-settings').style.display = this.value === 'imgbb' ? 'block' : 'none';
 });
 </script>
 </body>

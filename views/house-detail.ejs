@@ -71,7 +71,10 @@
     <!-- House Images Gallery -->
     <div class="card mb-6 animate-fade-in">
       <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
-        <h3 class="card__title mb-0">📸 <%= lang === 'en' ? 'Photos' : 'Fotók' %></h3>
+        <div class="d-flex items-center gap-2">
+          <h3 class="card__title mb-0">📸 <%= lang === 'en' ? 'Photos' : 'Fotók' %></h3>
+          <span class="live-badge" id="live-badge"><%= lang === 'en' ? 'LIVE' : 'ÉLŐ' %></span>
+        </div>
         <button class="btn btn-sm btn-accent" onclick="document.getElementById('upload-image-modal').classList.add('is-active')">
           ➕ <%= lang === 'en' ? 'Add Photo' : 'Fotó hozzáadása' %>
         </button>
@@ -81,7 +84,12 @@
           <div class="image-gallery">
             <% images.forEach(function(img) { %>
               <div class="image-gallery__item">
-                <img src="/uploads/<%= img.filename %>" alt="<%= img.caption || house.name %>" class="image-gallery__img">
+                <img src="/uploads/<%= img.filename %>"
+                     alt="<%= img.caption || house.name %>"
+                     class="image-gallery__img"
+                     data-lightbox="house-gallery"
+                     data-caption="<%= img.caption || '' %>"
+                     title="<%= lang === 'en' ? 'Click to view full size' : 'Kattintson a nagyításhoz' %>">
                 <% if (img.caption) { %>
                   <div class="image-gallery__caption"><%= img.caption %></div>
                 <% } %>
@@ -399,15 +407,46 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success) {
+          window.showToast('<%= lang === "en" ? "Photo uploaded!" : "Fotó feltöltve!" %>', 'success');
           window.location.reload();
         }
       })
       .catch(function() {
         btn.disabled = false;
         btn.textContent = '<%= lang === "en" ? "Upload" : "Feltöltés" %>';
+        window.showToast('<%= lang === "en" ? "Upload failed" : "Feltöltés sikertelen" %>', 'error');
       });
     });
   }
+
+  // Live polling: check for new images every 10 seconds
+  var lastImageCount = <%= images ? images.length : 0 %>;
+  setInterval(function() {
+    fetch('/api/houses/<%= house.id %>/images')
+      .then(function(r) { return r.json(); })
+      .then(function(imgs) {
+        if (imgs.length !== lastImageCount) {
+          lastImageCount = imgs.length;
+          // Reload gallery section
+          var gallery = document.querySelector('.image-gallery');
+          if (gallery && imgs.length > 0) {
+            var html = '';
+            imgs.forEach(function(img) {
+              html += '<div class="image-gallery__item">' +
+                '<img src="/uploads/' + img.filename + '" alt="' + (img.caption || '') + '" class="image-gallery__img" data-lightbox="house-gallery" data-caption="' + (img.caption || '') + '">' +
+                (img.caption ? '<div class="image-gallery__caption">' + img.caption + '</div>' : '') +
+                '<form method="POST" action="/houses/<%= house.id %>/delete-image/' + img.id + '" class="image-gallery__delete" onsubmit="return confirm(\'<%= lang === "en" ? "Delete this photo?" : "Törli ezt a fotót?" %>\')">' +
+                '<button type="submit" class="btn btn-sm btn-danger">🗑️</button></form></div>';
+            });
+            gallery.innerHTML = html;
+            window.showToast('<%= lang === "en" ? "Gallery updated" : "Galéria frissítve" %>', 'success', 2000);
+          } else if (!gallery && imgs.length > 0) {
+            window.location.reload();
+          }
+        }
+      })
+      .catch(function() {});
+  }, 10000);
 </script>
 </body>
 </html>

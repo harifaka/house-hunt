@@ -41,7 +41,8 @@ router.get('/', async (req, res) => {
       const answeredCount = answers.filter(a => a.option_id).length;
       const { overallScore, groupScores } = calculateScore(answers, lang);
       const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
-      return { ...house, answers, answeredCount, totalQuestions, overallScore, groupScores, progress };
+      const thumb = await db.prepare('SELECT filename FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at LIMIT 1').get(house.id);
+      return { ...house, answers, answeredCount, totalQuestions, overallScore, groupScores, progress, thumbnail: thumb ? thumb.filename : null };
     }));
 
     const avgScore = housesWithStats.length > 0
@@ -76,7 +77,8 @@ router.get('/houses', async (req, res) => {
       const answeredCount = answers.filter(a => a.option_id).length;
       const { overallScore, groupScores } = calculateScore(answers, lang);
       const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
-      return { ...house, answeredCount, totalQuestions, overallScore, groupScores, progress };
+      const thumb = await db.prepare('SELECT filename FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at LIMIT 1').get(house.id);
+      return { ...house, answeredCount, totalQuestions, overallScore, groupScores, progress, thumbnail: thumb ? thumb.filename : null };
     }));
 
     res.render('houses', {
@@ -198,6 +200,25 @@ router.post('/houses/:id/delete-image/:imageId', async (req, res) => {
   } finally {
     await db.close();
   }
+});
+
+// GET /api/houses/:id/images — JSON list of house images (for live polling)
+router.get('/api/houses/:id/images', async (req, res) => {
+  const db = await getDb();
+  try {
+    const images = await db.prepare('SELECT * FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at').all(req.params.id);
+    res.json(images);
+  } finally {
+    await db.close();
+  }
+});
+
+// GET /guide — User guide / tutorial page
+router.get('/guide', (req, res) => {
+  res.render('guide', {
+    pageTitle: req.lang === 'en' ? 'User Guide' : 'Felhasználói útmutató',
+    currentPath: '/guide'
+  });
 });
 
 module.exports = router;

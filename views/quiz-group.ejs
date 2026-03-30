@@ -75,45 +75,71 @@
               <% }); %>
             </div>
 
-            <!-- Notes (hidden behind toggle) -->
-            <div class="mt-3">
+            <!-- Notes & Image Actions (aligned row) -->
+            <div class="quiz-question__actions">
               <button type="button" class="btn btn-sm btn-ghost quiz-toggle-notes" data-target="notes-<%= q.id %>">
                 📝 <%= t.add_notes %><%= q.currentAnswer && q.currentAnswer.notes ? ' ✓' : '' %>
               </button>
-              <div class="quiz-notes-wrapper" id="notes-<%= q.id %>" style="display:<%= q.currentAnswer && q.currentAnswer.notes ? 'block' : 'none' %>;">
-                <textarea name="notes_<%= q.id %>"
-                          class="form-control quiz-notes-input mt-2"
-                          rows="2"
-                          placeholder="<%= t.add_notes %>"
-                          data-house-id="<%= house.id %>"
-                          data-question-id="<%= q.id %>"><%= q.currentAnswer && q.currentAnswer.notes ? q.currentAnswer.notes : '' %></textarea>
-              </div>
+              <% if (q.allowImage) { %>
+                <button type="button" class="btn btn-sm btn-ghost quiz-toggle-image" data-target="image-<%= q.id %>">
+                  📷 <%= t.upload_image %><%= q.currentAnswer && q.currentAnswer.image_path ? ' ✓' : '' %>
+                </button>
+              <% } %>
+              <span class="quiz-save-indicator" id="save-indicator-<%= q.id %>">✅ <%= lang === 'en' ? 'Saved' : 'Mentve' %></span>
+            </div>
+
+            <!-- Notes (hidden behind toggle) -->
+            <div class="quiz-notes-wrapper" id="notes-<%= q.id %>" style="display:<%= q.currentAnswer && q.currentAnswer.notes ? 'block' : 'none' %>;">
+              <textarea name="notes_<%= q.id %>"
+                        class="form-control quiz-notes-input mt-2"
+                        rows="2"
+                        placeholder="<%= t.add_notes %>"
+                        data-house-id="<%= house.id %>"
+                        data-question-id="<%= q.id %>"><%= q.currentAnswer && q.currentAnswer.notes ? q.currentAnswer.notes : '' %></textarea>
             </div>
 
             <!-- Image Upload (hidden behind toggle) -->
             <% if (q.allowImage) { %>
-              <div class="mt-2">
-                <button type="button" class="btn btn-sm btn-ghost quiz-toggle-image" data-target="image-<%= q.id %>">
-                  📷 <%= t.upload_image %><%= q.currentAnswer && q.currentAnswer.image_path ? ' ✓' : '' %>
-                </button>
-                <div class="quiz-image-wrapper" id="image-<%= q.id %>" style="display:<%= q.currentAnswer && q.currentAnswer.image_path ? 'block' : 'none' %>;">
-                  <% if (q.currentAnswer && q.currentAnswer.image_path) { %>
-                    <div class="mb-2 mt-2">
-                      <img src="/uploads/<%= q.currentAnswer.image_path %>"
-                           alt="<%= q.text %>"
-                           class="quiz-image-preview">
+              <div class="quiz-image-wrapper" id="image-<%= q.id %>" style="display:<%= q.currentAnswer && q.currentAnswer.image_path ? 'block' : 'none' %>;">
+                <% if (q.currentAnswer && q.currentAnswer.image_path) { %>
+                  <div class="mb-2 mt-2">
+                    <img src="/uploads/<%= q.currentAnswer.image_path %>"
+                         alt="<%= q.text %>"
+                         class="quiz-image-preview"
+                         data-lightbox="quiz-images"
+                         data-caption="<%= q.text %>"
+                         title="<%= lang === 'en' ? 'Click to view full size' : 'Kattintson a nagyításhoz' %>">
+                  </div>
+                <% } %>
+
+                <!-- House images picker for office use -->
+                <% if (typeof houseImages !== 'undefined' && houseImages && houseImages.length > 0) { %>
+                  <div class="mt-2 mb-2">
+                    <div class="text-xs text-muted mb-1"><%= lang === 'en' ? 'Attach from house photos:' : 'Csatolás ház fotókból:' %></div>
+                    <div class="d-flex flex-wrap gap-2">
+                      <% houseImages.forEach(function(hi) { %>
+                        <img src="/uploads/<%= hi.filename %>"
+                             class="quiz-attach-house-img"
+                             style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;"
+                             data-filename="<%= hi.filename %>"
+                             data-house-id="<%= house.id %>"
+                             data-question-id="<%= q.id %>"
+                             title="<%= lang === 'en' ? 'Attach this image' : 'Kép csatolása' %>"
+                             onclick="attachHouseImage(this)">
+                      <% }); %>
                     </div>
-                  <% } %>
-                  <label class="quiz-upload mt-2" data-house-id="<%= house.id %>" data-question-id="<%= q.id %>">
-                    📷 <%= t.upload_image %>
-                    <input type="file"
-                           accept="image/*"
-                           style="display:none"
-                           class="quiz-image-input"
-                           data-house-id="<%= house.id %>"
-                           data-question-id="<%= q.id %>">
-                  </label>
-                </div>
+                  </div>
+                <% } %>
+
+                <label class="quiz-upload mt-2" data-house-id="<%= house.id %>" data-question-id="<%= q.id %>">
+                  📷 <%= t.upload_image %>
+                  <input type="file"
+                         accept="image/*"
+                         style="display:none"
+                         class="quiz-image-input"
+                         data-house-id="<%= house.id %>"
+                         data-question-id="<%= q.id %>">
+                </label>
               </div>
             <% } %>
           </div>
@@ -145,6 +171,15 @@
 <%- include('partials/scripts') %>
 <script>
 (function() {
+  // Show save indicator for a question
+  function flashSaved(questionId) {
+    var indicator = document.getElementById('save-indicator-' + questionId);
+    if (indicator) {
+      indicator.classList.add('is-visible');
+      setTimeout(function() { indicator.classList.remove('is-visible'); }, 2000);
+    }
+  }
+
   // Toggle notes visibility
   document.querySelectorAll('.quiz-toggle-notes').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -199,9 +234,18 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ questionId: questionId, optionId: optionId })
-        }).catch(function() {});
+        }).then(function(r) {
+          return r.json();
+        }).then(function(data) {
+          if (data.success) {
+            flashSaved(questionId);
+            window.showToast('<%= lang === "en" ? "Answer saved" : "Válasz mentve" %>', 'success', 1500);
+          }
+        }).catch(function() {
+          window.showToast('<%= lang === "en" ? "Save failed" : "Mentés sikertelen" %>', 'error');
+        });
       } else {
-        // Single choice (existing behavior)
+        // Single choice
         var optionId = this.value;
         parent.querySelectorAll('.quiz-option').forEach(function(opt) {
           opt.classList.remove('is-selected');
@@ -212,13 +256,21 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ questionId: questionId, optionId: optionId })
-        }).catch(function() {});
+        }).then(function(r) {
+          return r.json();
+        }).then(function(data) {
+          if (data.success) {
+            flashSaved(questionId);
+            window.showToast('<%= lang === "en" ? "Answer saved" : "Válasz mentve" %>', 'success', 1500);
+          }
+        }).catch(function() {
+          window.showToast('<%= lang === "en" ? "Save failed" : "Mentés sikertelen" %>', 'error');
+        });
       }
     });
   });
 
   // Auto-save notes on blur
-  var notesTimeout;
   document.querySelectorAll('.quiz-notes-input').forEach(function(textarea) {
     textarea.addEventListener('blur', function() {
       var houseId = this.dataset.houseId;
@@ -239,7 +291,16 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questionId: questionId, optionId: optionId, notes: notes })
-      }).catch(function() {});
+      }).then(function(r) {
+        return r.json();
+      }).then(function(data) {
+        if (data.success) {
+          flashSaved(questionId);
+          window.showToast('<%= lang === "en" ? "Notes saved" : "Jegyzet mentve" %>', 'success', 1500);
+        }
+      }).catch(function() {
+        window.showToast('<%= lang === "en" ? "Save failed" : "Mentés sikertelen" %>', 'error');
+      });
     });
   });
 
@@ -264,15 +325,17 @@
     .then(function(data) {
       if (data.success) {
         var container = uploadLabel.parentElement;
-        var existingImg = container.querySelector('img');
+        var existingImg = container.querySelector('img.quiz-image-preview');
         if (existingImg) {
           existingImg.src = '/uploads/' + data.filename;
         } else {
           var wrapper = document.createElement('div');
-          wrapper.className = 'mb-2';
+          wrapper.className = 'mb-2 mt-2';
           var img = document.createElement('img');
           img.src = '/uploads/' + data.filename;
-          img.style.cssText = 'max-width:100%;max-height:200px;border-radius:var(--radius);object-fit:cover;';
+          img.className = 'quiz-image-preview';
+          img.dataset.lightbox = 'quiz-images';
+          img.title = '<%= lang === "en" ? "Click to view full size" : "Kattintson a nagyításhoz" %>';
           wrapper.appendChild(img);
           container.insertBefore(wrapper, uploadLabel);
         }
@@ -288,16 +351,64 @@
         newInput.dataset.questionId = questionId;
         newInput.addEventListener('change', function() { handleImageUpload(this); });
         uploadLabel.appendChild(newInput);
+        window.showToast('<%= lang === "en" ? "Image uploaded" : "Kép feltöltve" %>', 'success');
+        flashSaved(questionId);
       }
     })
     .catch(function() {
       uploadLabel.textContent = '📷 <%= t.upload_image %>';
+      window.showToast('<%= lang === "en" ? "Upload failed" : "Feltöltés sikertelen" %>', 'error');
     });
   }
 
   document.querySelectorAll('.quiz-image-input').forEach(function(input) {
     input.addEventListener('change', function() { handleImageUpload(this); });
   });
+
+  // Attach house image to quiz question
+  window.attachHouseImage = function(imgEl) {
+    var filename = imgEl.dataset.filename;
+    var houseId = imgEl.dataset.houseId;
+    var questionId = imgEl.dataset.questionId;
+
+    imgEl.style.borderColor = 'var(--accent)';
+    imgEl.style.opacity = '0.6';
+
+    fetch('/quiz/' + encodeURIComponent(houseId) + '/attach-image/' + encodeURIComponent(questionId), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: filename })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        imgEl.style.borderColor = 'var(--success)';
+        imgEl.style.opacity = '1';
+        // Update or create preview
+        var wrapper = imgEl.closest('.quiz-image-wrapper');
+        var existingImg = wrapper.querySelector('img.quiz-image-preview');
+        if (existingImg) {
+          existingImg.src = '/uploads/' + filename;
+        } else {
+          var div = document.createElement('div');
+          div.className = 'mb-2 mt-2';
+          var img = document.createElement('img');
+          img.src = '/uploads/' + filename;
+          img.className = 'quiz-image-preview';
+          img.dataset.lightbox = 'quiz-images';
+          div.appendChild(img);
+          wrapper.insertBefore(div, wrapper.firstChild);
+        }
+        window.showToast('<%= lang === "en" ? "Image attached" : "Kép csatolva" %>', 'success');
+        flashSaved(questionId);
+      }
+    })
+    .catch(function() {
+      imgEl.style.borderColor = 'transparent';
+      imgEl.style.opacity = '1';
+      window.showToast('<%= lang === "en" ? "Attach failed" : "Csatolás sikertelen" %>', 'error');
+    });
+  };
 })();
 </script>
 </body>

@@ -155,7 +155,10 @@
                     <div class="mt-1">
                       <img src="/uploads/<%= q.answer.image_path %>"
                            alt="<%= q.text %>"
-                           style="max-width:150px;max-height:100px;border-radius:var(--radius-sm);object-fit:cover;">
+                           data-lightbox="results-images"
+                           data-caption="<%= q.text %>"
+                           title="<%= lang === 'en' ? 'Click to view full size' : 'Kattintson a nagyításhoz' %>"
+                           style="max-width:150px;max-height:100px;border-radius:var(--radius-sm);object-fit:cover;cursor:pointer;">
                     </div>
                     <% if (q.answer.image_description) { %>
                       <div class="mt-1 text-xs img-desc-display" style="padding:var(--sp-2);background:var(--info-light);border-radius:var(--radius-sm);">

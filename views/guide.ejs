@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+  <main class="main-content">
+
+    <!-- Hero -->
+    <section class="results-hero mb-6 animate-fade-in">
+      <h1 class="mb-2"><%= lang === 'en' ? '📖 User Guide' : '📖 Felhasználói útmutató' %></h1>
+      <p class="results-hero__label"><%= lang === 'en' ? 'Learn how to use every feature of House Hunt' : 'Ismerd meg a House Hunt összes funkcióját' %></p>
+    </section>
+
+    <!-- Quick Start -->
+    <div class="guide-section animate-slide-up">
+      <h2 class="guide-section__title">🚀 <%= lang === 'en' ? 'Quick Start' : 'Gyors indulás' %></h2>
+      <div class="guide-step">
+        <div class="guide-step__number">1</div>
+        <div class="guide-step__content">
+          <h4><%= lang === 'en' ? 'Add a House' : 'Ház hozzáadása' %></h4>
+          <p><%= lang === 'en'
+            ? 'Go to Houses and click "New House". Enter the name, address, asking price and notes. You can add as many properties as you want.'
+            : 'Menj a Házak oldalra és kattints az "Új ház" gombra. Add meg a nevet, címet, árat és megjegyzéseket. Annyi ingatlant adhatsz hozzá, amennyit szeretnél.' %></p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step__number">2</div>
+        <div class="guide-step__content">
+          <h4><%= lang === 'en' ? 'Upload Photos' : 'Fotók feltöltése' %></h4>
+          <p><%= lang === 'en'
+            ? 'Open a house detail page and click "Add Photo" to upload images. Photos are available to the whole team and can be attached to inspection questions.'
+            : 'Nyisd meg a ház részletek oldalt és kattints a "Fotó hozzáadása" gombra. A fotók az egész csapat számára elérhetőek és szemle kérdésekhez csatolhatók.' %></p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step__number">3</div>
+        <div class="guide-step__content">
+          <h4><%= lang === 'en' ? 'Run the Inspection Quiz' : 'Szemle kérdőív kitöltése' %></h4>
+          <p><%= lang === 'en'
+            ? 'Start the quiz for a house. Answer questions by category — answers are auto-saved instantly. Add notes and photos for each question.'
+            : 'Indítsd el a szemlét egy házhoz. Válaszolj kategóriánként a kérdésekre — a válaszok azonnal automatikusan mentődnek. Adj hozzá jegyzeteket és fotókat.' %></p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step__number">4</div>
+        <div class="guide-step__content">
+          <h4><%= lang === 'en' ? 'Review Results & Export' : 'Eredmények áttekintése és exportálás' %></h4>
+          <p><%= lang === 'en'
+            ? 'View the overall score and category breakdowns. Export the full inspection report as PDF, JSON, or CSV.'
+            : 'Nézd meg az összesített pontszámot és kategória bontást. Exportáld a teljes szemle jelentést PDF, JSON vagy CSV formátumban.' %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Map -->
+    <div class="guide-section animate-slide-up">
+      <h2 class="guide-section__title">🗺️ <%= lang === 'en' ? 'Feature Map' : 'Funkció térkép' %></h2>
+      <div class="guide-feature-grid">
+        <div class="guide-feature">
+          <div class="guide-feature__icon">🏠</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Dashboard' : 'Főoldal' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Overview of all properties with score summaries, progress bars, and quick access to each house.'
+            : 'Összesítés az összes ingatlanról pontszámokkal, haladási sávokkal és gyors hozzáféréssel.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">🏡</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Houses' : 'Házak' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Manage your properties: add, edit, delete. Each house has its own photo gallery, inspection data, and scores.'
+            : 'Ingatlanok kezelése: hozzáadás, szerkesztés, törlés. Minden háznak saját fotógalériája, szemle adatai és pontszámai vannak.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">📋</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Inspection Quiz' : 'Szemle kérdőív' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Weighted questionnaire covering all aspects of a house inspection. Auto-saves answers with instant feedback.'
+            : 'Súlyozott kérdőív a szemle minden szempontjának lefedésére. Válaszokat automatikusan menti azonnali visszajelzéssel.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">📸</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Photo Gallery' : 'Fotógaléria' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Upload and view photos with full-screen lightbox. Click any image to zoom in. Navigate with arrow keys.'
+            : 'Fotók feltöltése és megtekintése teljes képernyős nézetben. Kattints bármely képre a nagyításhoz. Navigálj nyíl billentyűkkel.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">👥</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Team Collaboration' : 'Csapat együttműködés' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'One server, anyone can use. Inspector uploads photos on the field, office colleague fills the quiz using the shared gallery. Live view updates automatically.'
+            : 'Egy szerver, bárki használhatja. A szemléző fotókat tölt fel a helyszínen, az irodai kolléga kitölti a kérdőívet a megosztott galériából. Az élő nézet automatikusan frissül.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">📤</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Export' : 'Exportálás' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Download inspection reports as PDF, JSON, or CSV. Share with clients, partners, or archive for records.'
+            : 'Szemle jelentések letöltése PDF, JSON vagy CSV formátumban. Megosztás ügyfelekkel, partnerekkel, vagy archiválás.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">🔍</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Property Finder' : 'Ingatlan Kereső' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Search and analyze property listings. Generate comparison reports across multiple properties.'
+            : 'Ingatlan hirdetések keresése és elemzése. Összehasonlító jelentések készítése több ingatlanról.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">⚡</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'Calculators' : 'Kalkulátorok' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Energy consumption calculator for appliances. Heating calculator with insulation and heat-loss estimates.'
+            : 'Energia fogyasztás kalkulátor háztartási gépekhez. Fűtés kalkulátor szigetelési és hőveszteségi becslésekkel.' %></div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature__icon">🤖</div>
+          <div class="guide-feature__title"><%= lang === 'en' ? 'AI Analysis' : 'AI elemzés' %></div>
+          <div class="guide-feature__desc"><%= lang === 'en'
+            ? 'Connect an LLM (Ollama, OpenAI, or custom) for AI-powered property evaluation and image analysis.'
+            : 'Csatlakoztass egy LLM-et (Ollama, OpenAI vagy egyéni) AI-alapú ingatlan értékeléshez és képelemzéshez.' %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts & Tips -->
+    <div class="guide-section animate-slide-up">
+      <h2 class="guide-section__title">⌨️ <%= lang === 'en' ? 'Tips & Shortcuts' : 'Tippek és billentyűparancsok' %></h2>
+      <div class="card">
+        <div class="card__body">
+          <h4 class="mb-3"><%= lang === 'en' ? 'Image Lightbox' : 'Kép nézet' %></h4>
+          <div class="guide-keys">
+            <span class="guide-key">Esc — <%= lang === 'en' ? 'Close' : 'Bezárás' %></span>
+            <span class="guide-key">← → — <%= lang === 'en' ? 'Navigate' : 'Navigálás' %></span>
+          </div>
+
+          <h4 class="mt-4 mb-3"><%= lang === 'en' ? 'Quiz Workflow' : 'Szemle munkafolyamat' %></h4>
+          <ul style="padding-left:var(--sp-6);line-height:var(--lh-loose);font-size:var(--fs-sm);color:var(--gray-600);">
+            <li><%= lang === 'en'
+              ? 'Answers auto-save when you select an option — no need to press Save manually.'
+              : 'A válaszok automatikusan mentődnek, amikor kiválasztasz egy opciót — nem kell kézzel mentened.' %></li>
+            <li><%= lang === 'en'
+              ? 'Notes auto-save when you click outside the text area.'
+              : 'A jegyzetek automatikusan mentődnek, amikor a szövegmezőn kívülre kattintasz.' %></li>
+            <li><%= lang === 'en'
+              ? 'A green "Saved" indicator appears next to notes/image buttons when data is saved.'
+              : 'Zöld "Mentve" jelzés jelenik meg a jegyzet/kép gombok mellett, amikor az adat mentésre kerül.' %></li>
+            <li><%= lang === 'en'
+              ? 'You can attach photos from the house gallery directly to quiz questions — perfect for team collaboration.'
+              : 'Fotókat csatolhatsz a ház galériából közvetlenül a szemle kérdésekhez — tökéletes csapat együttműködéshez.' %></li>
+          </ul>
+
+          <h4 class="mt-4 mb-3"><%= lang === 'en' ? 'Team Collaboration Workflow' : 'Csapat együttműködés munkafolyamat' %></h4>
+          <ul style="padding-left:var(--sp-6);line-height:var(--lh-loose);font-size:var(--fs-sm);color:var(--gray-600);">
+            <li><%= lang === 'en'
+              ? '👷 Inspector on the field: Upload photos to the house gallery via phone or tablet.'
+              : '👷 Szemléző a helyszínen: Fotókat tölt fel a ház galériába telefonról vagy tabletről.' %></li>
+            <li><%= lang === 'en'
+              ? '🖥️ Office colleague: Open the quiz and attach uploaded photos to questions. Gallery updates live.'
+              : '🖥️ Irodai kolléga: Nyissa meg a kérdőívet és csatolja a feltöltött fotókat a kérdésekhez. A galéria élőben frissül.' %></li>
+            <li><%= lang === 'en'
+              ? '📞 Communication: Use video call or radio to coordinate which photos match which questions.'
+              : '📞 Kommunikáció: Használj videóhívást vagy rádiót, hogy egyeztessétek, melyik fotó melyik kérdéshez tartozik.' %></li>
+          </ul>
+
+          <h4 class="mt-4 mb-3"><%= lang === 'en' ? 'Language' : 'Nyelv' %></h4>
+          <p style="font-size:var(--fs-sm);color:var(--gray-600);">
+            <%= lang === 'en'
+              ? 'Switch between Hungarian and English using the HU/EN links in the top header. Your preference is saved for the session.'
+              : 'Válts magyar és angol nyelv között a fejléc HU/EN linkjeivel. A választásod a munkamenet végéig megmarad.' %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="guide-section animate-slide-up">
+      <h2 class="guide-section__title">🔗 <%= lang === 'en' ? 'Quick Links' : 'Gyors linkek' %></h2>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="/" class="btn btn-primary">🏠 <%= t.home %></a>
+        <a href="/houses" class="btn btn-outline-primary">🏡 <%= t.houses %></a>
+        <a href="/quiz" class="btn btn-accent">📋 <%= t.quiz %></a>
+        <a href="/property-finder" class="btn btn-outline">🔍 <%= t.property_finder %></a>
+        <a href="/calculators/energy" class="btn btn-outline">⚡ <%= lang === 'en' ? 'Energy Calc' : 'Energia kalk.' %></a>
+        <a href="/calculators/heating" class="btn btn-outline">🔥 <%= lang === 'en' ? 'Heating Calc' : 'Fűtés kalk.' %></a>
+        <a href="/admin" class="btn btn-secondary">⚙️ <%= t.settings %></a>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+  </main>
+</div>
+<%- include('partials/scripts') %>
+</body>
+</html>

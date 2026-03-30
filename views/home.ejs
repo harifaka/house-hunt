@@ -62,6 +62,11 @@
             else if (house.overallScore >= 25) scoreLevel = 'medium';
           %>
           <div class="card card--house card--clickable animate-slide-up">
+            <% if (house.thumbnail) { %>
+              <img src="/uploads/<%= house.thumbnail %>" alt="<%= house.name %>" class="card--house__thumb">
+            <% } else { %>
+              <div class="card--house__thumb-placeholder">🏠</div>
+            <% } %>
             <div class="card__header d-flex justify-between items-center">
               <h4 class="card__title mb-0 truncate"><%= house.name %></h4>
               <% if (house.answeredCount > 0) { %>
