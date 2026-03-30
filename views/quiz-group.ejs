@@ -465,10 +465,12 @@
       });
       // Click fallback on palette items
       item.addEventListener('click', function() {
+        var questionCard = palette.closest('.quiz-question') || palette.closest('.card');
+        var wrapper = questionCard ? questionCard.querySelector('.quiz-image-wrapper') : null;
         window.attachHouseImage({
           dataset: { filename: item.dataset.filename, houseId: palette.dataset.houseId, questionId: palette.dataset.questionId },
           style: { borderColor: '', opacity: '' },
-          closest: function() { return item.closest('.quiz-image-wrapper'); }
+          closest: function() { return wrapper; }
         });
       });
     });
@@ -485,10 +487,12 @@
       var houseId = zone.dataset.houseId || e.dataTransfer.getData('application/x-house-id');
       var questionId = zone.dataset.questionId;
       if (filename && houseId && questionId) {
+        var questionCard = zone.closest('.quiz-question') || zone.closest('.card');
+        var wrapper = questionCard ? questionCard.querySelector('.quiz-image-wrapper') : null;
         window.attachHouseImage({
           dataset: { filename: filename, houseId: houseId, questionId: questionId },
           style: { borderColor: '', opacity: '' },
-          closest: function(sel) { return zone.closest('.quiz-image-wrapper'); }
+          closest: function() { return wrapper; }
         });
       }
     });
