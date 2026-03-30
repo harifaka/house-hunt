@@ -25,7 +25,12 @@
     if (type === 'warning') icon = '⚠️';
     else if (type === 'error') icon = '❌';
 
-    toast.innerHTML = '<span>' + icon + '</span><span>' + message + '</span>';
+    var iconSpan = document.createElement('span');
+    iconSpan.textContent = icon;
+    var msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
     container.appendChild(toast);
 
     setTimeout(function() {

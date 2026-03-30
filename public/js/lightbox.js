@@ -93,6 +93,18 @@
       open(group, idx);
     });
 
+    // Make lightbox images keyboard-accessible
+    document.querySelectorAll('img[data-lightbox]').forEach(function(img) {
+      if (!img.getAttribute('tabindex')) img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          img.click();
+        }
+      });
+    });
+
     document.addEventListener('keydown', function(e) {
       if (!overlay || !overlay.classList.contains('is-active')) return;
       if (e.key === 'Escape') close();

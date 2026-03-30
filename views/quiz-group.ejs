@@ -118,14 +118,18 @@
                     <div class="text-xs text-muted mb-1"><%= lang === 'en' ? 'Attach from house photos:' : 'Csatolás ház fotókból:' %></div>
                     <div class="d-flex flex-wrap gap-2">
                       <% houseImages.forEach(function(hi) { %>
-                        <img src="/uploads/<%= hi.filename %>"
+                        <button type="button"
                              class="quiz-attach-house-img"
-                             style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;"
+                             style="width:60px;height:60px;padding:0;background:none;border:2px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.2s;overflow:hidden;"
                              data-filename="<%= hi.filename %>"
                              data-house-id="<%= house.id %>"
                              data-question-id="<%= q.id %>"
                              title="<%= lang === 'en' ? 'Attach this image' : 'Kép csatolása' %>"
                              onclick="attachHouseImage(this)">
+                          <img src="/uploads/<%= hi.filename %>"
+                               style="width:100%;height:100%;object-fit:cover;display:block;"
+                               alt="<%= lang === 'en' ? 'Attach this image' : 'Kép csatolása' %>">
+                        </button>
                       <% }); %>
                     </div>
                   </div>

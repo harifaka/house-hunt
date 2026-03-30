@@ -421,24 +421,62 @@
 
   // Live polling: check for new images every 10 seconds
   var lastImageCount = <%= images ? images.length : 0 %>;
+
+  function escapeAttr(str) {
+    var el = document.createElement('span');
+    el.textContent = str || '';
+    return el.innerHTML.replace(/"/g, '&quot;');
+  }
+
   setInterval(function() {
     fetch('/api/houses/<%= house.id %>/images')
       .then(function(r) { return r.json(); })
       .then(function(imgs) {
         if (imgs.length !== lastImageCount) {
           lastImageCount = imgs.length;
-          // Reload gallery section
+          // Rebuild gallery using safe DOM methods
           var gallery = document.querySelector('.image-gallery');
           if (gallery && imgs.length > 0) {
-            var html = '';
+            while (gallery.firstChild) gallery.removeChild(gallery.firstChild);
             imgs.forEach(function(img) {
-              html += '<div class="image-gallery__item">' +
-                '<img src="/uploads/' + img.filename + '" alt="' + (img.caption || '') + '" class="image-gallery__img" data-lightbox="house-gallery" data-caption="' + (img.caption || '') + '">' +
-                (img.caption ? '<div class="image-gallery__caption">' + img.caption + '</div>' : '') +
-                '<form method="POST" action="/houses/<%= house.id %>/delete-image/' + img.id + '" class="image-gallery__delete" onsubmit="return confirm(\'<%= lang === "en" ? "Delete this photo?" : "Törli ezt a fotót?" %>\')">' +
-                '<button type="submit" class="btn btn-sm btn-danger">🗑️</button></form></div>';
+              var item = document.createElement('div');
+              item.className = 'image-gallery__item';
+
+              var imgEl = document.createElement('img');
+              imgEl.src = '/uploads/' + img.filename;
+              imgEl.alt = img.caption || '';
+              imgEl.className = 'image-gallery__img';
+              imgEl.dataset.lightbox = 'house-gallery';
+              imgEl.dataset.caption = img.caption || '';
+              imgEl.setAttribute('tabindex', '0');
+              imgEl.setAttribute('role', 'button');
+              item.appendChild(imgEl);
+
+              if (img.caption) {
+                var cap = document.createElement('div');
+                cap.className = 'image-gallery__caption';
+                cap.textContent = img.caption;
+                item.appendChild(cap);
+              }
+
+              var form = document.createElement('form');
+              form.method = 'POST';
+              form.action = '/houses/<%= house.id %>/delete-image/' + img.id;
+              form.className = 'image-gallery__delete';
+              form.addEventListener('submit', function(e) {
+                if (!confirm('<%= lang === "en" ? "Delete this photo?" : "Törli ezt a fotót?" %>')) {
+                  e.preventDefault();
+                }
+              });
+              var btn = document.createElement('button');
+              btn.type = 'submit';
+              btn.className = 'btn btn-sm btn-danger';
+              btn.textContent = '🗑️';
+              form.appendChild(btn);
+              item.appendChild(form);
+
+              gallery.appendChild(item);
             });
-            gallery.innerHTML = html;
             window.showToast('<%= lang === "en" ? "Gallery updated" : "Galéria frissítve" %>', 'success', 2000);
           } else if (!gallery && imgs.length > 0) {
             window.location.reload();
