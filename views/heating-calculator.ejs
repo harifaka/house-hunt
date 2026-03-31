@@ -474,6 +474,12 @@
     document.getElementById('res-power').textContent = powerKw.toFixed(1);
     document.getElementById('res-annual-kwh').textContent = Math.round(annualKwh).toLocaleString();
     document.getElementById('res-annual-cost').textContent = Math.round(annualCost).toLocaleString() + ' HUF';
+
+    // Pulse animation on value change
+    ['res-wall-loss','res-window-loss','res-total-loss','res-power','res-annual-kwh','res-annual-cost'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.classList.remove('calc-value-changed'); void el.offsetWidth; el.classList.add('calc-value-changed'); }
+    });
   }
 
   // Save calculation

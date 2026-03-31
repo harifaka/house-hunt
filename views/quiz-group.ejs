@@ -30,7 +30,9 @@
       <% group.questions.forEach(function(q, qi) { %>
         <div class="card mb-4 animate-fade-in quiz-question" id="question-<%= q.id %>">
           <div class="card__body">
-            <div class="quiz-question__weight"><%= t.weight %>: <%= q.weight %></div>
+            <div class="quiz-question__weight"><%= t.weight %>: <%= q.weight %>
+              <span class="live-edit-badge"><%= lang === 'en' ? '● Editing' : '● Szerkesztés' %></span>
+            </div>
             <div class="quiz-question__text"><%= qi + 1 %>. <%= q.text %>
               <% if (q.type === 'multi_choice') { %>
                 <span class="badge badge--info text-xs ml-2"><%= lang === 'en' ? 'Multiple choice' : 'Több válasz' %></span>
@@ -112,14 +114,22 @@
                   </div>
                 <% } %>
 
-                <!-- House images picker for office use -->
+                <!-- House images picker — draggable palette on PC, click on mobile -->
                 <% if (typeof houseImages !== 'undefined' && houseImages && houseImages.length > 0) { %>
                   <div class="mt-2 mb-2">
-                    <div class="text-xs text-muted mb-1"><%= lang === 'en' ? 'Attach from house photos:' : 'Csatolás ház fotókból:' %></div>
+                    <div class="text-xs text-muted mb-1"><%= lang === 'en' ? 'Drag or click to attach from house photos:' : 'Húzd vagy kattints a ház fotókból csatoláshoz:' %></div>
+                    <div class="image-palette" data-question-id="<%= q.id %>" data-house-id="<%= house.id %>">
+                      <% houseImages.forEach(function(hi) { %>
+                        <div class="image-palette__item" draggable="true" data-filename="<%= hi.filename %>">
+                          <img src="/uploads/<%= hi.filename %>"
+                               alt="<%= lang === 'en' ? 'Attach this image' : 'Kép csatolása' %>">
+                        </div>
+                      <% }); %>
+                    </div>
                     <div class="d-flex flex-wrap gap-2">
                       <% houseImages.forEach(function(hi) { %>
                         <button type="button"
-                             class="quiz-attach-house-img"
+                             class="quiz-attach-house-img image-palette-mobile-only"
                              style="width:60px;height:60px;padding:0;background:none;border:2px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.2s;overflow:hidden;"
                              data-filename="<%= hi.filename %>"
                              data-house-id="<%= house.id %>"
@@ -132,6 +142,13 @@
                         </button>
                       <% }); %>
                     </div>
+                  </div>
+                <% } %>
+
+                <!-- Drop zone for dragged images (PC only) -->
+                <% if (q.allowImage) { %>
+                  <div class="drop-zone" data-house-id="<%= house.id %>" data-question-id="<%= q.id %>">
+                    📷 <%= lang === 'en' ? 'Drop image here or click below' : 'Húzd ide a képet vagy kattints alább' %>
                   </div>
                 <% } %>
 
@@ -413,6 +430,73 @@
       window.showToast('<%= lang === "en" ? "Attach failed" : "Csatolás sikertelen" %>', 'error');
     });
   };
+  // Live-edit indicator — highlight questions being actively edited
+  document.querySelectorAll('.quiz-question').forEach(function(card) {
+    var inputs = card.querySelectorAll('input, textarea, select');
+    inputs.forEach(function(inp) {
+      inp.addEventListener('focus', function() { card.classList.add('is-editing'); });
+      inp.addEventListener('blur', function() {
+        setTimeout(function() {
+          if (!card.contains(document.activeElement)) card.classList.remove('is-editing');
+        }, 100);
+      });
+    });
+    // Also mark editing on option click
+    card.querySelectorAll('.quiz-option').forEach(function(opt) {
+      opt.addEventListener('click', function() {
+        document.querySelectorAll('.quiz-question.is-editing').forEach(function(q) { q.classList.remove('is-editing'); });
+        card.classList.add('is-editing');
+        setTimeout(function() { card.classList.remove('is-editing'); }, 3000);
+      });
+    });
+  });
+
+  // Drag-and-drop image palette (PC only)
+  document.querySelectorAll('.image-palette').forEach(function(palette) {
+    var items = palette.querySelectorAll('.image-palette__item');
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', item.dataset.filename);
+        e.dataTransfer.setData('application/x-house-id', palette.dataset.houseId);
+        item.classList.add('is-dragging');
+      });
+      item.addEventListener('dragend', function() {
+        item.classList.remove('is-dragging');
+      });
+      // Click fallback on palette items
+      item.addEventListener('click', function() {
+        var questionCard = palette.closest('.quiz-question') || palette.closest('.card');
+        var wrapper = questionCard ? questionCard.querySelector('.quiz-image-wrapper') : null;
+        window.attachHouseImage({
+          dataset: { filename: item.dataset.filename, houseId: palette.dataset.houseId, questionId: palette.dataset.questionId },
+          style: { borderColor: '', opacity: '' },
+          closest: function() { return wrapper; }
+        });
+      });
+    });
+  });
+
+  // Drop zones for dragged images
+  document.querySelectorAll('.drop-zone').forEach(function(zone) {
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      var filename = e.dataTransfer.getData('text/plain');
+      var houseId = zone.dataset.houseId || e.dataTransfer.getData('application/x-house-id');
+      var questionId = zone.dataset.questionId;
+      if (filename && houseId && questionId) {
+        var questionCard = zone.closest('.quiz-question') || zone.closest('.card');
+        var wrapper = questionCard ? questionCard.querySelector('.quiz-image-wrapper') : null;
+        window.attachHouseImage({
+          dataset: { filename: filename, houseId: houseId, questionId: questionId },
+          style: { borderColor: '', opacity: '' },
+          closest: function() { return wrapper; }
+        });
+      }
+    });
+  });
 })();
 </script>
 </body>

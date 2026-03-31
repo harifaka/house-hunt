@@ -203,6 +203,12 @@
     document.getElementById('sum-yearly').textContent = yearlyKwh.toFixed(0);
     document.getElementById('cost-monthly').textContent = Math.round(monthlyKwh * price).toLocaleString() + ' ' + cur;
     document.getElementById('cost-yearly').textContent = Math.round(yearlyKwh * price).toLocaleString() + ' ' + cur;
+
+    // Pulse animation on value change
+    ['sum-daily','sum-monthly','sum-yearly','cost-monthly','cost-yearly'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.classList.remove('calc-value-changed'); void el.offsetWidth; el.classList.add('calc-value-changed'); }
+    });
   }
 
   document.getElementById('add-row').addEventListener('click', function() { createRow(); });

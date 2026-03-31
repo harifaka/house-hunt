@@ -230,3 +230,53 @@ describe('Window/Door Templates', () => {
     expect(res.body.error).toContain('Cannot delete standard');
   });
 });
+
+describe('Theme Support', () => {
+  test('pages include theme initialization script in head', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('data-theme');
+    expect(res.text).toContain("document.documentElement.setAttribute('data-theme'");
+  });
+
+  test('pages include theme toggle button', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('id="theme-toggle"');
+    expect(res.text).toContain('theme-toggle');
+  });
+
+  test('pages include theme.js script', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('/js/theme.js');
+  });
+
+  test('theme.js is served as static file', async () => {
+    const res = await request(app).get('/js/theme.js');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('theme');
+    expect(res.text).toContain('cookie');
+  });
+
+  test('dark mode CSS variables are defined in stylesheet', async () => {
+    const res = await request(app).get('/css/style.css');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('[data-theme="dark"]');
+    expect(res.text).toContain('--surface');
+    expect(res.text).toContain('--text-primary');
+    expect(res.text).toContain('--border-color');
+  });
+
+  test('default theme is dark when no cookie set', async () => {
+    const res = await request(app).get('/');
+    // The inline script should default to dark
+    expect(res.text).toContain("c?c[1]:'dark'");
+  });
+
+  test('admin link has subtle styling class', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('nav__link--admin');
+  });
+});

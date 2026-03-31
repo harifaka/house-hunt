@@ -89,6 +89,15 @@
   --ease:             cubic-bezier(0.4, 0, 0.2, 1);
   --duration:         200ms;
   --duration-slow:    350ms;
+
+  /* Theme-aware semantic tokens (light defaults) */
+  --surface:          #ffffff;
+  --surface-elevated: #ffffff;
+  --text-primary:     #212121;
+  --text-secondary:   #757575;
+  --text-muted:       #9e9e9e;
+  --border-color:     #eeeeee;
+  --input-bg:         #ffffff;
 }
 
 /* ----- Reset & Base ----- */
@@ -2872,4 +2881,354 @@ select.form-control {
   border-radius: var(--radius-sm);
   font-size: var(--fs-xs);
   font-family: var(--font-mono);
+}
+
+/* ============================================================
+   Dark Mode Theme
+   ============================================================ */
+
+[data-theme="dark"] {
+  /* Primary palette — lighter tones for dark backgrounds */
+  --primary:          #5c6bc0;
+  --primary-light:    #7986cb;
+  --primary-dark:     #3949ab;
+  --primary-bg:       #1a1a2e;
+
+  /* Accent — slightly brighter for contrast */
+  --accent:           #ffb74d;
+  --accent-light:     #3d2e1a;
+  --accent-dark:      #ffa726;
+
+  /* Semantic — adjusted light variants for dark surfaces */
+  --success:          #66bb6a;
+  --success-light:    #1b2e1b;
+  --warning:          #ffca28;
+  --warning-light:    #2e2a15;
+  --danger:           #ef5350;
+  --danger-light:     #2e1515;
+  --info:             #29b6f6;
+  --info-light:       #152230;
+
+  /* Neutrals — inverted gray scale */
+  --gray-50:          #1a1a1a;
+  --gray-100:         #121212;
+  --gray-200:         #2d2d2d;
+  --gray-300:         #404040;
+  --gray-400:         #606060;
+  --gray-500:         #808080;
+  --gray-600:         #a0a0a0;
+  --gray-700:         #bdbdbd;
+  --gray-800:         #cccccc;
+  --gray-900:         #e0e0e0;
+  --white:            #1e1e1e;
+  --black:            #e0e0e0;
+
+  /* Shadows — more subtle on dark backgrounds */
+  --shadow-xs:        0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm:        0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow:           0 4px 6px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md:        0 10px 15px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.2);
+  --shadow-lg:        0 20px 25px rgba(0,0,0,0.3), 0 10px 10px rgba(0,0,0,0.15);
+  --shadow-inner:     inset 0 2px 4px rgba(0,0,0,0.2);
+
+  /* Theme-aware semantic tokens (dark) */
+  --surface:          #1e1e1e;
+  --surface-elevated: #2d2d2d;
+  --text-primary:     #e0e0e0;
+  --text-secondary:   #a0a0a0;
+  --text-muted:       #808080;
+  --border-color:     #404040;
+  --input-bg:         #2d2d2d;
+}
+
+/* Dark-mode overrides for elements that use hard-coded white/light backgrounds */
+[data-theme="dark"] body {
+  color-scheme: dark;
+}
+
+/* Forms */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.25);
+}
+
+/* Cards & panels */
+[data-theme="dark"] .card,
+[data-theme="dark"] .panel,
+[data-theme="dark"] .modal__content,
+[data-theme="dark"] .dropdown__menu {
+  background-color: var(--surface);
+  border-color: var(--border-color);
+}
+
+/* Header */
+[data-theme="dark"] .header {
+  background-color: #0d1117;
+  border-bottom-color: var(--border-color);
+}
+
+/* Sidebar */
+[data-theme="dark"] .sidebar {
+  background-color: #161b22;
+  border-right-color: var(--border-color);
+}
+
+[data-theme="dark"] .sidebar__link:hover,
+[data-theme="dark"] .sidebar__link--active {
+  background-color: var(--surface-elevated);
+}
+
+/* Tables */
+[data-theme="dark"] table th {
+  background-color: var(--surface-elevated);
+}
+
+[data-theme="dark"] table tr:nth-child(even) {
+  background-color: rgba(255,255,255,0.02);
+}
+
+[data-theme="dark"] table tr:hover {
+  background-color: rgba(255,255,255,0.04);
+}
+
+/* Buttons — ensure outline/ghost variants stay legible */
+[data-theme="dark"] .btn--outline {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn--ghost {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn--ghost:hover {
+  background-color: var(--surface-elevated);
+}
+
+/* Badges / tags */
+[data-theme="dark"] .badge--light,
+[data-theme="dark"] .tag--light {
+  background-color: var(--surface-elevated);
+  color: var(--text-secondary);
+}
+
+/* Tooltips */
+[data-theme="dark"] .tooltip {
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* Modals — overlay */
+[data-theme="dark"] .modal__overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Alert / notification boxes */
+[data-theme="dark"] .alert {
+  border-color: var(--border-color);
+}
+
+/* Code / pre blocks */
+[data-theme="dark"] code,
+[data-theme="dark"] pre {
+  background-color: #0d1117;
+  color: var(--text-primary);
+}
+
+/* Guide keys */
+[data-theme="dark"] .guide-key {
+  background: var(--surface-elevated);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .cookie-banner {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+[data-theme="dark"] .cookie-banner__text a {
+  color: #7986cb;
+}
+[data-theme="dark"] footer,
+[data-theme="dark"] .footer-legal a {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .results-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #283593 50%, #1a237e 100%);
+  color: #e0e0e0;
+}
+[data-theme="dark"] .card--stat {
+  background: var(--surface-elevated);
+  border-color: var(--border-color);
+}
+
+/* ============================================================
+   Theme Toggle Button
+   ============================================================ */
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text-primary);
+  transition: background var(--duration) var(--ease);
+}
+.theme-toggle:hover {
+  background: var(--surface-elevated);
+}
+
+/* ============================================================
+   Admin Nav Link
+   ============================================================ */
+
+.nav__link--admin {
+  opacity: 0.6;
+  font-size: var(--fs-sm);
+}
+.nav__link--admin:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Quiz Live-Edit Indicator
+   ============================================================ */
+
+.quiz-question.is-editing {
+  border-left: 3px solid var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-light);
+}
+.quiz-question .live-edit-badge {
+  display: none;
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  font-weight: 600;
+}
+.quiz-question.is-editing .live-edit-badge {
+  display: inline-block;
+}
+
+/* ============================================================
+   Drag-and-Drop Image Palette (Desktop)
+   ============================================================ */
+
+.image-palette {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .image-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius);
+    min-height: 60px;
+    background: var(--surface);
+  }
+  .image-palette.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .image-palette__item {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: grab;
+    border: 2px solid transparent;
+    transition: border-color var(--duration) var(--ease);
+  }
+  .image-palette__item:active {
+    cursor: grabbing;
+  }
+  .image-palette__item.is-dragging {
+    opacity: 0.5;
+    border-color: var(--accent);
+  }
+  .image-palette__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+/* Hide mobile click-buttons on desktop when palette is visible */
+@media (min-width: 1024px) {
+  .image-palette-mobile-only { display: none !important; }
+}
+/* Hide palette on mobile (click buttons are shown instead) */
+@media (max-width: 1023px) {
+  .drop-zone { display: none; }
+}
+.drop-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  transition: all var(--duration) var(--ease);
+}
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(245, 124, 0, 0.05);
+  color: var(--accent);
+}
+
+/* ============================================================
+   Real-Time Calculation Pulse Animation
+   ============================================================ */
+
+.calc-value-changed {
+  animation: calcPulse 0.4s ease;
+}
+@keyframes calcPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   Mobile Resource Saver & Reduced Motion
+   ============================================================ */
+
+@media (max-width: 768px) {
+  [data-theme] * {
+    animation-duration: 0.1s !important;
+    transition-duration: 0.1s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
