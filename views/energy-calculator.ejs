@@ -315,6 +315,16 @@
     dutyDisplay.textContent = this.value + '%';
   });
 
+  function escapeAttr(str) {
+    return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
   function createRow(data) {
     var d = data || {};
     var duty = d.duty !== undefined ? d.duty : parseInt(defaultDuty.value);
@@ -332,10 +342,6 @@
       inp.addEventListener('input', recalculate);
     });
     recalculate();
-  }
-
-  function escapeAttr(str) {
-    return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   function getItems() {
@@ -614,12 +620,6 @@
       resultDiv.innerHTML = '<p class="text-muted" style="color:var(--danger)">' + escapeHtml(err.message) + '</p>';
     });
   });
-
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
-  }
 
   // CSV Export
   document.getElementById('export-results').addEventListener('click', function() {

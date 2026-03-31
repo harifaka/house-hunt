@@ -439,10 +439,10 @@ router.get('/export/energy/:calcId/pdf', expensiveApiLimiter, async (req, res) =
     }
   }
 
-  const mainFont = fs.existsSync(path.join(__dirname, '../../fonts/NotoSans-Regular.ttf'))
-    ? path.join(__dirname, '../../fonts/NotoSans-Regular.ttf') : undefined;
-  const boldFont = fs.existsSync(path.join(__dirname, '../../fonts/NotoSans-Bold.ttf'))
-    ? path.join(__dirname, '../../fonts/NotoSans-Bold.ttf') : undefined;
+  const mainFontPath = path.join(__dirname, '../../fonts/NotoSans-Regular.ttf');
+  const boldFontPath = path.join(__dirname, '../../fonts/NotoSans-Bold.ttf');
+  const mainFont = fs.existsSync(mainFontPath) ? mainFontPath : undefined;
+  const boldFont = fs.existsSync(boldFontPath) ? boldFontPath : undefined;
 
   const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
   const filename = (calc.name || 'energy').replace(/[^a-zA-Z0-9_-]/g, '_');
