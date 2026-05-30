@@ -1,19 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
 const { getDb } = require('../database');
 const { getGroups, getGroupQuestions, getAllQuestions, calculateScore } = require('../questions');
 const { logger } = require('../logger');
-
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', 'uploads'),
-  filename: (_req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const { upload, storeImage, handleUploadError } = require('../image-service');
 
 // GET /quiz — Quiz landing page (house selection)
 router.get('/', async (req, res) => {
@@ -203,7 +193,12 @@ router.post('/:houseId/answer', async (req, res) => {
 });
 
 // POST /quiz/:houseId/upload/:questionId — Upload image for question
-router.post('/:houseId/upload/:questionId', upload.single('image'), async (req, res) => {
+router.post('/:houseId/upload/:questionId', (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) return handleUploadError(err, req, res, next);
+    next();
+  });
+}, async (req, res) => {
   const db = await getDb();
   try {
     const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.houseId);
@@ -211,24 +206,26 @@ router.post('/:houseId/upload/:questionId', upload.single('image'), async (req, 
 
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    const stored = await storeImage(req.file);
+
     const existing = await db.prepare(
       'SELECT id FROM answers WHERE house_id = ? AND question_id = ?'
     ).get(house.id, req.params.questionId);
 
     if (existing) {
       await db.prepare('UPDATE answers SET image_path = ? WHERE house_id = ? AND question_id = ?')
-        .run(req.file.filename, house.id, req.params.questionId);
+        .run(stored.filename, house.id, req.params.questionId);
     } else {
       await db.prepare(
         'INSERT INTO answers (house_id, question_id, option_id, notes, image_path) VALUES (?, ?, NULL, NULL, ?)'
-      ).run(house.id, req.params.questionId, req.file.filename);
+      ).run(house.id, req.params.questionId, stored.filename);
     }
 
-    res.json({ success: true, filename: req.file.filename });
+    res.json({ success: true, filename: stored.filename, url: stored.url, provider: stored.provider });
 
     // Audit: log image upload
     const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
-    logger.imageUploaded(house.id, req.params.questionId, req.file.filename, meta).catch(() => {});
+    logger.imageUploaded(house.id, req.params.questionId, stored.filename, meta).catch(() => {});
   } finally {
     await db.close();
   }

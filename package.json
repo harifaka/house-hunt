@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/harifaka/house-hunt-helper.git"
+    "url": "git+https://github.com/harifaka/house-hunt.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/harifaka/house-hunt-helper/issues"
+    "url": "https://github.com/harifaka/house-hunt/issues"
   },
-  "homepage": "https://github.com/harifaka/house-hunt-helper#readme",
+  "homepage": "https://github.com/harifaka/house-hunt#readme",
   "dependencies": {
     "better-sqlite3": "^12.8.0",
     "cheerio": "^1.0.0",

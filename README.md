@@ -86,8 +86,12 @@ The app runs at `http://localhost:3000` by default.
 | Variable | Description | Default |
 | --- | --- | --- |
 | `PORT` | HTTP server port | `3000` |
+| `NODE_ENV` | Environment (`production`, `development`) | `development` |
 | `SESSION_SECRET` | Session encryption secret | Random value |
 | `DATABASE_PATH` | SQLite database location | `./db/house_hunt.sqlite` |
+| `DATABASE_URL` | PostgreSQL connection string (overrides SQLite) | — |
+| `DATABASE_SSL` | Enable SSL for PostgreSQL (`true`/`false`) | `false` |
+| `LOG_RETENTION_DAYS` | Days to keep audit logs | `30` |
 
 ## Quality checks
 
@@ -114,22 +118,36 @@ house-hunt/
 │   ├── css/style.css
 │   └── js/
 │       ├── app.js
+│       ├── backup.js
 │       ├── lightbox.js
+│       ├── theme.js
 │       └── toast.js
 ├── src/
+│   ├── ai-service.js
 │   ├── database.js
+│   ├── image-service.js
+│   ├── logger.js
 │   ├── questions.js
 │   ├── scraper.js
-│   ├── logger.js
-│   ├── ai-service.js
 │   └── routes/
+│       ├── admin.js
+│       ├── api.js
+│       ├── calculators.js
+│       ├── home.js
+│       ├── legal.js
+│       ├── property-finder.js
+│       └── quiz.js
 ├── tests/
 ├── views/
+│   ├── admin.ejs
 │   ├── guide.ejs
+│   ├── home.ejs
 │   ├── house-detail.ejs
+│   ├── property-finder.ejs
 │   ├── quiz-group.ejs
 │   └── partials/
 ├── DEPLOY.md
+├── RELEASE_NOTES.md
 └── render.yaml
 ```
 

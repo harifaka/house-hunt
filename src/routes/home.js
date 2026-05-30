@@ -1,31 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const multer = require('multer');
-const path = require('path');
 const { getDb } = require('../database');
 const { getAllQuestions, calculateScore, getGroups } = require('../questions');
 const { logger } = require('../logger');
-
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', 'uploads'),
-  filename: (_req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  }
-});
-const allowedImageTypes = /^image\/(jpeg|png|gif|webp|bmp|svg\+xml)$/;
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (allowedImageTypes.test(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
-    }
-  }
-});
+const { upload, storeImage, handleUploadError } = require('../image-service');
 
 // GET / — Dashboard
 router.get('/', async (req, res) => {
@@ -169,23 +148,29 @@ router.post('/houses/:id/delete', async (req, res) => {
 });
 
 // POST /houses/:id/upload-image — Upload image to house
-router.post('/houses/:id/upload-image', upload.single('image'), async (req, res) => {
+router.post('/houses/:id/upload-image', (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) return handleUploadError(err, req, res, next);
+    next();
+  });
+}, async (req, res) => {
   const db = await getDb();
   try {
     const house = await db.prepare('SELECT * FROM houses WHERE id = ?').get(req.params.id);
     if (!house) return res.status(404).json({ error: 'House not found' });
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    const stored = await storeImage(req.file);
     const id = crypto.randomUUID();
     const caption = req.body.caption || null;
     await db.prepare(
       'INSERT INTO house_images (id, house_id, filename, caption) VALUES (?, ?, ?, ?)'
-    ).run(id, house.id, req.file.filename, caption);
+    ).run(id, house.id, stored.filename, caption);
 
     const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
-    logger.imageUploaded(house.id, 'house', req.file.filename, meta).catch(() => {});
+    logger.imageUploaded(house.id, 'house', stored.filename, meta).catch(() => {});
 
-    res.json({ success: true, id, filename: req.file.filename });
+    res.json({ success: true, id, filename: stored.filename, url: stored.url, provider: stored.provider });
   } finally {
     await db.close();
   }

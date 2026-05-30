@@ -116,6 +116,33 @@
       </div>
     </div>
 
+    <!-- Local Backup / Restore -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0">💾 <%= lang === 'en' ? 'Local Backup' : 'Helyi biztonsági mentés' %></h3>
+      </div>
+      <div class="card__body">
+        <p class="text-xs text-muted mb-4">
+          <%= lang === 'en'
+            ? 'Export or import your local browser cache. This includes quiz answers, calculator data, and offline backups stored in your browser.'
+            : 'Exportáld vagy importáld a helyi böngésző gyorsítótárat. Ez tartalmazza a kérdőív válaszokat, kalkulátor adatokat és az offline biztonsági mentéseket.' %>
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <button type="button" class="btn btn-outline" id="backup-export">
+            📥 <%= lang === 'en' ? 'Export Backup' : 'Mentés exportálása' %>
+          </button>
+          <button type="button" class="btn btn-outline" id="backup-import">
+            📤 <%= lang === 'en' ? 'Import Backup' : 'Mentés importálása' %>
+          </button>
+          <button type="button" class="btn btn-outline" id="backup-clear" style="color:var(--danger)">
+            🗑️ <%= lang === 'en' ? 'Clear Local Data' : 'Helyi adatok törlése' %>
+          </button>
+        </div>
+        <input type="file" id="backup-file-input" accept=".json" style="display:none;">
+        <div id="backup-result" class="mt-3" style="display:none;"></div>
+      </div>
+    </div>
+
     <%- include('partials/footer') %>
   </main>
 </div>
@@ -143,6 +170,51 @@ document.getElementById('test-connection').addEventListener('click', function() 
 // Toggle imgbb settings visibility
 document.getElementById('image_storage_provider').addEventListener('change', function() {
   document.getElementById('imgbb-settings').style.display = this.value === 'imgbb' ? 'block' : 'none';
+});
+
+// Backup export
+document.getElementById('backup-export').addEventListener('click', function() {
+  if (!window.HouseHuntBackup) return;
+  var data = window.HouseHuntBackup.exportAllData();
+  var blob = new Blob([data], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'house-hunt-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  var el = document.getElementById('backup-result');
+  el.style.display = 'block';
+  el.innerHTML = '<span style="color:var(--success)">✅ <%= lang === "en" ? "Backup exported successfully" : "Mentés sikeresen exportálva" %></span>';
+});
+
+// Backup import
+document.getElementById('backup-import').addEventListener('click', function() {
+  document.getElementById('backup-file-input').click();
+});
+document.getElementById('backup-file-input').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var el = document.getElementById('backup-result');
+    el.style.display = 'block';
+    if (window.HouseHuntBackup && window.HouseHuntBackup.importAllData(ev.target.result)) {
+      el.innerHTML = '<span style="color:var(--success)">✅ <%= lang === "en" ? "Backup imported successfully" : "Mentés sikeresen importálva" %></span>';
+    } else {
+      el.innerHTML = '<span style="color:var(--danger)">❌ <%= lang === "en" ? "Failed to import backup" : "Nem sikerült importálni a mentést" %></span>';
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Backup clear
+document.getElementById('backup-clear').addEventListener('click', function() {
+  if (!confirm('<%= lang === "en" ? "Are you sure you want to clear all local backup data?" : "Biztosan törölni akarod az összes helyi biztonsági mentést?" %>')) return;
+  if (window.HouseHuntBackup) window.HouseHuntBackup.clearAllData();
+  var el = document.getElementById('backup-result');
+  el.style.display = 'block';
+  el.innerHTML = '<span style="color:var(--success)">✅ <%= lang === "en" ? "Local data cleared" : "Helyi adatok törölve" %></span>';
 });
 </script>
 </body>

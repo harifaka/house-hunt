@@ -12,7 +12,7 @@ The repository includes a `render.yaml` blueprint that configures everything aut
 
 1. Go to [Render Dashboard](https://dashboard.render.com)
 2. Click **New** → **Blueprint**
-3. Connect your GitHub repository (`harifaka/house-hunt-helper`)
+3. Connect your GitHub repository (`harifaka/house-hunt`)
 4. Render will detect the `render.yaml` and configure:
    - A **Web Service** running the Node.js app
    - A **Persistent Disk** (1 GB) mounted at `/var/data` for the SQLite database

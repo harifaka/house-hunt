@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const PDFDocument = require('pdfkit');
 const { getDb } = require('../database');
 const { scrapeProperty, searchCity, calculatePriceStats } = require('../scraper');
+const { callLLM, getAIConfig } = require('../ai-service');
 
 // Price classification thresholds (HUF)
 const PRICE_PREMIUM_THRESHOLD = 50000000;
@@ -266,10 +267,7 @@ router.post('/analyze/:id', async (req, res) => {
     const property = await db.prepare('SELECT * FROM scraped_properties WHERE id = ?').get(req.params.id);
     if (!property) return res.status(404).json({ error: 'Property not found' });
 
-    // Check AI config
-    const rows = await db.prepare("SELECT key, value FROM settings WHERE key LIKE 'ai_%'").all();
-    const config = {};
-    for (const r of rows) config[r.key.replace('ai_', '')] = r.value;
+    const config = await getAIConfig();
 
     const imageUrls = safeJsonParse(property.image_urls, []);
     const scrapedData = safeJsonParse(property.scraped_data, {});
@@ -279,11 +277,16 @@ router.post('/analyze/:id', async (req, res) => {
 
     let analysis;
     if (config.provider && config.endpoint && config.api_key) {
-      // Call real LLM
+      // Call real LLM via shared ai-service
       try {
-        analysis = await callLLM(config, prompt, imageUrls);
+        const raw = await callLLM(prompt, config);
+        try {
+          analysis = JSON.parse(raw);
+        } catch {
+          analysis = { summary: raw, condition: 'unknown', pros: [], cons: [] };
+        }
       } catch (err) {
-        console.error('LLM call failed:', err);
+        console.error('LLM call failed:', err.message);
         analysis = generateDemoAnalysis(property, req.lang || 'hu');
         analysis._note = 'LLM call failed, showing demo analysis. Error: ' + err.message;
       }
@@ -528,47 +531,6 @@ Please provide a JSON response with:
 }`;
 }
 
-async function callLLM(config, prompt, imageUrls) {
-  const body = {
-    model: config.model || 'gpt-4',
-    messages: [
-      { role: 'system', content: 'You are a professional house inspector and real estate analyst. Always respond with valid JSON.' },
-      { role: 'user', content: prompt }
-    ],
-    max_tokens: 2000,
-    temperature: 0.3,
-  };
-
-  // Add images if provider supports vision
-  if (imageUrls && imageUrls.length > 0 && (config.model || '').includes('vision')) {
-    body.messages[1].content = [
-      { type: 'text', text: prompt },
-      ...imageUrls.slice(0, 4).map(url => ({ type: 'image_url', image_url: { url } }))
-    ];
-  }
-
-  const resp = await fetch(config.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.api_key}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!resp.ok) {
-    throw new Error(`LLM API error: ${resp.status} ${resp.statusText}`);
-  }
-
-  const data = await resp.json();
-  const content = data.choices?.[0]?.message?.content || '';
-
-  try {
-    return JSON.parse(content);
-  } catch {
-    return { summary: content, condition: 'unknown', pros: [], cons: [] };
-  }
-}
 
 function generateDemoAnalysis(property, lang) {
   const isEn = lang === 'en';
