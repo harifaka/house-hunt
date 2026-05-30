@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: house-hunt-helper
+    name: house-hunt
     runtime: node
     plan: free
     buildCommand: npm install
