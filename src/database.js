@@ -374,6 +374,30 @@ async function initSqliteDb() {
         is_standard INTEGER DEFAULT 0,
         created_at TEXT DEFAULT (datetime('now'))
       );
+
+      CREATE TABLE IF NOT EXISTS energy_calculations (
+        id TEXT PRIMARY KEY,
+        house_id TEXT,
+        name TEXT NOT NULL,
+        parameters TEXT NOT NULL,
+        results TEXT NOT NULL,
+        ai_analysis TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE SET NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS energy_item_templates (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        name_hu TEXT,
+        wattage REAL NOT NULL DEFAULT 0,
+        duty_cycle REAL NOT NULL DEFAULT 100,
+        daily_hours REAL NOT NULL DEFAULT 0,
+        category TEXT NOT NULL DEFAULT 'other',
+        is_default INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
     `);
 
     const answerCols = (await db.prepare('PRAGMA table_info(answers)').all()).map(c => c.name);
@@ -411,6 +435,44 @@ async function initSqliteDb() {
       ];
       for (const t of templates) {
         await templateInsert.run(...t);
+      }
+    }
+
+    // Seed default energy item templates
+    const energyItemCount = await db.prepare('SELECT COUNT(*) as count FROM energy_item_templates').get();
+    if (energyItemCount.count === 0) {
+      const eiInsert = db.prepare(
+        'INSERT INTO energy_item_templates (id, name, name_hu, wattage, duty_cycle, daily_hours, category, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      );
+      const defaultItems = [
+        ['ei_1', 'LED Ceiling Light', 'LED mennyezeti lámpa', 12, 100, 5, 'lighting', 1],
+        ['ei_2', 'LED Desk Lamp', 'LED asztali lámpa', 8, 100, 4, 'lighting', 1],
+        ['ei_3', 'Halogen Spotlight', 'Halogén spotlámpa', 50, 100, 3, 'lighting', 1],
+        ['ei_4', 'Refrigerator', 'Hűtőszekrény', 150, 40, 24, 'kitchen', 1],
+        ['ei_5', 'Freezer', 'Fagyasztó', 200, 40, 24, 'kitchen', 1],
+        ['ei_6', 'Oven', 'Sütő', 2000, 50, 1, 'kitchen', 1],
+        ['ei_7', 'Microwave', 'Mikrohullámú sütő', 800, 50, 0.3, 'kitchen', 1],
+        ['ei_8', 'Dishwasher', 'Mosogatógép', 1800, 50, 1, 'kitchen', 1],
+        ['ei_9', 'Electric Kettle', 'Vízforraló', 2000, 100, 0.2, 'kitchen', 1],
+        ['ei_10', 'Coffee Machine', 'Kávéfőző', 1000, 50, 0.3, 'kitchen', 1],
+        ['ei_11', 'Washing Machine', 'Mosógép', 500, 50, 1, 'laundry', 1],
+        ['ei_12', 'Dryer', 'Szárítógép', 2500, 50, 1, 'laundry', 1],
+        ['ei_13', 'Iron', 'Vasaló', 2000, 50, 0.5, 'laundry', 1],
+        ['ei_14', 'TV (LED 55")', 'Televízió (LED 55")', 100, 100, 4, 'entertainment', 1],
+        ['ei_15', 'Gaming Console (Xbox/PS)', 'Játékkonzol (Xbox/PS)', 150, 80, 3, 'entertainment', 1],
+        ['ei_16', 'Desktop Computer', 'Asztali számítógép', 200, 80, 6, 'entertainment', 1],
+        ['ei_17', 'Laptop', 'Laptop', 65, 80, 6, 'entertainment', 1],
+        ['ei_18', 'Monitor', 'Monitor', 30, 100, 6, 'entertainment', 1],
+        ['ei_19', 'Router/WiFi', 'Router/WiFi', 12, 100, 24, 'network', 1],
+        ['ei_20', 'Water Heater (Electric)', 'Villanybojler', 2000, 30, 3, 'heating_cooling', 1],
+        ['ei_21', 'Air Conditioner', 'Klíma', 1500, 50, 6, 'heating_cooling', 1],
+        ['ei_22', 'Electric Radiator', 'Elektromos radiátor', 1500, 60, 8, 'heating_cooling', 1],
+        ['ei_23', 'Vacuum Cleaner', 'Porszívó', 900, 100, 0.5, 'other', 1],
+        ['ei_24', 'Hair Dryer', 'Hajszárító', 1500, 100, 0.2, 'other', 1],
+        ['ei_25', 'Phone Charger', 'Telefon töltő', 20, 100, 3, 'other', 1],
+      ];
+      for (const item of defaultItems) {
+        await eiInsert.run(...item);
       }
     }
   } finally {
@@ -562,6 +624,30 @@ async function initPostgresDb() {
         is_standard BOOLEAN DEFAULT false,
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS energy_calculations (
+        id TEXT PRIMARY KEY,
+        house_id TEXT,
+        name TEXT NOT NULL,
+        parameters TEXT NOT NULL,
+        results TEXT NOT NULL,
+        ai_analysis TEXT,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE SET NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS energy_item_templates (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        name_hu TEXT,
+        wattage DOUBLE PRECISION NOT NULL DEFAULT 0,
+        duty_cycle DOUBLE PRECISION NOT NULL DEFAULT 100,
+        daily_hours DOUBLE PRECISION NOT NULL DEFAULT 0,
+        category TEXT NOT NULL DEFAULT 'other',
+        is_default BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     await db.exec('ALTER TABLE answers ADD COLUMN IF NOT EXISTS image_description TEXT');
@@ -591,6 +677,44 @@ async function initPostgresDb() {
       ];
       for (const t of templates) {
         await templateInsert.run(...t);
+      }
+    }
+
+    // Seed default energy item templates
+    const energyItemCount = await db.prepare('SELECT COUNT(*) as count FROM energy_item_templates').get();
+    if (energyItemCount.count === 0) {
+      const eiInsert = db.prepare(
+        'INSERT INTO energy_item_templates (id, name, name_hu, wattage, duty_cycle, daily_hours, category, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      );
+      const defaultItems = [
+        ['ei_1', 'LED Ceiling Light', 'LED mennyezeti lámpa', 12, 100, 5, 'lighting', true],
+        ['ei_2', 'LED Desk Lamp', 'LED asztali lámpa', 8, 100, 4, 'lighting', true],
+        ['ei_3', 'Halogen Spotlight', 'Halogén spotlámpa', 50, 100, 3, 'lighting', true],
+        ['ei_4', 'Refrigerator', 'Hűtőszekrény', 150, 40, 24, 'kitchen', true],
+        ['ei_5', 'Freezer', 'Fagyasztó', 200, 40, 24, 'kitchen', true],
+        ['ei_6', 'Oven', 'Sütő', 2000, 50, 1, 'kitchen', true],
+        ['ei_7', 'Microwave', 'Mikrohullámú sütő', 800, 50, 0.3, 'kitchen', true],
+        ['ei_8', 'Dishwasher', 'Mosogatógép', 1800, 50, 1, 'kitchen', true],
+        ['ei_9', 'Electric Kettle', 'Vízforraló', 2000, 100, 0.2, 'kitchen', true],
+        ['ei_10', 'Coffee Machine', 'Kávéfőző', 1000, 50, 0.3, 'kitchen', true],
+        ['ei_11', 'Washing Machine', 'Mosógép', 500, 50, 1, 'laundry', true],
+        ['ei_12', 'Dryer', 'Szárítógép', 2500, 50, 1, 'laundry', true],
+        ['ei_13', 'Iron', 'Vasaló', 2000, 50, 0.5, 'laundry', true],
+        ['ei_14', 'TV (LED 55")', 'Televízió (LED 55")', 100, 100, 4, 'entertainment', true],
+        ['ei_15', 'Gaming Console (Xbox/PS)', 'Játékkonzol (Xbox/PS)', 150, 80, 3, 'entertainment', true],
+        ['ei_16', 'Desktop Computer', 'Asztali számítógép', 200, 80, 6, 'entertainment', true],
+        ['ei_17', 'Laptop', 'Laptop', 65, 80, 6, 'entertainment', true],
+        ['ei_18', 'Monitor', 'Monitor', 30, 100, 6, 'entertainment', true],
+        ['ei_19', 'Router/WiFi', 'Router/WiFi', 12, 100, 24, 'network', true],
+        ['ei_20', 'Water Heater (Electric)', 'Villanybojler', 2000, 30, 3, 'heating_cooling', true],
+        ['ei_21', 'Air Conditioner', 'Klíma', 1500, 50, 6, 'heating_cooling', true],
+        ['ei_22', 'Electric Radiator', 'Elektromos radiátor', 1500, 60, 8, 'heating_cooling', true],
+        ['ei_23', 'Vacuum Cleaner', 'Porszívó', 900, 100, 0.5, 'other', true],
+        ['ei_24', 'Hair Dryer', 'Hajszárító', 1500, 100, 0.2, 'other', true],
+        ['ei_25', 'Phone Charger', 'Telefon töltő', 20, 100, 3, 'other', true],
+      ];
+      for (const item of defaultItems) {
+        await eiInsert.run(...item);
       }
     }
   } finally {

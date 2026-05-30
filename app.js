@@ -91,7 +91,15 @@ app.use((req, res, next) => {
     model: 'Model', api_key: 'API Key',
     total: 'Total', monthly: 'Monthly', yearly: 'Yearly', daily: 'Daily',
     add_row: 'Add Row', remove_row: 'Remove Row',
-    property_finder: 'Property Finder'
+    property_finder: 'Property Finder',
+    save_scenario: 'Save Scenario', load_scenario: 'Load Scenario', copy_scenario: 'Copy Scenario',
+    delete_scenario: 'Delete Scenario', new_scenario: 'New Scenario',
+    link_to_house: 'Link to House', item_library: 'Item Library',
+    add_from_library: 'Add from Library', save_to_library: 'Save to Library',
+    ai_energy_analysis: 'AI Energy Analysis', generate_analysis: 'Generate Analysis',
+    export_pdf: 'Export PDF', saved_calculations: 'Saved Calculations',
+    energy_items: 'Energy Items', category: 'Category',
+    scenario_name: 'Scenario Name', no_saved: 'No saved calculations yet'
   } : {
     home: 'Főoldal', quiz: 'Szemle kérdőív', admin: 'Admin', houses: 'Házak',
     new_house: 'Új ház', score: 'Pontszám', results: 'Eredmények', save: 'Mentés',
@@ -129,7 +137,15 @@ app.use((req, res, next) => {
     model: 'Modell', api_key: 'API kulcs',
     total: 'Összesen', monthly: 'Havi', yearly: 'Éves', daily: 'Napi',
     add_row: 'Sor hozzáadása', remove_row: 'Sor törlése',
-    property_finder: 'Ingatlan Kereső'
+    property_finder: 'Ingatlan Kereső',
+    save_scenario: 'Sablon mentése', load_scenario: 'Sablon betöltése', copy_scenario: 'Sablon másolása',
+    delete_scenario: 'Sablon törlése', new_scenario: 'Új sablon',
+    link_to_house: 'Házhoz rendelés', item_library: 'Eszköztár',
+    add_from_library: 'Hozzáadás eszköztárból', save_to_library: 'Mentés eszköztárba',
+    ai_energy_analysis: 'AI Energia Elemzés', generate_analysis: 'Elemzés generálása',
+    export_pdf: 'PDF Exportálás', saved_calculations: 'Mentett számítások',
+    energy_items: 'Energia tételek', category: 'Kategória',
+    scenario_name: 'Sablon neve', no_saved: 'Még nincs mentett számítás'
   };
 
   // Cookie consent flag (read from cookie, not session — to work before consent)

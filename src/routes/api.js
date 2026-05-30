@@ -405,6 +405,312 @@ router.get('/export/:houseId/pdf', expensiveApiLimiter, async (req, res) => {
   doc.end();
 });
 
+// --- Energy Calculation PDF Export ---
+
+router.get('/export/energy/:calcId/pdf', expensiveApiLimiter, async (req, res) => {
+  const startTime = Date.now();
+  const lang = req.lang || 'hu';
+  const db = await getDb();
+  let calc;
+  try {
+    calc = await db.prepare('SELECT * FROM energy_calculations WHERE id = ?').get(req.params.calcId);
+  } finally {
+    await db.close();
+  }
+  if (!calc) return res.status(404).json({ error: 'Calculation not found' });
+
+  let params, results;
+  try {
+    params = JSON.parse(calc.parameters);
+    results = JSON.parse(calc.results);
+  } catch (_e) {
+    return res.status(500).json({ error: 'Invalid calculation data' });
+  }
+
+  // Resolve house name if linked
+  let houseName = null;
+  if (calc.house_id) {
+    const db2 = await getDb();
+    try {
+      const house = await db2.prepare('SELECT name FROM houses WHERE id = ?').get(calc.house_id);
+      if (house) houseName = house.name;
+    } finally {
+      await db2.close();
+    }
+  }
+
+  const mainFontPath = path.join(__dirname, '../../fonts/NotoSans-Regular.ttf');
+  const boldFontPath = path.join(__dirname, '../../fonts/NotoSans-Bold.ttf');
+  const mainFont = fs.existsSync(mainFontPath) ? mainFontPath : undefined;
+  const boldFont = fs.existsSync(boldFontPath) ? boldFontPath : undefined;
+
+  const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
+  const filename = (calc.name || 'energy').replace(/[^a-zA-Z0-9_-]/g, '_');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}_energy_report.pdf"`);
+  doc.pipe(res);
+
+  if (mainFont) doc.registerFont('main', mainFont);
+  if (boldFont) doc.registerFont('bold', boldFont);
+  const fMain = mainFont ? 'main' : 'Helvetica';
+  const fBold = boldFont ? 'bold' : 'Helvetica-Bold';
+
+  const pageWidth = 495;
+  const accentColor = '#2563eb';
+  const textColor = '#1e293b';
+  const mutedColor = '#64748b';
+  const successColor = '#16a34a';
+  const warningColor = '#ea580c';
+
+  const labels = lang === 'en' ? {
+    title: 'Energy Consumption Report',
+    generated: 'Generated',
+    page: 'Page',
+    property: 'Property',
+    scenario: 'Scenario',
+    params: 'Parameters',
+    electricityPrice: 'Electricity Price',
+    currency: 'Currency',
+    dutyCycle: 'Default Duty Cycle',
+    appliances: 'Appliances',
+    name: 'Name',
+    wattage: 'W',
+    qty: 'Qty',
+    duty: 'Duty%',
+    hours: 'h/day',
+    dailyKwh: 'Daily kWh',
+    monthlyKwh: 'Monthly kWh',
+    summary: 'Consumption Summary',
+    dailyConsumption: 'Daily Consumption',
+    monthlyConsumption: 'Monthly Consumption',
+    yearlyConsumption: 'Yearly Consumption',
+    monthlyCost: 'Monthly Cost',
+    yearlyCost: 'Yearly Cost',
+    aiAnalysis: 'AI Energy Analysis',
+    noAi: 'No AI analysis available for this calculation.',
+    created: 'Created',
+    updated: 'Last Updated',
+  } : {
+    title: 'Energiafogyasztási Jelentés',
+    generated: 'Generálva',
+    page: 'Oldal',
+    property: 'Ingatlan',
+    scenario: 'Számítás',
+    params: 'Paraméterek',
+    electricityPrice: 'Áram ára',
+    currency: 'Pénznem',
+    dutyCycle: 'Alapértelmezett üzemidő',
+    appliances: 'Készülékek',
+    name: 'Név',
+    wattage: 'W',
+    qty: 'Db',
+    duty: 'Üzem%',
+    hours: 'h/nap',
+    dailyKwh: 'Napi kWh',
+    monthlyKwh: 'Havi kWh',
+    summary: 'Fogyasztás összesítés',
+    dailyConsumption: 'Napi fogyasztás',
+    monthlyConsumption: 'Havi fogyasztás',
+    yearlyConsumption: 'Éves fogyasztás',
+    monthlyCost: 'Havi költség',
+    yearlyCost: 'Éves költség',
+    aiAnalysis: 'AI Energia Elemzés',
+    noAi: 'Ehhez a számításhoz nem áll rendelkezésre AI elemzés.',
+    created: 'Létrehozva',
+    updated: 'Utolsó módosítás',
+  };
+
+  // --- TITLE PAGE ---
+  doc.rect(0, 0, 612, 120).fill(accentColor);
+  doc.fillColor('#ffffff').font(fBold).fontSize(28)
+    .text(labels.title, 50, 40, { width: pageWidth, align: 'center' });
+  doc.fontSize(12).font(fMain)
+    .text(calc.name, 50, 78, { width: pageWidth, align: 'center' });
+
+  let y = 140;
+
+  // Property info
+  if (houseName) {
+    doc.fillColor(mutedColor).font(fMain).fontSize(10)
+      .text(`${labels.property}: ${houseName}`, 50, y);
+    y += 18;
+  }
+  doc.fillColor(mutedColor).font(fMain).fontSize(9)
+    .text(`${labels.created}: ${new Date(calc.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'hu-HU')}  |  ${labels.updated}: ${new Date(calc.updated_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'hu-HU')}`, 50, y);
+  y += 25;
+
+  // --- SUMMARY CARDS ---
+  doc.fillColor(textColor).font(fBold).fontSize(14).text(labels.summary, 50, y);
+  y += 22;
+
+  const cardWidth = (pageWidth - 20) / 3;
+  const summaryCards = [
+    { label: labels.dailyConsumption, value: `${(results.dailyKwh || 0).toFixed(2)} kWh`, color: accentColor },
+    { label: labels.monthlyConsumption, value: `${(results.monthlyKwh || 0).toFixed(1)} kWh`, color: accentColor },
+    { label: labels.yearlyConsumption, value: `${(results.yearlyKwh || 0).toFixed(0)} kWh`, color: accentColor },
+  ];
+
+  summaryCards.forEach((card, i) => {
+    const cx = 50 + i * (cardWidth + 10);
+    doc.roundedRect(cx, y, cardWidth, 55, 6).fill('#f1f5f9');
+    doc.fillColor(card.color).font(fBold).fontSize(16)
+      .text(card.value, cx + 8, y + 10, { width: cardWidth - 16, align: 'center' });
+    doc.fillColor(mutedColor).font(fMain).fontSize(8)
+      .text(card.label, cx + 8, y + 34, { width: cardWidth - 16, align: 'center' });
+  });
+  y += 70;
+
+  // Cost cards
+  const costCardWidth = (pageWidth - 10) / 2;
+  const costCards = [
+    { label: labels.monthlyCost, value: `${Math.round(results.monthlyCost || 0).toLocaleString()} ${params.currency || 'HUF'}`, color: warningColor },
+    { label: labels.yearlyCost, value: `${Math.round(results.yearlyCost || 0).toLocaleString()} ${params.currency || 'HUF'}`, color: warningColor },
+  ];
+  costCards.forEach((card, i) => {
+    const cx = 50 + i * (costCardWidth + 10);
+    doc.roundedRect(cx, y, costCardWidth, 55, 6).fill('#fef3c7');
+    doc.fillColor(card.color).font(fBold).fontSize(16)
+      .text(card.value, cx + 8, y + 10, { width: costCardWidth - 16, align: 'center' });
+    doc.fillColor(mutedColor).font(fMain).fontSize(8)
+      .text(card.label, cx + 8, y + 34, { width: costCardWidth - 16, align: 'center' });
+  });
+  y += 70;
+
+  // --- PARAMETERS ---
+  doc.fillColor(textColor).font(fBold).fontSize(12).text(labels.params, 50, y);
+  y += 18;
+  doc.fillColor(textColor).font(fMain).fontSize(9)
+    .text(`${labels.electricityPrice}: ${params.electricityPrice || 68} ${params.currency || 'HUF'}/kWh`, 50, y);
+  y += 14;
+  doc.text(`${labels.dutyCycle}: ${params.defaultDuty || 100}%`, 50, y);
+  y += 22;
+
+  // --- APPLIANCE TABLE ---
+  const items = params.items || [];
+  if (items.length > 0) {
+    doc.fillColor(textColor).font(fBold).fontSize(12).text(labels.appliances, 50, y);
+    y += 18;
+
+    // Table header
+    const cols = [
+      { label: labels.name, width: 165, align: 'left' },
+      { label: labels.wattage, width: 50, align: 'right' },
+      { label: labels.qty, width: 35, align: 'right' },
+      { label: labels.duty, width: 50, align: 'right' },
+      { label: labels.hours, width: 50, align: 'right' },
+      { label: labels.dailyKwh, width: 65, align: 'right' },
+      { label: labels.monthlyKwh, width: 80, align: 'right' },
+    ];
+
+    doc.rect(50, y, pageWidth, 18).fill(accentColor);
+    let hx = 50;
+    cols.forEach(col => {
+      doc.fillColor('#ffffff').font(fBold).fontSize(7.5)
+        .text(col.label, hx + 3, y + 4, { width: col.width - 6, align: col.align });
+      hx += col.width;
+    });
+    y += 18;
+
+    // Table rows
+    items.forEach((item, idx) => {
+      if (y > 720) { doc.addPage(); y = 50; }
+      const bg = idx % 2 === 0 ? '#f8fafc' : '#ffffff';
+      doc.rect(50, y, pageWidth, 16).fill(bg);
+
+      const dailyKwh = ((item.wattage || 0) * (item.qty || 1) * ((item.duty || 100) / 100) * (item.hours || 0)) / 1000;
+      const monthlyKwh = dailyKwh * 30;
+
+      const rowData = [
+        item.name || '',
+        String(item.wattage || 0),
+        String(item.qty || 1),
+        String(item.duty || 100),
+        String(item.hours || 0),
+        dailyKwh.toFixed(3),
+        monthlyKwh.toFixed(2),
+      ];
+
+      let rx = 50;
+      cols.forEach((col, ci) => {
+        doc.fillColor(textColor).font(fMain).fontSize(7.5)
+          .text(rowData[ci], rx + 3, y + 3, { width: col.width - 6, align: col.align });
+        rx += col.width;
+      });
+      y += 16;
+    });
+
+    // Table total row
+    const totalDaily = items.reduce((sum, item) => sum + ((item.wattage || 0) * (item.qty || 1) * ((item.duty || 100) / 100) * (item.hours || 0)) / 1000, 0);
+    const totalMonthly = totalDaily * 30;
+    doc.rect(50, y, pageWidth, 18).fill('#e2e8f0');
+    doc.fillColor(textColor).font(fBold).fontSize(8)
+      .text(lang === 'en' ? 'TOTAL' : 'ÖSSZESEN', 53, y + 4, { width: 165 });
+    doc.text(totalDaily.toFixed(3), 50 + 165 + 50 + 35 + 50 + 50 + 3, y + 4, { width: 62, align: 'right' });
+    doc.text(totalMonthly.toFixed(2), 50 + 165 + 50 + 35 + 50 + 50 + 65 + 3, y + 4, { width: 77, align: 'right' });
+    y += 30;
+  }
+
+  // --- TOP CONSUMERS CHART (horizontal bars) ---
+  if (items.length > 1) {
+    if (y > 580) { doc.addPage(); y = 50; }
+    doc.fillColor(textColor).font(fBold).fontSize(12)
+      .text(lang === 'en' ? 'Top Energy Consumers' : 'Legnagyobb fogyasztók', 50, y);
+    y += 20;
+
+    const sorted = items.map(item => ({
+      name: item.name || '?',
+      monthlyKwh: ((item.wattage || 0) * (item.qty || 1) * ((item.duty || 100) / 100) * (item.hours || 0)) / 1000 * 30
+    })).sort((a, b) => b.monthlyKwh - a.monthlyKwh).slice(0, 8);
+
+    const maxKwh = sorted[0]?.monthlyKwh || 1;
+    const barMaxWidth = 280;
+
+    sorted.forEach(item => {
+      if (y > 730) { doc.addPage(); y = 50; }
+      const barWidth = Math.max(2, (item.monthlyKwh / maxKwh) * barMaxWidth);
+      const barColor = item.monthlyKwh > maxKwh * 0.7 ? warningColor : item.monthlyKwh > maxKwh * 0.3 ? '#eab308' : successColor;
+
+      doc.fillColor(textColor).font(fMain).fontSize(8)
+        .text(item.name, 50, y + 1, { width: 150, lineBreak: false });
+      doc.roundedRect(205, y, barWidth, 12, 3).fill(barColor);
+      doc.fillColor(textColor).font(fBold).fontSize(7)
+        .text(`${item.monthlyKwh.toFixed(1)} kWh/${lang === 'en' ? 'mo' : 'hó'}`, 210 + barWidth + 5, y + 2);
+      y += 18;
+    });
+    y += 15;
+  }
+
+  // --- AI ANALYSIS ---
+  if (calc.ai_analysis) {
+    if (y > 500) { doc.addPage(); y = 50; }
+    doc.rect(50, y, pageWidth, 24).fill(successColor);
+    doc.fillColor('#ffffff').font(fBold).fontSize(13)
+      .text(`🤖 ${labels.aiAnalysis}`, 58, y + 5, { width: pageWidth - 16 });
+    y += 32;
+
+    doc.fillColor(textColor).font(fMain).fontSize(9)
+      .text(calc.ai_analysis, 50, y, { width: pageWidth, lineGap: 3 });
+    y = doc.y + 20;
+  }
+
+  // --- Footer on all pages ---
+  const pages = doc.bufferedPageRange();
+  for (let i = 0; i < pages.count; i++) {
+    doc.switchToPage(i);
+    doc.fillColor('#e2e8f0').rect(50, 768, pageWidth, 0.5).fill();
+    doc.fillColor(mutedColor).font(fMain).fontSize(7)
+      .text(
+        `${calc.name} | ${labels.generated}: ${new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'hu-HU')} | ${labels.page} ${i + 1}/${pages.count}`,
+        60, 775,
+        { align: 'center', width: pageWidth }
+      );
+  }
+
+  const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
+  logger.reportGenerated('energy_pdf', req.params.calcId, Date.now() - startTime, meta).catch(() => {});
+  doc.end();
+});
+
 // --- AI / LLM Endpoints ---
 
 router.get('/ai/config', async (req, res) => {

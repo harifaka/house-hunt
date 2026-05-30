@@ -12,6 +12,73 @@
     <h1 class="mb-2">⚡ <%= t.energy_calculator %></h1>
     <p class="text-muted mb-6"><%= lang === 'en' ? 'Calculate energy consumption and costs for your home' : 'Számítsd ki otthonod energiafogyasztását és költségeit' %></p>
 
+    <!-- Saved Calculations -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0">📋 <%= t.saved_calculations %></h3>
+        <button type="button" class="btn btn-sm btn-accent" id="new-scenario">➕ <%= t.new_scenario %></button>
+      </div>
+      <div class="card__body" id="saved-calcs-body">
+        <% if (savedCalcs && savedCalcs.length > 0) { %>
+        <table class="table" id="saved-calcs-table">
+          <thead>
+            <tr>
+              <th><%= t.name %></th>
+              <th><%= lang === 'en' ? 'House' : 'Ház' %></th>
+              <th><%= lang === 'en' ? 'Updated' : 'Módosítva' %></th>
+              <th><%= t.actions %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% savedCalcs.forEach(function(c) { %>
+            <tr data-calc-id="<%= c.id %>">
+              <td><%= c.name %></td>
+              <td><%= c.house_id ? '🏠' : '—' %></td>
+              <td><%= new Date(c.updated_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'hu-HU') %></td>
+              <td>
+                <button class="btn btn-sm btn-primary load-calc-btn" data-id="<%= c.id %>">📂 <%= t.load_scenario %></button>
+                <button class="btn btn-sm btn-outline copy-calc-btn" data-id="<%= c.id %>">📋 <%= t.copy_scenario %></button>
+                <button class="btn btn-sm btn-danger delete-calc-btn" data-id="<%= c.id %>">🗑️ <%= t.delete %></button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p class="text-muted"><%= t.no_saved %></p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Save / Link Controls -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <h3 class="card__title mb-0">💾 <%= t.save_scenario %></h3>
+      </div>
+      <div class="card__body">
+        <div class="grid grid-3">
+          <div>
+            <label class="form-label"><%= t.scenario_name %></label>
+            <input type="text" id="calc-name" class="form-control" value="" placeholder="<%= lang === 'en' ? 'e.g. Family home baseline' : 'pl. Családi ház alap' %>">
+          </div>
+          <div>
+            <label class="form-label"><%= t.link_to_house %></label>
+            <select id="calc-house" class="form-control">
+              <option value=""><%= lang === 'en' ? '— No house —' : '— Nincs ház —' %></option>
+              <% houses.forEach(function(h) { %>
+              <option value="<%= h.id %>"><%= h.name %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px;">
+            <button type="button" class="btn btn-primary" id="save-calc">💾 <%= t.save %></button>
+            <button type="button" class="btn btn-outline" id="export-pdf-btn">📄 <%= t.export_pdf %></button>
+          </div>
+        </div>
+        <input type="hidden" id="calc-id" value="">
+      </div>
+    </div>
+
     <!-- Defaults / Parameters -->
     <div class="card mb-6">
       <div class="card__header">
@@ -47,6 +114,77 @@
         <option value="3bed"><%= lang === 'en' ? 'Typical 3-Bedroom House' : 'Tipikus 3 szobás ház' %></option>
         <option value="studio"><%= lang === 'en' ? 'Studio Apartment' : 'Garzonlakás' %></option>
       </select>
+    </div>
+
+    <!-- Item Library -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0">📦 <%= t.item_library %></h3>
+        <button type="button" class="btn btn-sm btn-outline" id="toggle-library"><%= lang === 'en' ? 'Show/Hide Library' : 'Eszköztár mutatása/elrejtése' %></button>
+      </div>
+      <div class="card__body" id="library-body" style="display:none;">
+        <p class="text-muted text-sm mb-4"><%= lang === 'en' ? 'Click an item to add it to your calculation. You can also save your own items to this library.' : 'Kattints egy tételre, hogy hozzáadd a számításhoz. Saját tételeket is menthetsz az eszköztárba.' %></p>
+        <div class="grid grid-2 gap-2 mb-4">
+          <% var categories = { lighting: lang === 'en' ? '💡 Lighting' : '💡 Világítás', kitchen: lang === 'en' ? '🍳 Kitchen' : '🍳 Konyha', laundry: lang === 'en' ? '👕 Laundry' : '👕 Mosás', entertainment: lang === 'en' ? '🎮 Entertainment' : '🎮 Szórakozás', network: lang === 'en' ? '🌐 Network' : '🌐 Hálózat', heating_cooling: lang === 'en' ? '🌡️ Heating/Cooling' : '🌡️ Fűtés/Hűtés', other: lang === 'en' ? '📦 Other' : '📦 Egyéb' }; %>
+          <% Object.keys(categories).forEach(function(cat) { %>
+            <% var catItems = itemTemplates.filter(function(it) { return it.category === cat; }); %>
+            <% if (catItems.length > 0) { %>
+            <div>
+              <strong class="text-sm"><%= categories[cat] %></strong>
+              <div class="d-flex flex-wrap gap-1 mt-1">
+                <% catItems.forEach(function(it) { %>
+                <button type="button" class="btn btn-sm btn-outline library-item-btn"
+                  data-name="<%= lang === 'en' ? it.name : (it.name_hu || it.name) %>"
+                  data-wattage="<%= it.wattage %>"
+                  data-duty="<%= it.duty_cycle %>"
+                  data-hours="<%= it.daily_hours %>">
+                  <%= lang === 'en' ? it.name : (it.name_hu || it.name) %> (<%= it.wattage %>W)
+                </button>
+                <% }); %>
+              </div>
+            </div>
+            <% } %>
+          <% }); %>
+        </div>
+        <details class="mb-2">
+          <summary class="text-sm font-bold" style="cursor:pointer"><%= t.save_to_library %></summary>
+          <div class="grid grid-3 gap-2 mt-2">
+            <div>
+              <label class="form-label text-sm"><%= lang === 'en' ? 'Name (EN)' : 'Név (EN)' %></label>
+              <input type="text" id="new-item-name" class="form-control" placeholder="e.g. Xbox Series X">
+            </div>
+            <div>
+              <label class="form-label text-sm"><%= lang === 'en' ? 'Name (HU)' : 'Név (HU)' %></label>
+              <input type="text" id="new-item-name-hu" class="form-control" placeholder="pl. Xbox Series X">
+            </div>
+            <div>
+              <label class="form-label text-sm"><%= t.wattage %> (W)</label>
+              <input type="number" id="new-item-wattage" class="form-control" min="0" step="1" value="100">
+            </div>
+            <div>
+              <label class="form-label text-sm"><%= t.duty_cycle %> (%)</label>
+              <input type="number" id="new-item-duty" class="form-control" min="0" max="100" step="1" value="100">
+            </div>
+            <div>
+              <label class="form-label text-sm"><%= t.daily_hours %></label>
+              <input type="number" id="new-item-hours" class="form-control" min="0" max="24" step="0.1" value="1">
+            </div>
+            <div>
+              <label class="form-label text-sm"><%= t.category %></label>
+              <select id="new-item-category" class="form-control">
+                <option value="lighting"><%= lang === 'en' ? 'Lighting' : 'Világítás' %></option>
+                <option value="kitchen"><%= lang === 'en' ? 'Kitchen' : 'Konyha' %></option>
+                <option value="laundry"><%= lang === 'en' ? 'Laundry' : 'Mosás' %></option>
+                <option value="entertainment"><%= lang === 'en' ? 'Entertainment' : 'Szórakozás' %></option>
+                <option value="network"><%= lang === 'en' ? 'Network' : 'Hálózat' %></option>
+                <option value="heating_cooling"><%= lang === 'en' ? 'Heating/Cooling' : 'Fűtés/Hűtés' %></option>
+                <option value="other" selected><%= lang === 'en' ? 'Other' : 'Egyéb' %></option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-accent mt-2" id="save-item-to-library">💾 <%= t.save_to_library %></button>
+        </details>
+      </div>
     </div>
 
     <!-- Appliance Table -->
@@ -120,8 +258,21 @@
       </div>
     </div>
 
+    <!-- AI Analysis -->
+    <div class="card mb-6">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <h3 class="card__title mb-0">🤖 <%= t.ai_energy_analysis %></h3>
+        <button type="button" class="btn btn-sm btn-accent" id="ai-analysis-btn">🧠 <%= t.generate_analysis %></button>
+      </div>
+      <div class="card__body">
+        <div id="ai-analysis-result" class="text-muted">
+          <p><%= lang === 'en' ? 'Click "Generate Analysis" to get AI-powered energy saving recommendations.' : 'Kattints az "Elemzés generálása" gombra AI energiatakarékossági javaslatokért.' %></p>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex flex-wrap gap-3 mb-6">
-      <button type="button" class="btn btn-primary" id="export-results">📤 <%= lang === 'en' ? 'Export Results' : 'Eredmények exportálása' %></button>
+      <button type="button" class="btn btn-primary" id="export-results">📤 <%= lang === 'en' ? 'Export CSV' : 'CSV Exportálás' %></button>
     </div>
 
     <%- include('partials/footer') %>
@@ -130,29 +281,33 @@
 <%- include('partials/scripts') %>
 <script>
 (function() {
+  var LANG = '<%= lang %>';
   var defaultDuty = document.getElementById('default-duty');
   var dutyDisplay = document.getElementById('duty-display');
   var elecPrice = document.getElementById('elec-price');
   var currency = document.getElementById('currency');
   var tbody = document.getElementById('energy-tbody');
   var presetSelect = document.getElementById('preset-select');
+  var calcIdField = document.getElementById('calc-id');
+  var calcNameField = document.getElementById('calc-name');
+  var calcHouseField = document.getElementById('calc-house');
 
   var presets = {
     '3bed': [
-      { name: '<%= lang === "en" ? "LED Ceiling lights" : "LED mennyezeti lámpa" %>', wattage: 12, qty: 8, duty: 100, hours: 5 },
-      { name: '<%= lang === "en" ? "Refrigerator" : "Hűtőszekrény" %>', wattage: 150, qty: 1, duty: 40, hours: 24 },
-      { name: '<%= lang === "en" ? "Washing Machine" : "Mosógép" %>', wattage: 500, qty: 1, duty: 50, hours: 1 },
-      { name: '<%= lang === "en" ? "TV" : "Televízió" %>', wattage: 100, qty: 2, duty: 100, hours: 4 },
-      { name: '<%= lang === "en" ? "Oven" : "Sütő" %>', wattage: 2000, qty: 1, duty: 50, hours: 1 },
-      { name: '<%= lang === "en" ? "Computer" : "Számítógép" %>', wattage: 200, qty: 1, duty: 80, hours: 6 },
-      { name: '<%= lang === "en" ? "Water heater" : "Vízmelegítő" %>', wattage: 2000, qty: 1, duty: 30, hours: 3 },
+      { name: LANG === 'en' ? 'LED Ceiling lights' : 'LED mennyezeti lámpa', wattage: 12, qty: 8, duty: 100, hours: 5 },
+      { name: LANG === 'en' ? 'Refrigerator' : 'Hűtőszekrény', wattage: 150, qty: 1, duty: 40, hours: 24 },
+      { name: LANG === 'en' ? 'Washing Machine' : 'Mosógép', wattage: 500, qty: 1, duty: 50, hours: 1 },
+      { name: LANG === 'en' ? 'TV' : 'Televízió', wattage: 100, qty: 2, duty: 100, hours: 4 },
+      { name: LANG === 'en' ? 'Oven' : 'Sütő', wattage: 2000, qty: 1, duty: 50, hours: 1 },
+      { name: LANG === 'en' ? 'Computer' : 'Számítógép', wattage: 200, qty: 1, duty: 80, hours: 6 },
+      { name: LANG === 'en' ? 'Water heater' : 'Vízmelegítő', wattage: 2000, qty: 1, duty: 30, hours: 3 },
       { name: 'Router/WiFi', wattage: 12, qty: 1, duty: 100, hours: 24 }
     ],
     'studio': [
-      { name: '<%= lang === "en" ? "LED lights" : "LED lámpa" %>', wattage: 10, qty: 4, duty: 100, hours: 5 },
-      { name: '<%= lang === "en" ? "Refrigerator" : "Hűtőszekrény" %>', wattage: 120, qty: 1, duty: 40, hours: 24 },
-      { name: '<%= lang === "en" ? "Laptop" : "Laptop" %>', wattage: 65, qty: 1, duty: 80, hours: 6 },
-      { name: '<%= lang === "en" ? "Microwave" : "Mikrohullámú sütő" %>', wattage: 800, qty: 1, duty: 50, hours: 0.3 }
+      { name: LANG === 'en' ? 'LED lights' : 'LED lámpa', wattage: 10, qty: 4, duty: 100, hours: 5 },
+      { name: LANG === 'en' ? 'Refrigerator' : 'Hűtőszekrény', wattage: 120, qty: 1, duty: 40, hours: 24 },
+      { name: LANG === 'en' ? 'Laptop' : 'Laptop', wattage: 65, qty: 1, duty: 80, hours: 6 },
+      { name: LANG === 'en' ? 'Microwave' : 'Mikrohullámú sütő', wattage: 800, qty: 1, duty: 50, hours: 0.3 }
     ]
   };
 
@@ -160,12 +315,22 @@
     dutyDisplay.textContent = this.value + '%';
   });
 
+  function escapeAttr(str) {
+    return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
   function createRow(data) {
     var d = data || {};
     var duty = d.duty !== undefined ? d.duty : parseInt(defaultDuty.value);
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td><input type="text" class="form-control" data-field="name" value="' + (d.name || '') + '"></td>' +
+      '<td><input type="text" class="form-control" data-field="name" value="' + escapeAttr(d.name || '') + '"></td>' +
       '<td><input type="number" class="form-control" data-field="wattage" min="0" step="1" value="' + (d.wattage || 0) + '" style="width:90px"></td>' +
       '<td><input type="number" class="form-control" data-field="qty" min="1" step="1" value="' + (d.qty || 1) + '" style="width:70px"></td>' +
       '<td><input type="number" class="form-control" data-field="duty" min="0" max="100" step="1" value="' + duty + '" style="width:80px"></td>' +
@@ -177,6 +342,48 @@
       inp.addEventListener('input', recalculate);
     });
     recalculate();
+  }
+
+  function getItems() {
+    var items = [];
+    var rows = tbody.querySelectorAll('tr');
+    rows.forEach(function(tr) {
+      items.push({
+        name: tr.querySelector('[data-field="name"]').value,
+        wattage: parseFloat(tr.querySelector('[data-field="wattage"]').value) || 0,
+        qty: parseFloat(tr.querySelector('[data-field="qty"]').value) || 1,
+        duty: parseFloat(tr.querySelector('[data-field="duty"]').value) || 0,
+        hours: parseFloat(tr.querySelector('[data-field="hours"]').value) || 0
+      });
+    });
+    return items;
+  }
+
+  function getResults() {
+    var totalDaily = 0;
+    var items = getItems();
+    items.forEach(function(it) {
+      totalDaily += (it.wattage * it.qty * (it.duty / 100) * it.hours) / 1000;
+    });
+    var monthlyKwh = totalDaily * 30;
+    var yearlyKwh = totalDaily * 365;
+    var price = parseFloat(elecPrice.value) || 0;
+    return {
+      dailyKwh: totalDaily,
+      monthlyKwh: monthlyKwh,
+      yearlyKwh: yearlyKwh,
+      monthlyCost: monthlyKwh * price,
+      yearlyCost: yearlyKwh * price
+    };
+  }
+
+  function getParameters() {
+    return {
+      defaultDuty: parseInt(defaultDuty.value),
+      electricityPrice: parseFloat(elecPrice.value) || 0,
+      currency: currency.value,
+      items: getItems()
+    };
   }
 
   function recalculate() {
@@ -204,7 +411,6 @@
     document.getElementById('cost-monthly').textContent = Math.round(monthlyKwh * price).toLocaleString() + ' ' + cur;
     document.getElementById('cost-yearly').textContent = Math.round(yearlyKwh * price).toLocaleString() + ' ' + cur;
 
-    // Pulse animation on value change
     ['sum-daily','sum-monthly','sum-yearly','cost-monthly','cost-yearly'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) { el.classList.remove('calc-value-changed'); void el.offsetWidth; el.classList.add('calc-value-changed'); }
@@ -227,6 +433,195 @@
     items.forEach(function(item) { createRow(item); });
   });
 
+  // Library toggle
+  document.getElementById('toggle-library').addEventListener('click', function() {
+    var body = document.getElementById('library-body');
+    body.style.display = body.style.display === 'none' ? '' : 'none';
+  });
+
+  // Library item click - add to table
+  document.querySelectorAll('.library-item-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      createRow({
+        name: this.getAttribute('data-name'),
+        wattage: parseFloat(this.getAttribute('data-wattage')) || 0,
+        qty: 1,
+        duty: parseFloat(this.getAttribute('data-duty')) || 100,
+        hours: parseFloat(this.getAttribute('data-hours')) || 0
+      });
+      if (window.showToast) window.showToast(LANG === 'en' ? 'Item added' : 'Tétel hozzáadva', 'success');
+    });
+  });
+
+  // Save item to library
+  document.getElementById('save-item-to-library').addEventListener('click', function() {
+    var name = document.getElementById('new-item-name').value.trim();
+    var nameHu = document.getElementById('new-item-name-hu').value.trim();
+    var wattage = document.getElementById('new-item-wattage').value;
+    var duty = document.getElementById('new-item-duty').value;
+    var hours = document.getElementById('new-item-hours').value;
+    var category = document.getElementById('new-item-category').value;
+    if (!name) { if (window.showToast) window.showToast(LANG === 'en' ? 'Name is required' : 'Név megadása kötelező', 'error'); return; }
+    fetch('/calculators/energy/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, name_hu: nameHu, wattage: wattage, duty_cycle: duty, daily_hours: hours, category: category })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.success) {
+        if (window.showToast) window.showToast(LANG === 'en' ? 'Saved to library' : 'Mentve az eszköztárba', 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        if (window.showToast) window.showToast(data.error || 'Error', 'error');
+      }
+    });
+  });
+
+  // Save calculation
+  document.getElementById('save-calc').addEventListener('click', function() {
+    var name = calcNameField.value.trim();
+    if (!name) { if (window.showToast) window.showToast(LANG === 'en' ? 'Please enter a scenario name' : 'Kérlek adj meg egy sablon nevet', 'error'); return; }
+    var payload = {
+      id: calcIdField.value || undefined,
+      name: name,
+      houseId: calcHouseField.value || null,
+      parameters: JSON.stringify(getParameters()),
+      results: JSON.stringify(getResults())
+    };
+    fetch('/calculators/energy/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.success) {
+        calcIdField.value = data.id;
+        if (window.showToast) window.showToast(LANG === 'en' ? 'Saved!' : 'Mentve!', 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        if (window.showToast) window.showToast(data.error || 'Error', 'error');
+      }
+    });
+  });
+
+  // New scenario
+  document.getElementById('new-scenario').addEventListener('click', function() {
+    calcIdField.value = '';
+    calcNameField.value = '';
+    calcHouseField.value = '';
+    tbody.innerHTML = '';
+    defaultDuty.value = 100;
+    dutyDisplay.textContent = '100%';
+    elecPrice.value = 68;
+    currency.value = 'HUF';
+    document.getElementById('ai-analysis-result').innerHTML = '<p class="text-muted">' + (LANG === 'en' ? 'Click "Generate Analysis" to get AI-powered energy saving recommendations.' : 'Kattints az "Elemzés generálása" gombra AI energiatakarékossági javaslatokért.') + '</p>';
+    createRow();
+    recalculate();
+    if (window.showToast) window.showToast(LANG === 'en' ? 'New scenario' : 'Új sablon', 'success');
+  });
+
+  // Load calculation
+  document.querySelectorAll('.load-calc-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.getAttribute('data-id');
+      fetch('/calculators/energy/load/' + id).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) { if (window.showToast) window.showToast(data.error, 'error'); return; }
+        calcIdField.value = data.id;
+        calcNameField.value = data.name;
+        calcHouseField.value = data.houseId || '';
+        var p = data.parameters || {};
+        defaultDuty.value = p.defaultDuty || 100;
+        dutyDisplay.textContent = (p.defaultDuty || 100) + '%';
+        elecPrice.value = p.electricityPrice || 68;
+        currency.value = p.currency || 'HUF';
+        tbody.innerHTML = '';
+        (p.items || []).forEach(function(item) { createRow(item); });
+        recalculate();
+        // Show AI analysis if available
+        if (data.aiAnalysis) {
+          document.getElementById('ai-analysis-result').innerHTML = '<div style="white-space:pre-wrap;">' + escapeHtml(data.aiAnalysis) + '</div>';
+        } else {
+          document.getElementById('ai-analysis-result').innerHTML = '<p class="text-muted">' + (LANG === 'en' ? 'No AI analysis yet.' : 'Még nincs AI elemzés.') + '</p>';
+        }
+        if (window.showToast) window.showToast(LANG === 'en' ? 'Loaded' : 'Betöltve', 'success');
+      });
+    });
+  });
+
+  // Copy calculation
+  document.querySelectorAll('.copy-calc-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.getAttribute('data-id');
+      fetch('/calculators/energy/copy/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.success) {
+          if (window.showToast) window.showToast(LANG === 'en' ? 'Copied!' : 'Másolva!', 'success');
+          setTimeout(function() { location.reload(); }, 800);
+        } else {
+          if (window.showToast) window.showToast(data.error || 'Error', 'error');
+        }
+      });
+    });
+  });
+
+  // Delete calculation
+  document.querySelectorAll('.delete-calc-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm(LANG === 'en' ? 'Delete this calculation?' : 'Biztosan törlöd ezt a számítást?')) return;
+      var id = this.getAttribute('data-id');
+      fetch('/calculators/energy/delete/' + id, { method: 'POST' })
+        .then(function(r) { return r.json(); }).then(function(data) {
+          if (data.success) {
+            if (window.showToast) window.showToast(LANG === 'en' ? 'Deleted' : 'Törölve', 'success');
+            setTimeout(function() { location.reload(); }, 500);
+          }
+        });
+    });
+  });
+
+  // PDF Export
+  document.getElementById('export-pdf-btn').addEventListener('click', function() {
+    var cid = calcIdField.value;
+    if (!cid) {
+      if (window.showToast) window.showToast(LANG === 'en' ? 'Please save the calculation first' : 'Először mentsd el a számítást', 'warning');
+      return;
+    }
+    window.open('/api/export/energy/' + cid + '/pdf?lang=' + LANG, '_blank');
+  });
+
+  // AI Analysis
+  document.getElementById('ai-analysis-btn').addEventListener('click', function() {
+    var resultDiv = document.getElementById('ai-analysis-result');
+    resultDiv.innerHTML = '<p class="text-muted"><em>' + (LANG === 'en' ? 'Generating AI analysis... Please wait.' : 'AI elemzés generálása... Kérlek várj.') + '</em></p>';
+    this.disabled = true;
+    var btn = this;
+
+    fetch('/calculators/energy/ai-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parameters: JSON.stringify(getParameters()),
+        results: JSON.stringify(getResults()),
+        lang: LANG,
+        calculationId: calcIdField.value || null
+      })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      btn.disabled = false;
+      if (data.success && data.analysis) {
+        resultDiv.innerHTML = '<div style="white-space:pre-wrap;">' + escapeHtml(data.analysis) + '</div>';
+        if (window.showToast) window.showToast(LANG === 'en' ? 'Analysis complete' : 'Elemzés kész', 'success');
+      } else {
+        resultDiv.innerHTML = '<p class="text-muted" style="color:var(--danger)">' + escapeHtml(data.error || 'Error') + '</p>';
+        if (window.showToast) window.showToast(data.error || 'Error', 'error');
+      }
+    }).catch(function(err) {
+      btn.disabled = false;
+      resultDiv.innerHTML = '<p class="text-muted" style="color:var(--danger)">' + escapeHtml(err.message) + '</p>';
+    });
+  });
+
+  // CSV Export
   document.getElementById('export-results').addEventListener('click', function() {
     var rows = tbody.querySelectorAll('tr');
     var lines = ['Name,Wattage(W),Qty,DutyCycle%,DailyHours,DailykWh,MonthlykWh'];

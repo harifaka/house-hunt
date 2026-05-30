@@ -231,6 +231,149 @@ describe('Window/Door Templates', () => {
   });
 });
 
+describe('Energy Calculator API', () => {
+  test('GET /calculators/energy returns 200 with saved calculations and item library', async () => {
+    const res = await request(app).get('/calculators/energy?lang=en');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Saved Calculations');
+    expect(res.text).toContain('Item Library');
+    expect(res.text).toContain('Save Scenario');
+  });
+
+  test('POST /calculators/energy/save persists a calculation', async () => {
+    const res = await request(app)
+      .post('/calculators/energy/save')
+      .send({
+        name: 'Test Energy Calc',
+        parameters: JSON.stringify({ electricityPrice: 68, currency: 'HUF', items: [{ name: 'TV', wattage: 100, qty: 1, duty: 100, hours: 4 }] }),
+        results: JSON.stringify({ dailyKwh: 0.4, monthlyKwh: 12, yearlyKwh: 146, monthlyCost: 816, yearlyCost: 9928 })
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.id).toBeDefined();
+  });
+
+  test('GET /calculators/energy/list returns saved calculations', async () => {
+    const res = await request(app).get('/calculators/energy/list');
+    expect(res.status).toBe(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0].name).toBe('Test Energy Calc');
+  });
+
+  test('GET /calculators/energy/load/:id returns calculation data with parameters', async () => {
+    const listRes = await request(app).get('/calculators/energy/list');
+    const calcId = listRes.body[0].id;
+
+    const res = await request(app).get(`/calculators/energy/load/${calcId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe('Test Energy Calc');
+    expect(res.body.parameters).toBeDefined();
+    expect(res.body.parameters.electricityPrice).toBe(68);
+    expect(res.body.parameters.items).toBeInstanceOf(Array);
+    expect(res.body.results).toBeDefined();
+  });
+
+  test('POST /calculators/energy/save updates existing calculation', async () => {
+    const listRes = await request(app).get('/calculators/energy/list');
+    const calcId = listRes.body[0].id;
+
+    const res = await request(app)
+      .post('/calculators/energy/save')
+      .send({
+        id: calcId,
+        name: 'Updated Energy Calc',
+        parameters: JSON.stringify({ electricityPrice: 72, currency: 'HUF', items: [] }),
+        results: JSON.stringify({ dailyKwh: 0, monthlyKwh: 0, yearlyKwh: 0, monthlyCost: 0, yearlyCost: 0 })
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.id).toBe(calcId);
+  });
+
+  test('POST /calculators/energy/copy/:id clones a calculation', async () => {
+    const listRes = await request(app).get('/calculators/energy/list');
+    const calcId = listRes.body[0].id;
+
+    const res = await request(app)
+      .post(`/calculators/energy/copy/${calcId}`)
+      .send({});
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.name).toContain('(copy)');
+  });
+
+  test('POST /calculators/energy/delete/:id removes calculation', async () => {
+    const listRes = await request(app).get('/calculators/energy/list');
+    const calcId = listRes.body[0].id;
+
+    const res = await request(app).post(`/calculators/energy/delete/${calcId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  test('POST /calculators/energy/save validates required fields', async () => {
+    const res = await request(app)
+      .post('/calculators/energy/save')
+      .send({ name: 'Test' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+});
+
+describe('Energy Item Templates', () => {
+  test('GET /calculators/energy/items returns default items', async () => {
+    const res = await request(app).get('/calculators/energy/items');
+    expect(res.status).toBe(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toBeGreaterThanOrEqual(25);
+    // Check for specific defaults
+    const tv = res.body.find(t => t.name.includes('TV'));
+    expect(tv).toBeDefined();
+    const fridge = res.body.find(t => t.name === 'Refrigerator');
+    expect(fridge).toBeDefined();
+    expect(fridge.wattage).toBe(150);
+  });
+
+  test('POST /calculators/energy/items creates a custom item', async () => {
+    const res = await request(app)
+      .post('/calculators/energy/items')
+      .send({ name: 'Xbox Series X', name_hu: 'Xbox Series X', wattage: 200, duty_cycle: 80, daily_hours: 3, category: 'entertainment' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.id).toBeDefined();
+  });
+
+  test('POST /calculators/energy/items/:id/delete deletes custom item', async () => {
+    const listRes = await request(app).get('/calculators/energy/items');
+    const custom = listRes.body.find(t => t.name === 'Xbox Series X');
+    expect(custom).toBeDefined();
+
+    const res = await request(app).post(`/calculators/energy/items/${custom.id}/delete`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  test('POST /calculators/energy/items/:id/delete rejects default item deletion', async () => {
+    const listRes = await request(app).get('/calculators/energy/items');
+    const defaultItem = listRes.body.find(t => t.is_default === 1);
+    expect(defaultItem).toBeDefined();
+
+    const res = await request(app).post(`/calculators/energy/items/${defaultItem.id}/delete`);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('Cannot delete default');
+  });
+
+  test('POST /calculators/energy/items validates required fields', async () => {
+    const res = await request(app)
+      .post('/calculators/energy/items')
+      .send({ name_hu: 'test' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+});
+
 describe('Theme Support', () => {
   test('pages include theme initialization script in head', async () => {
     const res = await request(app).get('/');
