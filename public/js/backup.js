@@ -164,14 +164,18 @@
     window.fetch = function(url, options) {
       var result = originalFetch.apply(this, arguments);
 
-      // Intercept quiz answer submissions for backup
+      // Intercept quiz answer submissions for backup (only on success)
       if (options && options.method === 'POST' && typeof url === 'string') {
         var quizMatch = url.match(/\/quiz\/([^/]+)\/answer\/([^/]+)/);
         if (quizMatch && options.body) {
-          try {
-            var body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-            backupQuizAnswer(quizMatch[1], quizMatch[2], body.option_id || body.optionId, body.notes);
-          } catch (_e) { /* ignore parse errors */ }
+          result.then(function(response) {
+            if (response && response.ok) {
+              try {
+                var body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                backupQuizAnswer(quizMatch[1], quizMatch[2], body.option_id || body.optionId, body.notes);
+              } catch (_e) { /* ignore parse errors */ }
+            }
+          }).catch(function() { /* ignore network errors */ });
         }
       }
 

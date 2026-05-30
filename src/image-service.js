@@ -41,7 +41,14 @@ const upload = multer({
  * Returns the public URL of the uploaded image.
  */
 async function uploadToImgbb(filePath, apiKey) {
-  const imageBuffer = fs.readFileSync(filePath);
+  // Validate path is within uploads directory to prevent path traversal
+  const resolvedPath = path.resolve(filePath);
+  const uploadsResolved = path.resolve(UPLOADS_DIR);
+  if (!resolvedPath.startsWith(uploadsResolved + path.sep) && resolvedPath !== uploadsResolved) {
+    throw new Error('Invalid file path: must be within uploads directory');
+  }
+
+  const imageBuffer = await fs.promises.readFile(resolvedPath);
   const base64Image = imageBuffer.toString('base64');
 
   const formData = new URLSearchParams();
