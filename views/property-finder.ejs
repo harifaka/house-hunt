@@ -50,18 +50,21 @@
     </section>
 
     <!-- City Search Section -->
-    <section class="pf-section">
+    <section class="pf-section" id="city-search">
       <div class="card pf-card">
         <div class="card__header">
           <h3 class="card__title">🏙️ <%= lang === 'en' ? 'City Market Analysis' : 'Városi piacelemzés' %></h3>
         </div>
         <div class="card__body">
-          <p class="text-muted mb-3"><%= lang === 'en' ? 'Search for all listed properties in a city to calculate average and median prices.' : 'Keress rá egy város összes hirdetésére az átlag és medián árak kiszámításához.' %></p>
+          <p class="text-muted mb-3"><%= lang === 'en' ? 'Search property prices or find city background information.' : 'Keress ingatlanárakat vagy városi háttérinformációkat.' %></p>
           <div class="d-flex gap-2 flex-wrap">
             <input type="text" id="city-name" class="form-control" style="flex:1; min-width: 200px;"
                    placeholder="<%= lang === 'en' ? 'e.g. Budapest, Debrecen...' : 'pl. Budapest, Debrecen...' %>" />
             <button class="btn btn-primary" id="btn-city-search" onclick="searchCityListings()">
               🔎 <%= lang === 'en' ? 'Search' : 'Keresés' %>
+            </button>
+            <button class="btn btn-secondary" id="btn-city-info" onclick="searchCityInfo()">
+              🌐 <%= lang === 'en' ? 'Find City Info' : 'Városi adatok keresése' %>
             </button>
             <button class="btn btn-accent" id="btn-city-demo" onclick="searchCityDemo()">
               🎭 Demo
@@ -288,31 +291,61 @@ async function searchCityDemo() {
   }
 }
 
+async function searchCityInfo() {
+  var city = document.getElementById('city-name').value.trim();
+  if (!city) return alert(langEn ? 'Enter city' : 'Add meg a várost');
+  showStatus('city-results', langEn ? 'Searching for city information...' : 'Városi információk keresése...', 'info');
+  try {
+    var resp = await fetch('/property-finder/city-info-search', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({city}) });
+    var data = await resp.json();
+    if (data.success) showCityResults(data);
+    else showStatus('city-results', data.error || 'Error', 'danger');
+  } catch(e) {
+    showStatus('city-results', e.message, 'danger');
+  }
+}
+
 function showCityResults(data) {
   var el = document.getElementById('city-results');
   el.style.display = 'block';
-  var html = '<div class="pf-stats-grid">';
-  html += '<div class="pf-stat-card"><div class="pf-stat-card__value">' + data.results.length + '</div><div class="pf-stat-card__label">' + (langEn ? 'Listings' : 'Hirdetés') + '</div></div>';
+  var results = data.results || [];
+  var html = '';
+  if (data.stats || results.length) {
+    html += '<div class="pf-stats-grid">';
+    html += '<div class="pf-stat-card"><div class="pf-stat-card__value">' + results.length + '</div><div class="pf-stat-card__label">' + (langEn ? 'Listings' : 'Hirdetés') + '</div></div>';
+  }
   if (data.stats) {
     html += '<div class="pf-stat-card"><div class="pf-stat-card__value">' + formatPrice(data.stats.avg) + '</div><div class="pf-stat-card__label">' + (langEn ? 'Average Price' : 'Átlagár') + '</div></div>';
     html += '<div class="pf-stat-card"><div class="pf-stat-card__value">' + formatPrice(data.stats.median) + '</div><div class="pf-stat-card__label">' + (langEn ? 'Median Price' : 'Medián ár') + '</div></div>';
     html += '<div class="pf-stat-card"><div class="pf-stat-card__value">' + formatPrice(data.stats.min) + ' - ' + formatPrice(data.stats.max) + '</div><div class="pf-stat-card__label">' + (langEn ? 'Price Range' : 'Ártartomány') + '</div></div>';
   }
-  html += '</div>';
+  if (data.stats || results.length) html += '</div>';
 
   if (data.cityInfo) {
     html += '<div class="pf-city-info mt-4">';
-    html += '<h4>🏙️ ' + data.city + '</h4>';
+    html += '<h4>🏙️ ' + escapeHtml(data.city) + (data.source ? ' <span class="text-muted text-sm">(' + escapeHtml(data.source) + ')</span>' : '') + '</h4>';
     if (data.cityInfo.population) html += '<p>👥 ' + (langEn ? 'Population' : 'Lakosság') + ': <strong>' + Number(data.cityInfo.population).toLocaleString() + '</strong></p>';
-    if (data.cityInfo.securityInfo) html += '<p>🛡️ ' + data.cityInfo.securityInfo + '</p>';
-    if (data.cityInfo.infrastructure) html += '<p>🏗️ ' + data.cityInfo.infrastructure + '</p>';
-    if (data.cityInfo.currentMayor) html += '<p>🏛️ ' + (langEn ? 'Mayor' : 'Polgármester') + ': ' + data.cityInfo.currentMayor + '</p>';
-    if (data.cityInfo.previousMayor) html += '<p>📜 ' + (langEn ? 'Previous Mayor' : 'Előző polgármester') + ': ' + data.cityInfo.previousMayor + '</p>';
-    if (data.cityInfo.generalInfo) html += '<p>ℹ️ ' + data.cityInfo.generalInfo + '</p>';
+    if (data.cityInfo.securityInfo) html += '<p>🛡️ ' + escapeHtml(data.cityInfo.securityInfo) + '</p>';
+    if (data.cityInfo.infrastructure) html += '<p>🏗️ ' + escapeHtml(data.cityInfo.infrastructure) + '</p>';
+    if (data.cityInfo.currentMayor) html += '<p>🏛️ ' + (langEn ? 'Mayor' : 'Polgármester') + ': ' + escapeHtml(data.cityInfo.currentMayor) + '</p>';
+    if (data.cityInfo.previousMayor) html += '<p>📜 ' + (langEn ? 'Previous mayor' : 'Előző polgármester') + ': ' + escapeHtml(data.cityInfo.previousMayor) + '</p>';
+    if (data.cityInfo.generalInfo) html += data.cityInfo.generalInfo.split(/\n\n/).map(function(info) { return '<p>ℹ️ ' + escapeHtml(info) + '</p>'; }).join('');
+    var sources = data.cityInfo.sources || (data.cityInfo.extraData && data.cityInfo.extraData.sources) || [];
+    if (sources.length) {
+      html += '<p class="text-sm mt-2">' + (langEn ? 'Sources:' : 'Források:') + ' ' + sources.map(function(source) {
+        return '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(source.title) + '</a>';
+      }).join(' · ') + '</p>';
+    }
     html += '</div>';
   }
 
   el.innerHTML = html;
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, function(char) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
 }
 
 async function analyzeProperty(id) {

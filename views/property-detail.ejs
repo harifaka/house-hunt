@@ -32,9 +32,9 @@
       <div class="pf-gallery">
         <% property.imageUrls.forEach(function(img, idx) { %>
           <div class="pf-gallery__item<%= idx === 0 ? ' pf-gallery__item--main' : '' %>">
-            <img src="<%= img %>" alt="Photo <%= idx + 1 %>" loading="lazy"
+              <img src="<%= img %>" alt="Photo <%= idx + 1 %>" loading="lazy"
                  onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'"
-                 onclick="openLightbox('<%= img %>')" />
+                onclick="openLightbox(<%= idx %>)" />
           </div>
         <% }); %>
       </div>
@@ -90,6 +90,11 @@
             </table>
             <% if (cityInfo.general_info) { %>
               <p class="text-sm mt-3"><%= cityInfo.general_info %></p>
+            <% } %>
+            <% if (cityInfo.extraData && cityInfo.extraData.sources && cityInfo.extraData.sources.length) { %>
+              <p class="text-sm mt-2"><%= lang === 'en' ? 'Sources:' : 'Források:' %>
+                <% cityInfo.extraData.sources.forEach(function(source, idx) { %><%= idx ? ' · ' : ' ' %><a href="<%= source.url %>" target="_blank" rel="noopener noreferrer"><%= source.title %></a><% }); %>
+              </p>
             <% } %>
           <% } else { %>
             <p class="text-muted"><%= lang === 'en' ? 'No city data available. Use City Search to load data.' : 'Nincs elérhető városi adat. Használd a Város keresőt az adatok betöltéséhez.' %></p>
@@ -182,6 +187,9 @@
     <!-- Actions -->
     <div class="d-flex gap-3 mt-4 mb-6">
       <a href="/property-finder" class="btn btn-secondary">&larr; <%= lang === 'en' ? 'Back' : 'Vissza' %></a>
+      <form method="POST" action="/property-finder/property/<%= property.id %>/add-to-houses" style="display:inline;">
+        <button type="submit" class="btn btn-accent">➕ <%= lang === 'en' ? 'Add to Houses for Review' : 'Hozzáadás az átnézendő házakhoz' %></button>
+      </form>
       <form method="POST" action="/property-finder/property/<%= property.id %>/delete" style="display:inline;"
             onsubmit="return confirm('<%= lang === 'en' ? 'Delete this property?' : 'Törli ezt az ingatlant?' %>')">
         <button type="submit" class="btn btn-danger">🗑️ <%= lang === 'en' ? 'Delete' : 'Törlés' %></button>
@@ -189,8 +197,12 @@
     </div>
 
     <!-- Lightbox -->
-    <div class="pf-lightbox" id="lightbox" onclick="this.classList.remove('is-active')">
+    <div class="pf-lightbox" id="lightbox" onclick="closeLightbox(event)" role="dialog" aria-modal="true" aria-label="<%= lang === 'en' ? 'Photo viewer' : 'Képnézegető' %>">
+      <button class="pf-lightbox__close" type="button" aria-label="<%= lang === 'en' ? 'Close' : 'Bezárás' %>" onclick="event.stopPropagation(); closeLightbox()">&times;</button>
+      <button class="pf-lightbox__nav pf-lightbox__nav--prev" type="button" aria-label="<%= lang === 'en' ? 'Previous photo' : 'Előző kép' %>" onclick="event.stopPropagation(); changeLightbox(-1)">&#8249;</button>
       <img id="lightbox-img" src="" alt="Full size" />
+      <button class="pf-lightbox__nav pf-lightbox__nav--next" type="button" aria-label="<%= lang === 'en' ? 'Next photo' : 'Következő kép' %>" onclick="event.stopPropagation(); changeLightbox(1)">&#8250;</button>
+      <span class="pf-lightbox__count" id="lightbox-count" aria-live="polite"></span>
     </div>
 
     <%- include('partials/footer') %>
@@ -198,10 +210,36 @@
 </div>
 <%- include('partials/scripts') %>
 <script>
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
+var lightboxImages = Array.from(document.querySelectorAll('.pf-gallery__item img')).map(function(img) { return img.src; });
+var lightboxIndex = 0;
+
+function openLightbox(index) {
+  if (!lightboxImages.length) return;
+  lightboxIndex = index;
+  updateLightbox();
   document.getElementById('lightbox').classList.add('is-active');
 }
+
+function updateLightbox() {
+  document.getElementById('lightbox-img').src = lightboxImages[lightboxIndex];
+  document.getElementById('lightbox-count').textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
+}
+
+function changeLightbox(direction) {
+  lightboxIndex = (lightboxIndex + direction + lightboxImages.length) % lightboxImages.length;
+  updateLightbox();
+}
+
+function closeLightbox(event) {
+  if (!event || event.target === event.currentTarget) document.getElementById('lightbox').classList.remove('is-active');
+}
+
+document.addEventListener('keydown', function(event) {
+  if (!document.getElementById('lightbox').classList.contains('is-active')) return;
+  if (event.key === 'Escape') closeLightbox();
+  if (event.key === 'ArrowLeft') changeLightbox(-1);
+  if (event.key === 'ArrowRight') changeLightbox(1);
+});
 
 async function runAnalysis() {
   try {
@@ -215,7 +253,7 @@ async function runAnalysis() {
   } catch(e) {
     alert(e.message);
   }
-}
+});
 </script>
 </body>
 </html>

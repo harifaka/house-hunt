@@ -1,5 +1,12 @@
 # Release Notes
 
+## Unreleased
+
+### Property Finder
+- Added previous/next controls, photo count, and keyboard navigation to property listing image viewer.
+- Added an action to copy a loaded listing into Houses for inspection, reusing the record when the same listing is added again.
+- Added city information lookup using configured AI with a Google Search snippets fallback and visible source links.
+
 ## v1.2.0
 
 ### Highlights

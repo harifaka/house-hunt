@@ -2314,6 +2314,32 @@ select.form-control {
   border-radius: var(--radius);
 }
 
+.pf-lightbox__nav,
+.pf-lightbox__close {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0,0,0,0.55);
+  cursor: pointer;
+}
+
+.pf-lightbox__nav { top: 50%; transform: translateY(-50%); font-size: 2rem; }
+.pf-lightbox__nav--prev { left: 2rem; }
+.pf-lightbox__nav--next { right: 2rem; }
+.pf-lightbox__close { top: 1rem; right: 1rem; font-size: 1.75rem; }
+.pf-lightbox__count { position: absolute; bottom: 1rem; color: #fff; font-size: var(--fs-sm); }
+
+@media (max-width: 600px) {
+  .pf-lightbox__nav--prev { left: 0.5rem; }
+  .pf-lightbox__nav--next { right: 0.5rem; }
+}
+
 /* City Card */
 .pf-city-card .card__body p {
   margin-bottom: var(--sp-1);

@@ -36,6 +36,9 @@
 
 ### 🔍 Property finder and market research
 - Search listing URLs and generate property analysis pages
+- Browse every listing photo in a full-screen viewer with next/previous buttons and arrow keys
+- Add a loaded listing to Houses for a structured inspection; repeated additions reuse the same house record
+- Search city information with configured AI, or Google result snippets and linked sources when AI is unavailable
 - Use demo mode when live scraping or AI services are unavailable
 - Review city-level market context and property details
 

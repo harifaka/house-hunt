@@ -114,4 +114,59 @@ describe('Property Finder Routes', () => {
     expect(res.body.property.size_sqm).toBe(150);
     expect(res.body.property.rooms).toBe(3);
   });
+
+  test('POST /property-finder/property/:id/add-to-houses copies a listing for review', async () => {
+    const db = await getDb();
+    const propertyId = crypto.randomUUID();
+    const listingUrl = `https://ingatlan.com/review-${Date.now()}`;
+    try {
+      await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, location, description)
+        VALUES (?, ?, ?, ?, ?, ?)`).run(propertyId, listingUrl, 'Review House', 72000000, 'Szeged', 'Sunny house');
+    } finally {
+      await db.close();
+    }
+
+    const detail = await request(app).get(`/property-finder/property/${propertyId}`);
+    expect(detail.status).toBe(200);
+
+    const res = await request(app).post(`/property-finder/property/${propertyId}/add-to-houses`);
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toMatch(/^\/houses\//);
+
+    const verifyDb = await getDb();
+    try {
+      const house = await verifyDb.prepare('SELECT * FROM houses WHERE id = ?').get(res.headers.location.split('/').pop());
+      expect(house.name).toBe('Review House');
+      expect(house.address).toBe('Szeged');
+      expect(house.asking_price).toBe(72000000);
+      expect(house.description).toBe('Sunny house');
+      expect(house.source).toBe('scraped');
+    } finally {
+      await verifyDb.close();
+    }
+  });
+
+  test('POST /property-finder/city-info-search saves sourced Google fallback results', async () => {
+    const googleHtml = `<div class="MjjYud"><a href="https://example.com/szeged"><h3>Szeged city facts</h3></a>
+      <div class="VwiC3b">Szeged is a university city in southern Hungary with a strong public transport network.</div></div>`;
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({
+      ok: true,
+      status: 200,
+      text: async () => googleHtml,
+    });
+
+    try {
+      const res = await request(app)
+        .post('/property-finder/city-info-search')
+        .send({ city: 'Szeged' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.source).toBe('Google Search');
+      expect(res.body.cityInfo.generalInfo).toContain('university city');
+      expect(res.body.cityInfo.extraData.sources[0].url).toBe('https://example.com/szeged');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
 });

@@ -3,6 +3,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const multer = require('multer');
 const PDFDocument = require('pdfkit');
+const cheerio = require('cheerio');
 const { getDb } = require('../database');
 const { scrapeProperty, extractProperty, searchCity, calculatePriceStats } = require('../scraper');
 const { callLLM, getAIConfig } = require('../ai-service');
@@ -15,6 +16,57 @@ const htmlUpload = multer({
     else callback(new Error('Please upload a saved HTML page'));
   },
 });
+
+async function searchGoogleCityInfo(city, lang) {
+  const url = new URL('https://www.google.com/search');
+  url.searchParams.set('q', `${city} Hungary population infrastructure safety`);
+  url.searchParams.set('hl', lang === 'en' ? 'en' : 'hu');
+
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HouseHunt/1.0)' },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) throw new Error(`Google search returned ${response.status}`);
+
+  const $ = cheerio.load(await response.text());
+  const sources = [];
+  $('div.MjjYud').each((_, element) => {
+    const card = $(element);
+    const title = card.find('h3').first().text().trim();
+    const snippet = card.find('.VwiC3b').first().text().replace(/\s+/g, ' ').trim();
+    const href = card.find('a').filter((__, anchor) => $(anchor).find('h3').length > 0).first().attr('href');
+    if (title && snippet && href && /^https?:\/\//i.test(href)) {
+      sources.push({ title, snippet, url: href });
+    }
+  });
+
+  if (!sources.length) throw new Error('Google search returned no readable city information');
+  return {
+    population: null,
+    gdpInfo: null,
+    securityInfo: null,
+    infrastructure: null,
+    currentMayor: null,
+    previousMayor: null,
+    generalInfo: sources.map(source => `${source.title}: ${source.snippet}`).join('\n\n'),
+    extraData: { sources: sources.slice(0, 5).map(({ title, url }) => ({ title, url })) },
+  };
+}
+
+function normalizeCityInfo(data) {
+  const populationText = String(data.population || '').replace(/[\s,]/g, '');
+  const population = Number(populationText);
+  return {
+    population: Number.isSafeInteger(population) && population > 0 ? population : null,
+    gdpInfo: data.gdpInfo || data.gdp_info || null,
+    securityInfo: data.securityInfo || data.security_info || null,
+    infrastructure: data.infrastructure || null,
+    currentMayor: data.currentMayor || data.current_mayor || null,
+    previousMayor: data.previousMayor || data.previous_mayor || null,
+    generalInfo: data.generalInfo || data.general_info || null,
+    extraData: {},
+  };
+}
 
 async function saveScrapedProperty(db, data) {
   const id = crypto.randomUUID();
@@ -80,6 +132,28 @@ router.get('/property/:id', async (req, res) => {
       property,
       cityInfo,
     });
+  } finally {
+    await db.close();
+  }
+});
+
+// POST /property-finder/property/:id/add-to-houses — Add a listing to inspections
+router.post('/property/:id/add-to-houses', async (req, res) => {
+  const db = await getDb();
+  try {
+    const property = await db.prepare('SELECT * FROM scraped_properties WHERE id = ?').get(req.params.id);
+    if (!property) return res.redirect('/property-finder');
+
+    const notes = 'Property Finder listing: ' + property.url;
+    const existing = await db.prepare("SELECT id FROM houses WHERE source = 'scraped' AND notes = ?").get(notes);
+    if (existing) return res.redirect('/houses/' + existing.id);
+
+    const houseId = crypto.randomUUID();
+    await db.prepare(
+      'INSERT INTO houses (id, name, address, asking_price, notes, description, source) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(houseId, property.title || 'Property', property.location || null, property.price || null, notes, property.description || null, 'scraped');
+
+    res.redirect('/houses/' + houseId);
   } finally {
     await db.close();
   }
@@ -253,6 +327,67 @@ router.post('/search-city', async (req, res) => {
   } catch (err) {
     console.error('City search error:', err);
     res.status(500).json({ error: 'Failed to search city: ' + err.message });
+  }
+});
+
+// POST /property-finder/city-info-search — Find city context with LLM or Google
+router.post('/city-info-search', async (req, res) => {
+  const city = typeof req.body.city === 'string' ? req.body.city.trim() : '';
+  if (!city) return res.status(400).json({ error: 'Please provide a city name' });
+
+  try {
+    let cityData = null;
+    let source = 'AI';
+    const config = await getAIConfig();
+    if (config.provider && config.endpoint && config.api_key) {
+      try {
+        const language = req.lang === 'en' ? 'English' : 'Hungarian';
+        const prompt = `Find reliable, current information about ${city}, Hungary. Respond in ${language} with only a JSON object. Use these keys: population (number or null), gdpInfo, securityInfo, infrastructure, currentMayor, previousMayor, generalInfo (strings or null). Do not guess; use null for anything uncertain.`;
+        const raw = await callLLM(prompt, config);
+        const parsed = JSON.parse(raw.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+        const normalized = normalizeCityInfo(parsed);
+        if ([normalized.population, normalized.gdpInfo, normalized.securityInfo, normalized.infrastructure, normalized.currentMayor, normalized.generalInfo].some(Boolean)) {
+          cityData = normalized;
+        }
+      } catch (err) {
+        console.warn('City info LLM unavailable; using Google Search:', err.message);
+      }
+    }
+
+    if (!cityData) {
+      cityData = await searchGoogleCityInfo(city, req.lang);
+      source = 'Google Search';
+    }
+
+    const db = await getDb();
+    try {
+      const existing = await db.prepare('SELECT * FROM city_info WHERE city_name = ?').get(city);
+      cityData.extraData = {
+        ...safeJsonParse(existing && existing.extra_data, {}),
+        ...cityData.extraData,
+      };
+      if (existing) {
+        await db.prepare(`UPDATE city_info SET population = COALESCE(?, population), gdp_info = COALESCE(?, gdp_info),
+          security_info = COALESCE(?, security_info), infrastructure = COALESCE(?, infrastructure),
+          current_mayor = COALESCE(?, current_mayor), previous_mayor = COALESCE(?, previous_mayor),
+          general_info = COALESCE(?, general_info), extra_data = ?, updated_at = datetime('now') WHERE city_name = ?`)
+          .run(cityData.population, cityData.gdpInfo, cityData.securityInfo, cityData.infrastructure,
+            cityData.currentMayor, cityData.previousMayor, cityData.generalInfo, JSON.stringify(cityData.extraData), city);
+    } else {
+        await db.prepare(`INSERT INTO city_info (id, city_name, population, gdp_info, security_info, infrastructure,
+          current_mayor, previous_mayor, general_info, extra_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+          .run(crypto.randomUUID(), city, cityData.population, cityData.gdpInfo, cityData.securityInfo,
+            cityData.infrastructure, cityData.currentMayor, cityData.previousMayor, cityData.generalInfo,
+            JSON.stringify(cityData.extraData));
+      }
+    } finally {
+      await db.close();
+    }
+
+    res.json({ success: true, city, cityInfo: cityData, source });
+  } catch (err) {
+    console.error('City information search error:', err);
+    res.status(502).json({ error: 'Could not find city information: ' + err.message });
   }
 });
 
