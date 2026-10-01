@@ -1,4 +1,4 @@
-const { parsePrice, extractCity, calculatePriceStats } = require('../src/scraper');
+const { parsePrice, extractCity, calculatePriceStats, extractProperty } = require('../src/scraper');
 
 describe('Scraper Utilities', () => {
   describe('parsePrice', () => {
@@ -12,6 +12,10 @@ describe('Scraper Utilities', () => {
 
     test('parses decimal million shorthand', () => {
       expect(parsePrice('45.5M Ft')).toBe(45500000);
+    });
+
+    test('parses Hungarian million wording and decimal comma', () => {
+      expect(parsePrice('2,5 millió Ft')).toBe(2500000);
     });
 
     test('returns null for invalid input', () => {
@@ -57,6 +61,48 @@ describe('Scraper Utilities', () => {
       expect(stats.avg).toBe(0);
       expect(stats.min).toBe(0);
       expect(stats.max).toBe(0);
+    });
+  });
+
+  describe('extractProperty', () => {
+    test('extracts ingatlan.com listing fields and gallery data attributes', () => {
+      const html = `<html><head><title>Eladó ház</title></head><body>
+        <h1>Eladó családi ház</h1>
+        <div data-details-page--moneycheck-listing-data-value='{"price":"89 000 000 Ft","Alapterület":"85 m²","Telekterület":"600 m²","Szobák":"3","address":"Szeged"}'></div>
+        <div data-details-page--gallery-elements-value='[{"originalUrl":"https://cdn.example.test/house-large.jpg"},{"url":"https://cdn.example.test/house-2.jpg"}]'></div>
+        <img src="https://cdn.example.test/logo.svg"><img data-src="https://cdn.example.test/house-3.jpg">
+      </body></html>`;
+
+      const property = extractProperty(html, 'https://ingatlan.com/12345678');
+
+      expect(property.title).toBe('Eladó családi ház');
+      expect(property.price).toBe(89000000);
+      expect(property.sizeSqm).toBe(85);
+      expect(property.lotSizeSqm).toBe(600);
+      expect(property.rooms).toBe(3);
+      expect(property.location).toBe('Szeged');
+      expect(property.imageUrls).toContain('https://cdn.example.test/house-large.jpg');
+      expect(property.imageUrls).not.toContain('https://cdn.example.test/logo.svg');
+    });
+
+    test('uses schema.org, Open Graph, and generic Hungarian text on other hosts', () => {
+      const html = `<html><head>
+        <meta property="og:title" content="Otthoncentrum listing">
+        <meta property="og:image" content="https://cdn.example.test/og-home.jpg">
+        <script type="application/ld+json">{"@type":"Product","name":"Modern house","offers":{"@type":"Offer","price":"125000000","priceCurrency":"HUF"},"floorSize":{"value":92},"numberOfRooms":4,"image":["https://cdn.example.test/schema-home.jpg"]}</script>
+      </head><body><main>Alapterület: 92 m², telekterület: 450 m², 4 szoba, 125 000 000 Ft</main></body></html>`;
+
+      const property = extractProperty(html, 'https://otthoncentrum.hu/listing/456');
+
+      expect(property.title).toBe('Modern house');
+      expect(property.price).toBe(125000000);
+      expect(property.sizeSqm).toBe(92);
+      expect(property.lotSizeSqm).toBe(450);
+      expect(property.rooms).toBe(4);
+      expect(property.imageUrls).toEqual(expect.arrayContaining([
+        'https://cdn.example.test/schema-home.jpg',
+        'https://cdn.example.test/og-home.jpg',
+      ]));
     });
   });
 });
