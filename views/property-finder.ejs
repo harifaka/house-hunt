@@ -90,7 +90,9 @@
           <div class="card card--house pf-property-card animate-slide-up">
             <% if (imgs.length > 0) { %>
               <div class="pf-property-card__image">
-                <img src="<%= imgs[0] %>" alt="<%= prop.title %>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'" />
+                <a class="pf-property-card__image-link" href="/property-finder/property/<%= prop.id %>" aria-label="<%= lang === 'en' ? 'View property details' : 'Ingatlan részleteinek megtekintése' %>">
+                  <img src="<%= imgs[0] %>" alt="<%= prop.title %>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'" />
+                </a>
                 <% if (imgs.length > 1) { %>
                   <span class="pf-property-card__badge">📷 <%= imgs.length %></span>
                 <% } %>

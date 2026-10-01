@@ -121,14 +121,15 @@ describe('Property Finder Routes', () => {
     const propertyId = crypto.randomUUID();
     const listingUrl = `https://ingatlan.com/review-${Date.now()}`;
     try {
-      await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, location, description)
-        VALUES (?, ?, ?, ?, ?, ?)`).run(propertyId, listingUrl, 'Review House', 72000000, 'Szeged', 'Sunny house');
+      await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, location, description, image_urls)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`).run(propertyId, listingUrl, 'Review House', 72000000, 'Szeged', 'Sunny house', JSON.stringify(['https://example.com/review-house.jpg']));
     } finally {
       await db.close();
     }
 
     const finder = await request(app).get('/property-finder');
     expect(finder.text).toContain(`/property-finder/property/${propertyId}/add-to-houses`);
+    expect(finder.text).toContain(`class="pf-property-card__image-link" href="/property-finder/property/${propertyId}"`);
 
     const detail = await request(app).get(`/property-finder/property/${propertyId}`);
     expect(detail.status).toBe(200);
