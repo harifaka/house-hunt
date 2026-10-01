@@ -111,6 +111,9 @@
             <div class="card__footer d-flex flex-wrap gap-2">
               <a href="/property-finder/property/<%= prop.id %>" class="btn btn-sm btn-primary">📋 <%= lang === 'en' ? 'Details' : 'Részletek' %></a>
               <button class="btn btn-sm btn-accent" onclick="analyzeProperty('<%= prop.id %>')">🤖 <%= lang === 'en' ? 'Analyze' : 'Elemzés' %></button>
+              <form method="POST" action="/property-finder/property/<%= prop.id %>/add-to-houses" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-success">➕ <%= lang === 'en' ? 'Add to Houses' : 'Hozzáadás a házakhoz' %></button>
+              </form>
               <input type="checkbox" class="report-checkbox" value="<%= prop.id %>" title="<%= lang === 'en' ? 'Include in report' : 'Hozzáadás a jelentéshez' %>" />
             </div>
           </div>

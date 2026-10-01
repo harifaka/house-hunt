@@ -2,6 +2,7 @@ const request = require('supertest');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const vm = require('vm');
 
 // Use a temporary database for tests
 const TEST_DB_PATH = path.join(__dirname, '..', 'db', 'test_api.sqlite');
@@ -126,8 +127,14 @@ describe('Property Finder Routes', () => {
       await db.close();
     }
 
+    const finder = await request(app).get('/property-finder');
+    expect(finder.text).toContain(`/property-finder/property/${propertyId}/add-to-houses`);
+
     const detail = await request(app).get(`/property-finder/property/${propertyId}`);
     expect(detail.status).toBe(200);
+    const inlineScript = detail.text.match(/<script>\s*([\s\S]*?)<\/script>/);
+    expect(inlineScript).not.toBeNull();
+    expect(() => new vm.Script(inlineScript[1])).not.toThrow();
 
     const res = await request(app).post(`/property-finder/property/${propertyId}/add-to-houses`);
     expect(res.status).toBe(302);
