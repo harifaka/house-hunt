@@ -137,14 +137,16 @@ router.get('/property/:id', async (req, res) => {
   }
 });
 
-// POST /property-finder/property/:id/add-to-houses — Add a listing to inspections
-router.post('/property/:id/add-to-houses', async (req, res) => {
+// Accept GET for older direct links; the UI continues to submit this action with POST.
+async function addPropertyToHouses(req, res) {
   const db = await getDb();
   try {
     const property = await db.prepare('SELECT * FROM scraped_properties WHERE id = ?').get(req.params.id);
     if (!property) return res.redirect('/property-finder');
 
-    const notes = 'Property Finder listing: ' + property.url;
+    const notes = property.url
+      ? 'Property Finder listing: ' + property.url
+      : 'Property Finder import: ' + property.id;
     const existing = await db.prepare("SELECT id FROM houses WHERE source = 'scraped' AND notes = ?").get(notes);
     if (existing) return res.redirect('/houses/' + existing.id);
 
@@ -157,7 +159,10 @@ router.post('/property/:id/add-to-houses', async (req, res) => {
   } finally {
     await db.close();
   }
-});
+}
+
+router.get('/property/:id/add-to-houses', addPropertyToHouses);
+router.post('/property/:id/add-to-houses', addPropertyToHouses);
 
 // GET /property-finder/report/:id — View report
 router.get('/report/:id', async (req, res) => {
@@ -240,15 +245,17 @@ router.post('/scrape-html', (req, res, next) => {
     return res.status(status).json({ error: error.message });
   });
 }, async (req, res) => {
-  const { url } = req.body;
-  let parsedUrl;
-  try {
-    parsedUrl = new URL(url);
-  } catch {
-    return res.status(400).json({ error: 'Please provide a valid URL' });
-  }
-  if (parsedUrl.hostname !== 'ingatlan.com' && parsedUrl.hostname !== 'www.ingatlan.com') {
-    return res.status(400).json({ error: 'Please provide a valid ingatlan.com URL' });
+  const url = (req.body.url || '').trim() || null;
+  if (url) {
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return res.status(400).json({ error: 'Please provide a valid URL' });
+    }
+    if (parsedUrl.hostname !== 'ingatlan.com' && parsedUrl.hostname !== 'www.ingatlan.com') {
+      return res.status(400).json({ error: 'Please provide a valid ingatlan.com URL' });
+    }
   }
   if (!req.file) return res.status(400).json({ error: 'Please choose a saved HTML page' });
 

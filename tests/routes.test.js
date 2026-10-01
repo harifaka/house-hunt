@@ -116,6 +116,38 @@ describe('Property Finder Routes', () => {
     expect(res.body.property.rooms).toBe(3);
   });
 
+  test('POST /property-finder/scrape-html imports a saved page without a URL', async () => {
+    const html = '<html><head><title>Saved house</title><meta name="description" content="Full saved-page description."></head><body><h1>Saved house</h1></body></html>';
+    const res = await request(app)
+      .post('/property-finder/scrape-html')
+      .attach('html', Buffer.from(html), { filename: 'saved-house.html', contentType: 'text/html' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.property.url).toBeNull();
+    expect(res.body.property.description).toBe('Full saved-page description.');
+
+    const detail = await request(app).get(`/property-finder/property/${res.body.property.id}`);
+    expect(detail.status).toBe(200);
+    expect(detail.text).toContain('Full saved-page description.');
+    expect(detail.text).not.toContain('<td class="font-bold">URL</td>');
+
+    const added = await request(app).get(`/property-finder/property/${res.body.property.id}/add-to-houses`);
+    expect(added.status).toBe(302);
+    const postAgain = await request(app).post(`/property-finder/property/${res.body.property.id}/add-to-houses`);
+    expect(postAgain.status).toBe(302);
+    expect(postAgain.headers.location).toBe(added.headers.location);
+
+    const verifyDb = await getDb();
+    try {
+      const house = await verifyDb.prepare('SELECT * FROM houses WHERE id = ?').get(added.headers.location.split('/').pop());
+      expect(house.name).toBe('Saved house');
+      expect(house.description).toBe('Full saved-page description.');
+      expect(house.notes).toContain(res.body.property.id);
+    } finally {
+      await verifyDb.close();
+    }
+  });
+
   test('POST /property-finder/property/:id/add-to-houses copies a listing for review', async () => {
     const db = await getDb();
     const propertyId = crypto.randomUUID();
@@ -133,6 +165,7 @@ describe('Property Finder Routes', () => {
 
     const detail = await request(app).get(`/property-finder/property/${propertyId}`);
     expect(detail.status).toBe(200);
+    expect(detail.text).toContain(`<a href="${listingUrl}" target="_blank" rel="noopener noreferrer">${listingUrl}</a>`);
     const inlineScript = detail.text.match(/<script>\s*([\s\S]*?)<\/script>/);
     expect(inlineScript).not.toBeNull();
     expect(() => new vm.Script(inlineScript[1])).not.toThrow();
@@ -140,6 +173,10 @@ describe('Property Finder Routes', () => {
     const res = await request(app).post(`/property-finder/property/${propertyId}/add-to-houses`);
     expect(res.status).toBe(302);
     expect(res.headers.location).toMatch(/^\/houses\//);
+
+    const getAction = await request(app).get(`/property-finder/property/${propertyId}/add-to-houses`);
+    expect(getAction.status).toBe(302);
+    expect(getAction.headers.location).toBe(res.headers.location);
 
     const verifyDb = await getDb();
     try {

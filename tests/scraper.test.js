@@ -121,5 +121,15 @@ describe('Scraper Utilities', () => {
         'https://cdn.example.test/og-home.jpg',
       ]));
     });
+
+    test('imports a saved page without a listing URL and reads its meta description', () => {
+      const html = '<html><head><title>Saved house</title><meta name="description" content="A complete saved-page description."></head><body></body></html>';
+      const property = extractProperty(html, null);
+
+      expect(property.title).toBe('Saved house');
+      expect(property.url).toBeNull();
+      expect(property.listingId).toBeNull();
+      expect(property.description).toBe('A complete saved-page description.');
+    });
   });
 });

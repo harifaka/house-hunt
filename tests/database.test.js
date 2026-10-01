@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const Database = require('better-sqlite3');
 
 // Use a temporary database for tests
 const TEST_DB_PATH = path.join(__dirname, '..', 'db', 'test_db.sqlite');
@@ -17,7 +18,44 @@ describe('Database', () => {
   });
 
   test('initDb creates tables without errors', async () => {
+    const legacyDb = new Database(TEST_DB_PATH);
+    legacyDb.exec(`
+      CREATE TABLE scraped_properties (
+        id TEXT PRIMARY KEY,
+        url TEXT NOT NULL UNIQUE,
+        title TEXT,
+        price REAL,
+        price_text TEXT,
+        location TEXT,
+        city TEXT,
+        size_sqm REAL,
+        rooms INTEGER,
+        description TEXT,
+        property_type TEXT,
+        listing_id TEXT,
+        image_urls TEXT,
+        scraped_data TEXT,
+        llm_analysis TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now'))
+      );
+      INSERT INTO scraped_properties (id, url, title) VALUES ('legacy-property', 'https://ingatlan.com/legacy', 'Legacy home');
+    `);
+    legacyDb.close();
+
     await expect(initDb()).resolves.toBeUndefined();
+
+    const migratedDb = await getDb();
+    try {
+      const urlColumn = (await migratedDb.prepare('PRAGMA table_info(scraped_properties)').all())
+        .find(column => column.name === 'url');
+      const legacyProperty = await migratedDb.prepare('SELECT * FROM scraped_properties WHERE id = ?').get('legacy-property');
+      expect(urlColumn.notnull).toBe(0);
+      expect(legacyProperty.title).toBe('Legacy home');
+      expect(legacyProperty.url).toBe('https://ingatlan.com/legacy');
+    } finally {
+      await migratedDb.close();
+    }
   });
 
   test('getDb returns a working database connection', async () => {

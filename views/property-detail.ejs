@@ -51,6 +51,7 @@
           <table class="table">
             <tbody>
               <% if (property.price_text) { %><tr><td class="font-bold"><%= lang === 'en' ? 'Price' : 'Ár' %></td><td><%= property.price_text %></td></tr><% } %>
+              <% if (property.url) { %><tr><td class="font-bold">URL</td><td><a href="<%= property.url %>" target="_blank" rel="noopener noreferrer"><%= property.url %></a></td></tr><% } %>
               <% if (property.location) { %><tr><td class="font-bold"><%= lang === 'en' ? 'Location' : 'Helyszín' %></td><td><%= property.location %></td></tr><% } %>
               <% if (property.city) { %><tr><td class="font-bold"><%= lang === 'en' ? 'City' : 'Város' %></td><td><%= property.city %></td></tr><% } %>
               <% if (property.size_sqm) { %><tr><td class="font-bold"><%= lang === 'en' ? 'Size' : 'Méret' %></td><td><%= property.size_sqm %> m²</td></tr><% } %>
@@ -111,7 +112,7 @@
           <h3 class="card__title">📝 <%= lang === 'en' ? 'Description' : 'Leírás' %></h3>
         </div>
         <div class="card__body">
-          <p><%= property.description %></p>
+          <p style="white-space:pre-wrap; overflow-wrap:anywhere;"><%= property.description %></p>
         </div>
       </div>
     </section>

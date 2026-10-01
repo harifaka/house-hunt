@@ -31,7 +31,7 @@ class HeuristicExtractor {
       sizeSqm: structured.sizeSqm ?? parseArea(areaText) ?? findAnyArea(bodyText),
       lotSizeSqm: structured.lotSizeSqm ?? parseArea(lotText),
       rooms: structured.rooms ?? parseRooms(roomsText) ?? findAnyRooms(bodyText),
-      description: structured.description || metadata.description || null,
+      description: structured.description || metadata.description || $('meta[name="description"]').attr('content') || null,
       propertyType: structured.propertyType || null,
       listingId: getListingId(url),
       imageUrls: collectImageUrls($, structuredData, metadata.image),
@@ -74,6 +74,7 @@ function registerExtractor(hostname, extractor) {
 registerExtractor('ingatlan.com', new IngatlanComExtractor());
 
 function getExtractor(url) {
+  if (!url) return new HeuristicExtractor();
   const hostname = new URL(url).hostname.toLowerCase();
   for (const [domain, extractor] of SITE_EXTRACTORS) {
     if (hostname === domain || hostname.endsWith(`.${domain}`)) return extractor;
@@ -297,6 +298,7 @@ function isPropertyImage(value) {
 }
 
 function getListingId(url) {
+  if (!url) return null;
   const match = url.match(/(\d+)(?:\?|$|#)/);
   return match ? match[1] : url.split('/').filter(Boolean).pop() || null;
 }

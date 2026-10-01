@@ -263,7 +263,7 @@ async function initSqliteDb() {
 
       CREATE TABLE IF NOT EXISTS scraped_properties (
         id TEXT PRIMARY KEY,
-        url TEXT NOT NULL UNIQUE,
+        url TEXT UNIQUE,
         title TEXT,
         price REAL,
         price_text TEXT,
@@ -400,6 +400,36 @@ async function initSqliteDb() {
       );
     `);
 
+    const scrapedPropertyColumns = await db.prepare('PRAGMA table_info(scraped_properties)').all();
+    if (scrapedPropertyColumns.some(column => column.name === 'url' && column.notnull)) {
+      await db.transaction(async (transaction) => {
+        await transaction.exec(`
+          CREATE TABLE scraped_properties_nullable_url (
+            id TEXT PRIMARY KEY,
+            url TEXT UNIQUE,
+            title TEXT,
+            price REAL,
+            price_text TEXT,
+            location TEXT,
+            city TEXT,
+            size_sqm REAL,
+            rooms INTEGER,
+            description TEXT,
+            property_type TEXT,
+            listing_id TEXT,
+            image_urls TEXT,
+            scraped_data TEXT,
+            llm_analysis TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+          );
+          INSERT INTO scraped_properties_nullable_url SELECT * FROM scraped_properties;
+          DROP TABLE scraped_properties;
+          ALTER TABLE scraped_properties_nullable_url RENAME TO scraped_properties;
+        `);
+      });
+    }
+
     const answerCols = (await db.prepare('PRAGMA table_info(answers)').all()).map(c => c.name);
     if (!answerCols.includes('image_description')) {
       await db.exec('ALTER TABLE answers ADD COLUMN image_description TEXT');
@@ -515,7 +545,7 @@ async function initPostgresDb() {
 
       CREATE TABLE IF NOT EXISTS scraped_properties (
         id TEXT PRIMARY KEY,
-        url TEXT NOT NULL UNIQUE,
+        url TEXT UNIQUE,
         title TEXT,
         price DOUBLE PRECISION,
         price_text TEXT,
@@ -649,6 +679,8 @@ async function initPostgresDb() {
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    await db.exec('ALTER TABLE scraped_properties ALTER COLUMN url DROP NOT NULL');
 
     await db.exec('ALTER TABLE answers ADD COLUMN IF NOT EXISTS image_description TEXT');
 

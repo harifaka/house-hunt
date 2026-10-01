@@ -43,7 +43,7 @@
               <%= lang === 'en' ? 'Import saved page' : 'Mentett oldal importálása' %>
             </button>
           </div>
-          <p class="text-muted mt-2"><%= lang === 'en' ? 'If the listing opens in your browser but direct scraping is blocked, save the page as HTML and import it here.' : 'Ha a hirdetés megnyílik a böngészőben, de a közvetlen beolvasás le van tiltva, mentsd az oldalt HTML-fájlként, majd importáld itt.' %></p>
+          <p class="text-muted mt-2"><%= lang === 'en' ? 'If the listing opens in your browser but direct scraping is blocked, save the page as HTML and import it here. The URL is optional and will be shown in the property details when provided.' : 'Ha a hirdetés megnyílik a böngészőben, de a közvetlen beolvasás le van tiltva, mentsd az oldalt HTML-fájlként, majd importáld itt. Az URL megadása nem kötelező; ha kitöltöd, megjelenik az ingatlan részleteinél.' %></p>
           <div id="scrape-status" class="mt-3" style="display:none;"></div>
         </div>
       </div>
@@ -221,11 +221,10 @@ async function scrapeProperty() {
 async function importListingHtml() {
   var url = document.getElementById('scrape-url').value.trim();
   var file = document.getElementById('scrape-html').files[0];
-  if (!url) return alert(langEn ? 'Enter the listing URL' : 'Add meg a hirdetés URL-jét');
   if (!file) return alert(langEn ? 'Choose a saved HTML file' : 'Válassz egy mentett HTML-fájlt');
 
   var formData = new FormData();
-  formData.append('url', url);
+  if (url) formData.append('url', url);
   formData.append('html', file);
   showStatus('scrape-status', langEn ? 'Importing saved page...' : 'Mentett oldal importálása...', 'info');
   try {
