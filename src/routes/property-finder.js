@@ -1,10 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const multer = require('multer');
 const PDFDocument = require('pdfkit');
 const { getDb } = require('../database');
-const { scrapeProperty, searchCity, calculatePriceStats } = require('../scraper');
+const { scrapeProperty, extractProperty, searchCity, calculatePriceStats } = require('../scraper');
 const { callLLM, getAIConfig } = require('../ai-service');
+
+const htmlUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 12 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) => {
+    if (/\.html?$/i.test(file.originalname)) callback(null, true);
+    else callback(new Error('Please upload a saved HTML page'));
+  },
+});
+
+async function saveScrapedProperty(db, data) {
+  const id = crypto.randomUUID();
+  await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, price_text, location, city, size_sqm, rooms, description, property_type, listing_id, image_urls, scraped_data)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+    id, data.url, data.title, data.price, data.priceText,
+    data.location, data.city, data.sizeSqm, data.rooms,
+    data.description, data.propertyType, data.listingId,
+    JSON.stringify(data.imageUrls),
+    JSON.stringify({ parameters: data.parameters, structuredData: data.structuredData })
+  );
+  return db.prepare('SELECT * FROM scraped_properties WHERE id = ?').get(id);
+}
 
 // Price classification thresholds (HUF)
 const PRICE_PREMIUM_THRESHOLD = 50000000;
@@ -125,22 +148,48 @@ router.post('/scrape', async (req, res) => {
     }
 
     const data = await scrapeProperty(url);
-    const id = crypto.randomUUID();
-
-    await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, price_text, location, city, size_sqm, rooms, description, property_type, listing_id, image_urls, scraped_data)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-      id, data.url, data.title, data.price, data.priceText,
-      data.location, data.city, data.sizeSqm, data.rooms,
-      data.description, data.propertyType, data.listingId,
-      JSON.stringify(data.imageUrls),
-      JSON.stringify({ parameters: data.parameters, structuredData: data.structuredData })
-    );
-
-    const property = await db.prepare('SELECT * FROM scraped_properties WHERE id = ?').get(id);
+    const property = await saveScrapedProperty(db, data);
     res.json({ success: true, property, cached: false });
   } catch (err) {
     console.error('Scrape error:', err);
     res.status(500).json({ error: 'Failed to scrape property: ' + err.message });
+  } finally {
+    await db.close();
+  }
+});
+
+// POST /property-finder/scrape-html — Extract a listing from a browser-saved HTML file
+router.post('/scrape-html', (req, res, next) => {
+  htmlUpload.single('html')(req, res, (error) => {
+    if (!error) return next();
+    const status = error.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({ error: error.message });
+  });
+}, async (req, res) => {
+  const { url } = req.body;
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return res.status(400).json({ error: 'Please provide a valid URL' });
+  }
+  if (parsedUrl.hostname !== 'ingatlan.com' && parsedUrl.hostname !== 'www.ingatlan.com') {
+    return res.status(400).json({ error: 'Please provide a valid ingatlan.com URL' });
+  }
+  if (!req.file) return res.status(400).json({ error: 'Please choose a saved HTML page' });
+
+  const db = await getDb();
+  try {
+    const existing = await db.prepare('SELECT * FROM scraped_properties WHERE url = ?').get(url);
+    if (existing) return res.json({ success: true, property: existing, cached: true });
+
+    const html = req.file.buffer.toString('utf8');
+    const data = extractProperty(html, url);
+    const property = await saveScrapedProperty(db, data);
+    res.json({ success: true, property, cached: false, imported: true });
+  } catch (err) {
+    console.error('HTML import error:', err);
+    res.status(500).json({ error: 'Failed to read listing HTML: ' + err.message });
   } finally {
     await db.close();
   }

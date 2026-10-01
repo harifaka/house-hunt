@@ -85,6 +85,23 @@ describe('Scraper Utilities', () => {
       expect(property.imageUrls).not.toContain('https://cdn.example.test/logo.svg');
     });
 
+    test('parses current ingatlan.com price and location markup', () => {
+      const html = `<html><head><meta property="og:title" content="Eladó családi ház, Tápiószecső"></head><body>
+        <h1><span>Tápiószecső, Pest megye</span><span>Eladó családi ház</span></h1>
+        <div>118,50 millió Ft</div><div>Alapterület 150 m²</div>
+        <div data-details-page--moneycheck-listing-data-value='{"priceHuf":{"amount":"11850000000","currency":"HUF"},"property":{"lotSize":662,"roomCount":3}}'></div>
+      </body></html>`;
+
+      const property = extractProperty(html, 'https://ingatlan.com/35383142');
+
+      expect(property.price).toBe(118500000);
+      expect(property.location).toBe('Tápiószecső, Pest megye');
+      expect(property.city).toBe('Tápiószecső');
+      expect(property.sizeSqm).toBe(150);
+      expect(property.lotSizeSqm).toBe(662);
+      expect(property.rooms).toBe(3);
+    });
+
     test('uses schema.org, Open Graph, and generic Hungarian text on other hosts', () => {
       const html = `<html><head>
         <meta property="og:title" content="Otthoncentrum listing">

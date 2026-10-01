@@ -48,11 +48,14 @@ class IngatlanComExtractor extends HeuristicExtractor {
     const galleryData = readDataJson($, '[data-details-page--gallery-elements-value]');
     const listing = getStructuredFields(listingData);
     const embeddedImages = collectUrlsFromGallery(galleryData);
+    const priceHuf = listingData?.priceHuf?.amount;
+    const listingPrice = priceHuf == null ? listing.price : parsePrice(priceHuf) / 100;
+    const visiblePrice = parsePrice(result.priceText);
 
     result.title = listing.name || result.title;
-    result.price = listing.price ?? result.price;
-    result.priceText = listing.price != null ? String(listing.price) : result.priceText;
-    result.location = listing.location || result.location;
+    result.price = visiblePrice ?? listingPrice ?? result.price;
+    result.priceText = result.priceText || (listingPrice != null ? String(listingPrice) : null);
+    result.location = listing.location || $('h1 > span').first().text().trim() || result.location;
     result.city = extractCity(result.location);
     result.sizeSqm = listing.sizeSqm ?? result.sizeSqm;
     result.lotSizeSqm = listing.lotSizeSqm ?? result.lotSizeSqm;
@@ -87,8 +90,16 @@ async function fetchPage(url) {
       'User-Agent': USER_AGENT,
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Referer': 'https://ingatlan.com/',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'same-origin',
+      'Upgrade-Insecure-Requests': '1',
     },
   });
+  if (resp.status === 403 && new URL(url).hostname.endsWith('ingatlan.com')) {
+    throw new Error('Ingatlan.com denied the request (403 Forbidden). The listing HTML is unavailable to the scraper; check the URL or use an authorized data source.');
+  }
   if (!resp.ok) {
     throw new Error(`Failed to fetch ${url}: ${resp.status} ${resp.statusText}`);
   }

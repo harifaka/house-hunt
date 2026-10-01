@@ -91,4 +91,27 @@ describe('Property Finder Routes', () => {
     const res = await request(app).get('/property-finder');
     expect(res.status).toBe(200);
   });
+
+  test('POST /property-finder/scrape-html imports a saved ingatlan.com page', async () => {
+    const url = `https://ingatlan.com/35383142?route-test=${Date.now()}`;
+    const html = `<html><head><meta property="og:title" content="Eladó családi ház, Tápiószecső"></head><body>
+      <h1><span>Tápiószecső, Pest megye</span><span>Eladó családi ház</span></h1>
+      <div>118,50 millió Ft</div><div>Alapterület 150 m²</div>
+      <div data-details-page--moneycheck-listing-data-value='{"priceHuf":{"amount":"11850000000","currency":"HUF"},"property":{"lotSize":662,"roomCount":3}}'></div>
+      <div data-details-page--gallery-elements-value='[]'></div>
+    </body></html>`;
+
+    const res = await request(app)
+      .post('/property-finder/scrape-html')
+      .field('url', url)
+      .attach('html', Buffer.from(html), { filename: 'listing.html', contentType: 'text/html' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.imported).toBe(true);
+    expect(res.body.property.price).toBe(118500000);
+    expect(res.body.property.location).toBe('Tápiószecső, Pest megye');
+    expect(res.body.property.size_sqm).toBe(150);
+    expect(res.body.property.rooms).toBe(3);
+  });
 });
