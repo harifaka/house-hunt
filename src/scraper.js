@@ -60,6 +60,9 @@ class IngatlanComExtractor extends HeuristicExtractor {
     result.sizeSqm = listing.sizeSqm ?? result.sizeSqm;
     result.lotSizeSqm = listing.lotSizeSqm ?? result.lotSizeSqm;
     result.rooms = listing.rooms ?? result.rooms;
+    const fullDescription = $('#listing-description').first().clone();
+    fullDescription.find('br').replaceWith('\n');
+    result.description = fullDescription.text().trim() || listing.description || result.description;
     result.imageUrls = [...new Set([...embeddedImages, ...result.imageUrls])];
     result.parameters = { ...result.parameters, ...readLabeledFields(listingData) };
     result.structuredData = listingData || result.structuredData;

@@ -124,7 +124,7 @@
             %>
             <div class="card card--house animate-slide-up">
               <% if (house.thumbnail) { %>
-                <img src="/uploads/<%= house.thumbnail %>" alt="<%= house.name %>" class="card--house__thumb">
+                <img src="<%= imageSrc(house.thumbnail) %>" alt="<%= house.name %>" class="card--house__thumb">
               <% } else { %>
                 <div class="card--house__thumb-placeholder">🏠</div>
               <% } %>

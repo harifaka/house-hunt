@@ -7,6 +7,7 @@ const { logger } = require('./src/logger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.locals.imageSrc = (filename) => /^https?:\/\//i.test(filename || '') ? filename : '/uploads/' + filename;
 
 // Initialize database, then logger
 const dbReady = initDb().then(() => {

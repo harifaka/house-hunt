@@ -152,9 +152,12 @@ describe('Property Finder Routes', () => {
     const db = await getDb();
     const propertyId = crypto.randomUUID();
     const listingUrl = `https://ingatlan.com/review-${Date.now()}`;
+    const fullDescription = 'Full listing description, first paragraph.\n\nSecond paragraph with all details.';
+    const listingImages = ['https://cdn.example.test/review-house-1.jpg', 'https://cdn.example.test/review-house-2.jpg'];
+    const scrapedImageUrls = [...listingImages, 'https://ingatlan.com/not-an-image'];
     try {
       await db.prepare(`INSERT INTO scraped_properties (id, url, title, price, location, description, image_urls)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`).run(propertyId, listingUrl, 'Review House', 72000000, 'Szeged', 'Sunny house', JSON.stringify(['https://example.com/review-house.jpg']));
+        VALUES (?, ?, ?, ?, ?, ?, ?)`).run(propertyId, listingUrl, 'Review House', 72000000, 'Szeged', fullDescription, JSON.stringify(scrapedImageUrls));
     } finally {
       await db.close();
     }
@@ -178,14 +181,38 @@ describe('Property Finder Routes', () => {
     expect(getAction.status).toBe(302);
     expect(getAction.headers.location).toBe(res.headers.location);
 
+    const resetImportedData = await getDb();
+    try {
+      const houseId = res.headers.location.split('/').pop();
+      await resetImportedData.prepare('UPDATE houses SET description = ? WHERE id = ?').run('Old truncated description...', houseId);
+      await resetImportedData.prepare('DELETE FROM house_images WHERE house_id = ?').run(houseId);
+    } finally {
+      await resetImportedData.close();
+    }
+    const repairedImport = await request(app).get(`/property-finder/property/${propertyId}/add-to-houses`);
+    expect(repairedImport.status).toBe(302);
+    expect(repairedImport.headers.location).toBe(res.headers.location);
+
     const verifyDb = await getDb();
     try {
       const house = await verifyDb.prepare('SELECT * FROM houses WHERE id = ?').get(res.headers.location.split('/').pop());
       expect(house.name).toBe('Review House');
       expect(house.address).toBe('Szeged');
       expect(house.asking_price).toBe(72000000);
-      expect(house.description).toBe('Sunny house');
+      expect(house.description).toBe(fullDescription);
       expect(house.source).toBe('scraped');
+      await verifyDb.prepare('INSERT INTO house_images (id, house_id, filename, caption) VALUES (?, ?, ?, ?)')
+        .run('custom-upload-image', house.id, 'custom-photo.jpg', 'Custom photo');
+      const houseImages = await verifyDb.prepare('SELECT filename FROM house_images WHERE house_id = ? ORDER BY sort_order').all(house.id);
+      expect(houseImages.map(image => image.filename)).toEqual(expect.arrayContaining([...listingImages, 'custom-photo.jpg']));
+      expect(houseImages).toHaveLength(3);
+
+      const housePage = await request(app).get(`/houses/${house.id}`);
+      expect(housePage.status).toBe(200);
+      expect(housePage.text).toContain(fullDescription);
+      listingImages.forEach(imageUrl => expect(housePage.text).toContain(`src="${imageUrl}"`));
+      expect(housePage.text).toContain('src="/uploads/custom-photo.jpg"');
+      expect(housePage.text).toContain('id="upload-image-modal"');
     } finally {
       await verifyDb.close();
     }

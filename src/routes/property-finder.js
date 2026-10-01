@@ -147,13 +147,38 @@ async function addPropertyToHouses(req, res) {
     const notes = property.url
       ? 'Property Finder listing: ' + property.url
       : 'Property Finder import: ' + property.id;
-    const existing = await db.prepare("SELECT id FROM houses WHERE source = 'scraped' AND notes = ?").get(notes);
-    if (existing) return res.redirect('/houses/' + existing.id);
+    const existing = await db.prepare("SELECT id, description FROM houses WHERE source = 'scraped' AND notes = ?").get(notes);
+    const houseId = existing ? existing.id : crypto.randomUUID();
+    if (!existing) {
+      await db.prepare(
+        'INSERT INTO houses (id, name, address, asking_price, notes, description, source) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run(houseId, property.title || 'Property', property.location || null, property.price || null, notes, property.description || null, 'scraped');
+    } else if (property.description && (
+      !existing.description
+      || (/\.{3}$|…$/.test(existing.description.trim()) && property.description.length > existing.description.length)
+    )) {
+      await db.prepare('UPDATE houses SET description = ? WHERE id = ?').run(property.description, houseId);
+    }
 
-    const houseId = crypto.randomUUID();
-    await db.prepare(
-      'INSERT INTO houses (id, name, address, asking_price, notes, description, source) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(houseId, property.title || 'Property', property.location || null, property.price || null, notes, property.description || null, 'scraped');
+    const propertyImages = safeJsonParse(property.image_urls, []);
+    const currentImages = await db.prepare('SELECT filename FROM house_images WHERE house_id = ?').all(houseId);
+    const currentImageUrls = new Set(currentImages.map(image => image.filename));
+    const imageUrls = [...new Set((Array.isArray(propertyImages) ? propertyImages : []).filter(imageUrl => {
+      if (typeof imageUrl !== 'string') return false;
+      try {
+        const parsedUrl = new URL(imageUrl);
+        return ['http:', 'https:'].includes(parsedUrl.protocol)
+          && !['ingatlan.com', 'www.ingatlan.com'].includes(parsedUrl.hostname);
+      } catch {
+        return false;
+      }
+    }))];
+    for (const [sortOrder, imageUrl] of imageUrls.entries()) {
+      if (currentImageUrls.has(imageUrl)) continue;
+      await db.prepare(
+        'INSERT INTO house_images (id, house_id, filename, caption, sort_order) VALUES (?, ?, ?, ?, ?)'
+      ).run(crypto.randomUUID(), houseId, imageUrl, null, sortOrder);
+    }
 
     res.redirect('/houses/' + houseId);
   } finally {

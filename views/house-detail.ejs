@@ -84,7 +84,7 @@
           <div class="image-gallery">
             <% images.forEach(function(img) { %>
               <div class="image-gallery__item">
-                <img src="/uploads/<%= img.filename %>"
+                <img src="<%= imageSrc(img.filename) %>"
                      alt="<%= img.caption || house.name %>"
                      class="image-gallery__img"
                      data-lightbox="house-gallery"

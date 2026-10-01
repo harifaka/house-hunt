@@ -68,7 +68,9 @@ describe('Scraper Utilities', () => {
     test('extracts ingatlan.com listing fields and gallery data attributes', () => {
       const html = `<html><head><title>Eladó ház</title></head><body>
         <h1>Eladó családi ház</h1>
-        <div data-details-page--moneycheck-listing-data-value='{"price":"89 000 000 Ft","Alapterület":"85 m²","Telekterület":"600 m²","Szobák":"3","address":"Szeged"}'></div>
+        <meta name="description" content="Short metadata description">
+        <div data-details-page--moneycheck-listing-data-value='{"price":"89 000 000 Ft","Alapterület":"85 m²","Telekterület":"600 m²","Szobák":"3","address":"Szeged","description":"Complete listing description with all the details."}'></div>
+        <p id="listing-description">Complete listing description<br>with all the details.</p>
         <div data-details-page--gallery-elements-value='[{"originalUrl":"https://cdn.example.test/house-large.jpg"},{"url":"https://cdn.example.test/house-2.jpg"}]'></div>
         <img src="https://cdn.example.test/logo.svg"><img data-src="https://cdn.example.test/house-3.jpg">
       </body></html>`;
@@ -81,6 +83,7 @@ describe('Scraper Utilities', () => {
       expect(property.lotSizeSqm).toBe(600);
       expect(property.rooms).toBe(3);
       expect(property.location).toBe('Szeged');
+      expect(property.description).toBe('Complete listing description\nwith all the details.');
       expect(property.imageUrls).toContain('https://cdn.example.test/house-large.jpg');
       expect(property.imageUrls).not.toContain('https://cdn.example.test/logo.svg');
     });
