@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Cloud-native migration (Google Cloud Run)
+
+- **Stateless database** — `src/database.js` now talks to **Cloudflare D1** over its HTTP REST API (`/accounts/{account}/d1/database/{database}/query`). `better-sqlite3` and `pg` were removed, and there is no local `db/` directory anymore. The schema + seed data migrate automatically on startup.
+- **Stateless image storage** — `src/image-service.js` uploads photos to **Cloudflare R2** through the S3-compatible API (`@aws-sdk/client-s3`). Multer keeps files in memory, public URLs come from `R2_PUBLIC_DOMAIN`, and deleted photos are removed from the bucket.
+- **Container packaging** — Added a multi-stage `Dockerfile` (`node:22-alpine`, `npm ci --omit=dev`, non-root user, `$PORT`) and a `.dockerignore`.
+- **Health probe** — New `GET /healthz` endpoint for Cloud Run readiness checks.
+- **Configuration** — `.env.example` documents the Cloudflare D1/R2 variables; `render.yaml` was removed.
+- **Tests** — The Jest suite runs against an in-memory D1 REST emulator (`tests/helpers/d1-emulator.js`) built on Node's `node:sqlite`, so no network or Cloudflare credentials are required.
+
 ### Property Finder
 - Added previous/next controls, photo count, and keyboard navigation to property listing image viewer.
 - Added an action to copy a loaded listing into Houses for inspection, reusing the record when the same listing is added again.

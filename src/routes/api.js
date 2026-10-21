@@ -850,7 +850,7 @@ router.put('/answers/:answerId/description', async (req, res) => {
 
     // Also update cache if image exists
     if (answer.image_path && description) {
-      const hash = computeImageHash(answer.image_path);
+      const hash = await computeImageHash(answer.image_path);
       if (hash) {
         await db.prepare(
           'INSERT OR REPLACE INTO image_descriptions (id, image_hash, image_path, description) VALUES (?, ?, ?, ?)'

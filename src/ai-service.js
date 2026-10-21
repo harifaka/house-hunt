@@ -1,7 +1,6 @@
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const { getDb } = require('./database');
+const { publicUrlFor } = require('./image-service');
 
 /**
  * Call the configured LLM endpoint with a prompt.
@@ -58,15 +57,44 @@ async function getAIConfig() {
 }
 
 /**
- * Compute SHA-256 hash of a file for caching image descriptions.
+ * Download the bytes for a stored image. Images live in Cloudflare R2, so the
+ * value stored on the answer (a public URL or key) is resolved and fetched
+ * over HTTP instead of being read from the local filesystem.
  */
-function computeImageHash(filePath) {
-  const absPath = path.isAbsolute(filePath)
-    ? filePath
-    : path.join(__dirname, '..', 'uploads', filePath);
-  if (!fs.existsSync(absPath)) return null;
-  const buffer = fs.readFileSync(absPath);
-  return crypto.createHash('sha256').update(buffer).digest('hex');
+async function fetchImageBuffer(imagePath) {
+  const url = publicUrlFor(imagePath);
+  if (!url) return null;
+
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    if (!response.ok) return null;
+    const arrayBuffer = await response.arrayBuffer();
+    return {
+      buffer: Buffer.from(arrayBuffer),
+      contentType: (response.headers.get('content-type') || '').split(';')[0] || guessMimeType(url)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function guessMimeType(url) {
+  const pathname = url.split('?')[0].toLowerCase();
+  if (pathname.endsWith('.png')) return 'image/png';
+  if (pathname.endsWith('.gif')) return 'image/gif';
+  if (pathname.endsWith('.webp')) return 'image/webp';
+  if (pathname.endsWith('.bmp')) return 'image/bmp';
+  if (pathname.endsWith('.svg')) return 'image/svg+xml';
+  return 'image/jpeg';
+}
+
+/**
+ * Compute SHA-256 hash of a stored image for caching AI descriptions.
+ */
+async function computeImageHash(imagePath) {
+  const image = await fetchImageBuffer(imagePath);
+  if (!image) return null;
+  return crypto.createHash('sha256').update(image.buffer).digest('hex');
 }
 
 /**
@@ -74,8 +102,10 @@ function computeImageHash(filePath) {
  * Caches result by image hash.
  */
 async function analyzeImage(imagePath, config, lang) {
-  const hash = computeImageHash(imagePath);
-  if (!hash) return null;
+  const image = await fetchImageBuffer(imagePath);
+  if (!image) return null;
+
+  const hash = crypto.createHash('sha256').update(image.buffer).digest('hex');
 
   // Check cache
   const db = await getDb();
@@ -86,14 +116,8 @@ async function analyzeImage(imagePath, config, lang) {
     await db.close();
   }
 
-  // Attempt vision API call
-  const absPath = path.isAbsolute(imagePath)
-    ? imagePath
-    : path.join(__dirname, '..', 'uploads', imagePath);
-
-  const imageBuffer = fs.readFileSync(absPath);
-  const base64Image = imageBuffer.toString('base64');
-  const mimeType = imagePath.match(/\.png$/i) ? 'image/png' : 'image/jpeg';
+  const base64Image = image.buffer.toString('base64');
+  const mimeType = image.contentType || 'image/jpeg';
 
   const endpoint = (config.endpoint || '').replace(/\/+$/, '');
   const url = endpoint + '/v1/chat/completions';

@@ -348,12 +348,12 @@
         var container = uploadLabel.parentElement;
         var existingImg = container.querySelector('img.quiz-image-preview');
         if (existingImg) {
-          existingImg.src = '/uploads/' + data.filename;
+          existingImg.src = data.url;
         } else {
           var wrapper = document.createElement('div');
           wrapper.className = 'mb-2 mt-2';
           var img = document.createElement('img');
-          img.src = '/uploads/' + data.filename;
+          img.src = data.url;
           img.className = 'quiz-image-preview';
           img.dataset.lightbox = 'quiz-images';
           img.title = '<%= lang === "en" ? "Click to view full size" : "Kattintson a nagyításhoz" %>';
@@ -409,12 +409,12 @@
         var wrapper = imgEl.closest('.quiz-image-wrapper');
         var existingImg = wrapper.querySelector('img.quiz-image-preview');
         if (existingImg) {
-          existingImg.src = '/uploads/' + filename;
+          existingImg.src = imgEl.currentSrc || imgEl.src;
         } else {
           var div = document.createElement('div');
           div.className = 'mb-2 mt-2';
           var img = document.createElement('img');
-          img.src = '/uploads/' + filename;
+          img.src = imgEl.currentSrc || imgEl.src;
           img.className = 'quiz-image-preview';
           img.dataset.lightbox = 'quiz-images';
           div.appendChild(img);

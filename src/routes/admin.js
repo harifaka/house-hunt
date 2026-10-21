@@ -3,6 +3,12 @@ const router = express.Router();
 const { getDb } = require('../database');
 const { getAllQuestions, calculateScore } = require('../questions');
 
+router.use((_req, res, next) => {
+  res.locals.r2Bucket = process.env.R2_BUCKET_NAME || '';
+  res.locals.r2PublicDomain = process.env.R2_PUBLIC_DOMAIN || '';
+  next();
+});
+
 // GET /admin — Settings page
 router.get('/', async (req, res) => {
   const db = await getDb();
@@ -71,22 +77,6 @@ router.post('/ai', async (req, res) => {
       if (ai_endpoint) await upsert.run('ai_endpoint', ai_endpoint);
       if (ai_model) await upsert.run('ai_model', ai_model);
       await upsert.run('ai_api_key', ai_api_key || '');
-    });
-    res.redirect('/admin');
-  } finally {
-    await db.close();
-  }
-});
-
-// POST /admin/image-storage — Save image storage config (imgbb, etc.)
-router.post('/image-storage', async (req, res) => {
-  const db = await getDb();
-  try {
-    const { image_storage_provider, imgbb_api_key } = req.body;
-    const upsert = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
-    await db.transaction(async () => {
-      await upsert.run('image_storage_provider', image_storage_provider || 'local');
-      await upsert.run('imgbb_api_key', imgbb_api_key || '');
     });
     res.redirect('/admin');
   } finally {

@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { getDb } = require('../database');
 const { getAllQuestions, calculateScore, getGroups } = require('../questions');
 const { logger } = require('../logger');
-const { upload, storeImage, handleUploadError } = require('../image-service');
+const { upload, storeImage, deleteImage, publicUrlFor, handleUploadError } = require('../image-service');
 
 // GET / — Dashboard
 router.get('/', async (req, res) => {
@@ -140,7 +140,9 @@ router.post('/houses/:id', async (req, res) => {
 router.post('/houses/:id/delete', async (req, res) => {
   const db = await getDb();
   try {
+    const images = await db.prepare('SELECT filename FROM house_images WHERE house_id = ?').all(req.params.id);
     await db.prepare('DELETE FROM houses WHERE id = ?').run(req.params.id);
+    await removeStoredImages(images.map(image => image.filename));
     res.redirect('/houses');
   } finally {
     await db.close();
@@ -180,7 +182,17 @@ router.post('/houses/:id/upload-image', (req, res, next) => {
 router.post('/houses/:id/delete-image/:imageId', async (req, res) => {
   const db = await getDb();
   try {
+    const image = await db.prepare(
+      'SELECT filename FROM house_images WHERE id = ? AND house_id = ?'
+    ).get(req.params.imageId, req.params.id);
     await db.prepare('DELETE FROM house_images WHERE id = ? AND house_id = ?').run(req.params.imageId, req.params.id);
+    if (image) {
+      // The photo is gone from R2, so drop any quiz answers still pointing at it.
+      await db.prepare(
+        'UPDATE answers SET image_path = NULL, image_description = NULL WHERE house_id = ? AND image_path = ?'
+      ).run(req.params.id, image.filename);
+      await removeStoredImages([image.filename]);
+    }
     res.redirect('/houses/' + req.params.id);
   } finally {
     await db.close();
@@ -192,11 +204,26 @@ router.get('/api/houses/:id/images', async (req, res) => {
   const db = await getDb();
   try {
     const images = await db.prepare('SELECT * FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at').all(req.params.id);
-    res.json(images);
+    res.json(images.map(image => ({ ...image, url: publicUrlFor(image.filename) })));
   } finally {
     await db.close();
   }
 });
+
+/**
+ * Best-effort removal of objects from R2. Never fails the request: orphaned
+ * objects are preferable to a broken user action.
+ */
+async function removeStoredImages(fileNames) {
+  for (const fileName of fileNames) {
+    if (!fileName) continue;
+    try {
+      await deleteImage(fileName);
+    } catch (error) {
+      console.error('[image-service] Failed to delete image from R2:', error.message);
+    }
+  }
+}
 
 // GET /guide — User guide / tutorial page
 router.get('/guide', (req, res) => {

@@ -3,27 +3,45 @@ const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
 const { initDb, getDb } = require('./src/database');
+const { publicUrlFor } = require('./src/image-service');
 const { logger } = require('./src/logger');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-app.locals.imageSrc = (filename) => /^https?:\/\//i.test(filename || '') ? filename : '/uploads/' + filename;
+const PORT = process.env.PORT || 8080;
+app.locals.imageSrc = publicUrlFor;
+
+// Cloud Run terminates TLS at the edge proxy
+app.set('trust proxy', 1);
 
 // Initialize database, then logger
+let dbState = 'starting';
 const dbReady = initDb().then(() => {
   logger.init(getDb);
   // Run initial log cleanup, then schedule periodic cleanup (every 24h)
   logger.cleanup();
   setInterval(() => logger.cleanup(), 24 * 60 * 60 * 1000);
+  dbState = 'ready';
+}).catch((error) => {
+  dbState = 'error';
+  throw error;
 });
 
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Cloud Run health probe — reports readiness without hitting the database
+app.get('/healthz', (_req, res) => {
+  const ready = dbState === 'ready';
+  res.status(ready ? 200 : 503).json({
+    status: ready ? 'ok' : dbState,
+    database: 'cloudflare-d1',
+    storage: 'cloudflare-r2'
+  });
+});
+
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(async (_req, _res, next) => {

@@ -1,9 +1,7 @@
-const path = require('path');
-const fs = require('fs');
+const { installD1Emulator } = require('./helpers/d1-emulator');
 
-// Use a temporary database for tests
-const TEST_DB_PATH = path.join(__dirname, '..', 'db', 'test_logger.sqlite');
-process.env.DATABASE_PATH = TEST_DB_PATH;
+// Emulate the Cloudflare D1 REST API before the database module loads
+const emulator = installD1Emulator();
 
 const { initDb, getDb } = require('../src/database');
 const { logger, LOG_RETENTION_DAYS } = require('../src/logger');
@@ -14,7 +12,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  if (fs.existsSync(TEST_DB_PATH)) fs.unlinkSync(TEST_DB_PATH);
+  emulator.restore();
 });
 
 describe('Logger', () => {

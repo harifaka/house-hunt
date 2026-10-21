@@ -1,165 +1,148 @@
 # Deployment Guide
 
-This guide explains how to deploy House Hunt Helper to [Render.com](https://render.com) and other platforms.
+House Hunt is a **stateless** Node.js/Express application designed for containers with
+an ephemeral filesystem, such as Google Cloud Run. Nothing is persisted inside the
+container:
+
+- **Cloudflare D1** (over the HTTP REST API) stores all relational data.
+- **Cloudflare R2** (S3-compatible API) stores every uploaded photo.
+- The container image only contains code and read-only assets (`views/`, `public/`, `data/`, `fonts/`).
 
 ---
 
-## Deploy to Render.com
+## 1. Provision Cloudflare resources
 
-### Option 1: One-Click Deploy with Blueprint
+### D1 database
 
-The repository includes a `render.yaml` blueprint that configures everything automatically.
+```bash
+npx wrangler d1 create house-hunt
+```
 
-1. Go to [Render Dashboard](https://dashboard.render.com)
-2. Click **New** → **Blueprint**
-3. Connect your GitHub repository (`harifaka/house-hunt`)
-4. Render will detect the `render.yaml` and configure:
-   - A **Web Service** running the Node.js app
-   - A **Persistent Disk** (1 GB) mounted at `/var/data` for the SQLite database
-   - Automatic `SESSION_SECRET` generation
-5. Click **Apply** to deploy
+Copy the returned `database_id` — you need it as `CLOUDFLARE_D1_DATABASE_ID`.
+The application creates its schema and seed data on startup, so no manual migration
+step is required. If you prefer to prepare the database up front:
 
-### Option 2: Manual Setup
+```bash
+npx wrangler d1 execute house-hunt --remote --command "SELECT 1"
+```
 
-1. Go to [Render Dashboard](https://dashboard.render.com)
-2. Click **New** → **Web Service**
-3. Connect your GitHub repository
-4. Configure the service:
+### R2 bucket
 
-| Setting | Value |
-|---|---|
-| **Runtime** | Node |
-| **Build Command** | `npm install` |
-| **Start Command** | `npm start` |
-| **Plan** | Free (or your preferred plan) |
+```bash
+npx wrangler r2 bucket create house-hunt-images
+```
 
-5. Add environment variables:
+Expose the bucket publicly, either through the `r2.dev` development URL or a custom
+domain, and use that value for `R2_PUBLIC_DOMAIN` (for example `https://images.example.com`).
 
-| Variable | Value |
-|---|---|
-| `NODE_ENV` | `production` |
-| `SESSION_SECRET` | *(click "Generate" for a random value)* |
-| `DATABASE_PATH` | `/var/data/house_hunt.sqlite` |
-| `DATABASE_URL` | *(optional external PostgreSQL connection string, e.g. Neon/Render Postgres)* |
+### Credentials
 
-6. Add a **Persistent Disk**:
-
-| Setting | Value |
-|---|---|
-| **Name** | `house-hunt-data` |
-| **Mount Path** | `/var/data` |
-| **Size** | 1 GB |
-
-7. Click **Create Web Service**
-
-> **Important:** The persistent disk ensures your SQLite database is preserved across deploys and restarts. Without it, your data will be lost each time the service restarts.
->
-> If you set `DATABASE_URL`, the app will prefer PostgreSQL instead of SQLite. It will automatically create the required tables on startup, and it will also try to create the target PostgreSQL database first when the connected user has permission to do so.
+| Credential | Where to create it | Used for |
+| --- | --- | --- |
+| `CLOUDFLARE_API_TOKEN` | My Profile → API Tokens → *D1 Edit* | D1 REST API |
+| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 → Manage R2 API Tokens → *Object Read & Write* | R2 uploads/deletes |
 
 ---
 
-## Persistent Database
-
-The application now supports two persistence modes:
-
-1. **SQLite (default)** — controlled by `DATABASE_PATH`
-2. **PostgreSQL (preferred when `DATABASE_URL` is set)** — useful for external managed databases such as Neon
-
-### SQLite
-
-- **Local development:** defaults to `./db/house_hunt.sqlite` (project directory)
-- **Render.com:** set to `/var/data/house_hunt.sqlite` (persistent disk)
-
-### PostgreSQL
-
-- Set `DATABASE_URL` to your external PostgreSQL connection string
-- If the URL includes `sslmode=require`, the app will enable SSL automatically
-- On startup the app initializes the schema automatically
-- On startup the app also attempts to create the target database if it does not exist yet and the database user has enough privileges
-
-If `DATABASE_URL` is present, it takes precedence over `DATABASE_PATH`.
-
----
-
-## Environment Variables Reference
+## 2. Environment variables
 
 | Variable | Required | Description | Default |
-|---|---|---|---|
-| `PORT` | No | HTTP server port | `3000` |
-| `SESSION_SECRET` | Recommended | Secret for session encryption | Random (changes on restart) |
-| `DATABASE_PATH` | No | Full path to SQLite database file (ignored when `DATABASE_URL` is set) | `./db/house_hunt.sqlite` |
-| `DATABASE_URL` | No | External PostgreSQL connection string | unset |
-| `NODE_ENV` | No | Environment (`production`, `development`) | `development` |
+| --- | --- | --- | --- |
+| `PORT` | No | HTTP port (Cloud Run injects it) | `8080` |
+| `NODE_ENV` | No | `production` on Cloud Run | `development` |
+| `SESSION_SECRET` | Recommended | Session signing secret — store in Secret Manager | Random per instance |
+| `CLOUDFLARE_ACCOUNT_ID` | Yes | Account owning the D1 database | — |
+| `CLOUDFLARE_API_TOKEN` | Yes | Token with **D1 Edit** permission | — |
+| `CLOUDFLARE_D1_DATABASE_ID` | Yes | D1 database UUID | — |
+| `R2_ACCOUNT_ID` | Yes | Account owning the R2 bucket | — |
+| `R2_ACCESS_KEY_ID` | Yes | R2 access key ID | — |
+| `R2_SECRET_ACCESS_KEY` | Yes | R2 secret access key | — |
+| `R2_BUCKET_NAME` | Yes | Bucket for uploaded photos | — |
+| `R2_PUBLIC_DOMAIN` | Recommended | Public domain used to build image URLs | — |
+| `R2_OBJECT_KEY_PREFIX` | No | Object key prefix | `house-hunt/images` |
+| `CLOUDFLARE_API_BASE_URL` | No | Override the Cloudflare API base URL | `https://api.cloudflare.com/client/v4` |
+| `LOG_RETENTION_DAYS` | No | Days of audit logs to keep | `30` |
+
+> `SESSION_SECRET` **must** be set in production. Without it each instance generates a
+> random secret, so sessions break as soon as Cloud Run adds a second instance.
 
 ---
 
-## CI/CD
+## 3. Build the container
 
-The repository includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on every push and pull request to `main`:
-
-- **Lint** — ESLint static code analysis
-- **Test** — Jest test suite
-
-Both checks must pass before merging pull requests.
-
----
-
-## Other Platforms
-
-### General Requirements
-
-- Node.js v18+
-- A writable file system path for the SQLite database
-- The `npm start` command to start the server
-
-### Docker (Example)
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --production
-COPY . .
-ENV DATABASE_PATH=/data/house_hunt.sqlite
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-Run with a mounted volume for data persistence:
+The repository ships a multi-stage `Dockerfile` based on `node:22-alpine` that installs
+production dependencies only (`npm ci --omit=dev`) and runs as the non-root `node` user.
 
 ```bash
-docker build -t house-hunt-helper .
-docker run -p 3000:3000 -v house-hunt-data:/data house-hunt-helper
+docker build -t house-hunt .
+docker run --rm -p 8080:8080 --env-file .env house-hunt
+curl -s http://localhost:8080/healthz
 ```
 
-### Heroku
-
-```bash
-heroku create
-heroku config:set SESSION_SECRET=$(openssl rand -hex 32)
-heroku config:set DATABASE_PATH=/tmp/house_hunt.sqlite
-git push heroku main
-```
-
-> **Note:** Heroku's ephemeral filesystem means SQLite data will not persist across dyno restarts. Consider upgrading to a PostgreSQL add-on for production use.
+The image intentionally contains no `db/`, `uploads/`, `tests/`, `.env`, or `.git`
+directory (see `.dockerignore`).
 
 ---
 
-## Scraping on Render Free Tier
+## 4. Deploy to Google Cloud Run
 
-If web scraping works locally but fails on Render free tier, the most common reasons are:
+```bash
+# Build and push
+gcloud builds submit \
+  --tag europe-west3-docker.pkg.dev/PROJECT_ID/house-hunt/house-hunt:latest
 
-- the target site blocks requests from cloud/datacenter IP ranges
-- the target site serves anti-bot pages to non-browser traffic
-- cold starts and free-tier CPU limits make long scraping requests time out
-- some sites require a full browser runtime instead of simple HTTP fetching
+# Deploy
+gcloud run deploy house-hunt \
+  --image europe-west3-docker.pkg.dev/PROJECT_ID/house-hunt/house-hunt:latest \
+  --region europe-west3 \
+  --platform managed \
+  --port 8080 \
+  --allow-unauthenticated \
+  --set-env-vars NODE_ENV=production,CLOUDFLARE_ACCOUNT_ID=...,CLOUDFLARE_D1_DATABASE_ID=...,R2_ACCOUNT_ID=...,R2_ACCESS_KEY_ID=...,R2_BUCKET_NAME=house-hunt-images,R2_PUBLIC_DOMAIN=https://images.example.com \
+  --set-secrets SESSION_SECRET=session-secret:latest,CLOUDFLARE_API_TOKEN=cloudflare-api-token:latest,R2_SECRET_ACCESS_KEY=r2-secret:latest
+```
 
-This app already includes **demo scraping endpoints** for environments where real scraping is unreliable.
+Recommended Cloud Run settings:
 
-If you need more reliable production scraping, use a compliant approach such as:
+| Setting | Value |
+| --- | --- |
+| Container port | `8080` |
+| Startup probe | HTTP `GET /healthz` |
+| Min instances | `1` (avoids cold-start database bootstrap latency) |
+| Max instances | any — the app is stateless |
+| CPU / memory | 1 vCPU / 512 MiB is sufficient without warm caching |
+| Concurrency | 80 (default) |
 
-- an external managed PostgreSQL database plus the current app on Render
-- a paid Render plan or another host with more stable resources
-- a dedicated scraping worker/provider that allows the target site under its terms
+Deployments can also be rolled out through **Cloud Zephyr** with the same environment
+variables and secret bindings.
 
-Do **not** try to bypass Render limits or a target site's anti-bot protections. That can break platform terms or the target site's rules, and this project does not include any such bypass mechanism.
+---
+
+## 5. Operations notes
+
+### Startup migrations
+Every instance calls `initDb()` on boot, which runs `CREATE TABLE IF NOT EXISTS` and
+idempotent column migrations against D1. Concurrent cold starts are safe: schema
+creation is idempotent and seeds use `INSERT OR IGNORE`.
+
+### Health endpoint
+`GET /healthz` returns `200 {"status":"ok"}` once the schema has been verified, and
+`503` while the database is unreachable or unconfigured.
+
+### Migrating an existing Render deployment
+The previous release stored everything in a SQLite file on a Render persistent disk.
+To move that data:
+
+1. Export the existing database (`sqlite3 house_hunt.sqlite .dump` or the app's JSON
+   export endpoints).
+2. Import the rows into D1 with `npx wrangler d1 execute house-hunt --remote --file=data.sql`.
+3. Copy the files previously served from `/uploads/` into the R2 bucket
+   (`npx wrangler r2 object put house-hunt-images/<filename> --file=<filename>`).
+   Stored image values that are plain filenames or `/uploads/<name>` paths are resolved
+   against `R2_PUBLIC_DOMAIN` automatically, so no schema change is needed.
+
+### Scraping from a cloud IP
+Property scraping may be blocked when it runs from Cloud Run datacenter IP ranges. This
+app already includes demo scraping endpoints for environments where live scraping is
+unreliable. Do not attempt to bypass a target site's anti-bot protections — that breaks
+both the platform terms and the site's rules.

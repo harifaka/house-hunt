@@ -1,18 +1,17 @@
 const request = require('supertest');
 const crypto = require('crypto');
-const path = require('path');
-const fs = require('fs');
 const vm = require('vm');
+const { installD1Emulator } = require('./helpers/d1-emulator');
 
-// Use a temporary database for tests
-const TEST_DB_PATH = path.join(__dirname, '..', 'db', 'test_api.sqlite');
-process.env.DATABASE_PATH = TEST_DB_PATH;
+// Emulate the Cloudflare D1 REST API before the app loads
+const emulator = installD1Emulator();
+const emulatorFetch = global.fetch;
 
 const app = require('../app');
 const { getDb } = require('../src/database');
 
 afterAll(() => {
-  if (fs.existsSync(TEST_DB_PATH)) fs.unlinkSync(TEST_DB_PATH);
+  emulator.restore();
 });
 
 describe('API Routes', () => {
@@ -221,12 +220,16 @@ describe('Property Finder Routes', () => {
   test('POST /property-finder/city-info-search saves sourced Google fallback results', async () => {
     const googleHtml = `<div class="MjjYud"><a href="https://example.com/szeged"><h3>Szeged city facts</h3></a>
       <div class="VwiC3b">Szeged is a university city in southern Hungary with a strong public transport network.</div></div>`;
-    const originalFetch = global.fetch;
-    global.fetch = async () => ({
-      ok: true,
-      status: 200,
-      text: async () => googleHtml,
-    });
+    // Only intercept the Google search request; D1 calls keep hitting the emulator.
+    global.fetch = async (input, init) => {
+      const url = typeof input === 'string' ? input : String(input && input.url);
+      if (url.includes('/d1/database/')) return emulatorFetch(input, init);
+      return {
+        ok: true,
+        status: 200,
+        text: async () => googleHtml,
+      };
+    };
 
     try {
       const res = await request(app)
@@ -238,7 +241,7 @@ describe('Property Finder Routes', () => {
       expect(res.body.cityInfo.generalInfo).toContain('university city');
       expect(res.body.cityInfo.extraData.sources[0].url).toBe('https://example.com/szeged');
     } finally {
-      global.fetch = originalFetch;
+      global.fetch = emulatorFetch;
     }
   });
 });

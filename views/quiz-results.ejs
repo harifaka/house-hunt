@@ -153,7 +153,7 @@
                   <% } %>
                   <% if (q.answer && q.answer.image_path) { %>
                     <div class="mt-1">
-                      <img src="/uploads/<%= q.answer.image_path %>"
+                      <img src="<%= imageSrc(q.answer.image_path) %>"
                            alt="<%= q.text %>"
                            data-lightbox="results-images"
                            data-caption="<%= q.text %>"

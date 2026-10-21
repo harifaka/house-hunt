@@ -443,7 +443,7 @@
               item.className = 'image-gallery__item';
 
               var imgEl = document.createElement('img');
-              imgEl.src = '/uploads/' + img.filename;
+              imgEl.src = img.url || img.filename;
               imgEl.alt = img.caption || '';
               imgEl.className = 'image-gallery__img';
               imgEl.dataset.lightbox = 'house-gallery';

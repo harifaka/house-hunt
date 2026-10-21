@@ -1,15 +1,13 @@
 const request = require('supertest');
-const path = require('path');
-const fs = require('fs');
+const { installD1Emulator } = require('./helpers/d1-emulator');
 
-// Use a temporary database for tests
-const TEST_DB_PATH = path.join(__dirname, '..', 'db', 'test_legal.sqlite');
-process.env.DATABASE_PATH = TEST_DB_PATH;
+// Emulate the Cloudflare D1 REST API before the app loads
+const emulator = installD1Emulator();
 
 const app = require('../app');
 
 afterAll(() => {
-  if (fs.existsSync(TEST_DB_PATH)) fs.unlinkSync(TEST_DB_PATH);
+  emulator.restore();
 });
 
 describe('Legal Routes', () => {

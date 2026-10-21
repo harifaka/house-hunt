@@ -1,0 +1,30 @@
+# Dependencies (installed inside the image)
+node_modules
+npm-debug.log*
+
+# Version control and CI
+.git
+.gitignore
+.github
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local runtime state (no longer used - data lives in D1/R2)
+db
+uploads
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Tests and docs are not needed at runtime
+tests
+coverage
+README.md
+DEPLOY.md
+RELEASE_NOTES.md
+question-checklist
+Dockerfile
+.dockerignore

@@ -1,7 +1,8 @@
 node_modules/
-db/*.sqlite
-uploads/*
-!uploads/.gitkeep
-*.log
-.env
 coverage/
+*.log
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
