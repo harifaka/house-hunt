@@ -106,6 +106,39 @@
       </div>
     </div>
 
+    <!-- AI Vision Analysis (DeepSeek) -->
+    <div class="card mb-6 animate-fade-in" id="ai-vision-section">
+      <div class="card__header d-flex justify-between items-center flex-wrap gap-2">
+        <div class="d-flex items-center gap-2">
+          <h3 class="card__title mb-0">🤖 <%= lang === 'en' ? 'AI Vision Analysis' : 'AI képelemzés' %></h3>
+          <span class="badge badge--info text-xs">DeepSeek</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-accent" id="ai-vision-btn">
+          🤖 <%= lang === 'en' ? 'Analyze Images with DeepSeek' : 'Képek elemzése DeepSeekkel' %>
+        </button>
+      </div>
+      <div class="card__body">
+        <p class="text-muted text-sm mb-3">
+          <%= lang === 'en'
+            ? 'Runs only when you click the button, so no API cost is incurred on page views. The analysis is saved with this house.'
+            : 'Csak gombnyomásra fut le, így az oldalmegnyitások nem generálnak API-költséget. Az elemzés a házhoz mentődik.' %>
+        </p>
+
+        <div class="ai-vision-loading" id="ai-vision-loading" style="display:none;">
+          <div class="spinner"></div>
+          <span class="text-sm text-muted"><%= lang === 'en' ? 'Analyzing photos with DeepSeek — this can take up to a minute…' : 'Fotók elemzése a DeepSeekkel — ez akár egy percig is eltarthat…' %></span>
+        </div>
+
+        <p class="text-muted text-sm" id="ai-vision-empty"<% if (house.ai_vision_notes) { %> style="display:none;"<% } %>>
+          <%= lang === 'en' ? 'No AI vision analysis yet.' : 'Még nincs AI képelemzés.' %>
+        </p>
+
+        <div class="ai-vision-result" id="ai-vision-result"<% if (!house.ai_vision_notes) { %> style="display:none;"<% } %>>
+          <div class="ai-vision-result__content" id="ai-vision-content"><%= house.ai_vision_notes || '' %></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Score Overview -->
     <%
       var scoreLevel = 'low';
@@ -418,6 +451,121 @@
       });
     });
   }
+
+  // AI Vision analysis (on demand — DeepSeek)
+  (function() {
+    var visionBtn = document.getElementById('ai-vision-btn');
+    var loadingEl = document.getElementById('ai-vision-loading');
+    var emptyEl = document.getElementById('ai-vision-empty');
+    var resultEl = document.getElementById('ai-vision-result');
+    var contentEl = document.getElementById('ai-vision-content');
+    if (!visionBtn || !contentEl) return;
+
+    function escapeHtml(value) {
+      var el = document.createElement('span');
+      el.textContent = value == null ? '' : String(value);
+      return el.innerHTML;
+    }
+
+    function inlineFormat(text) {
+      return text
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+
+    function renderMarkdown(text) {
+      var lines = escapeHtml(text).split(/\r?\n/);
+      var html = '';
+      var listTag = null;
+
+      function closeList() {
+        if (listTag) {
+          html += '</' + listTag + '>';
+          listTag = null;
+        }
+      }
+
+      lines.forEach(function(rawLine) {
+        var line = rawLine.trim();
+        if (!line) {
+          closeList();
+          return;
+        }
+
+        var heading = line.match(/^(#{1,6})\s+(.*)$/);
+        if (heading) {
+          closeList();
+          var level = Math.min(heading[1].length + 2, 6);
+          html += '<h' + level + '>' + inlineFormat(heading[2]) + '</h' + level + '>';
+          return;
+        }
+
+        var ordered = line.match(/^\d+[.)]\s+(.*)$/);
+        var unordered = line.match(/^[-*•]\s+(.*)$/);
+        if (ordered || unordered) {
+          var tag = ordered ? 'ol' : 'ul';
+          if (listTag !== tag) {
+            closeList();
+            html += '<' + tag + '>';
+            listTag = tag;
+          }
+          html += '<li>' + inlineFormat((ordered || unordered)[1]) + '</li>';
+          return;
+        }
+
+        closeList();
+        html += '<p>' + inlineFormat(line) + '</p>';
+      });
+
+      closeList();
+      return html;
+    }
+
+    // Show a previously saved analysis in formatted form on page load.
+    if (contentEl.textContent.trim()) {
+      contentEl.innerHTML = renderMarkdown(contentEl.textContent);
+    }
+
+    visionBtn.addEventListener('click', function() {
+      visionBtn.disabled = true;
+      loadingEl.style.display = 'flex';
+      emptyEl.style.display = 'none';
+      resultEl.style.display = 'none';
+
+      fetch('/api/houses/<%= house.id %>/analyze-vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      })
+      .then(function(response) {
+        return response.json()
+          .catch(function() { return {}; })
+          .then(function(data) {
+            return { ok: response.ok, status: response.status, data: data };
+          });
+      })
+      .then(function(result) {
+        if (!result.ok || !result.data.analysis) {
+          throw new Error(result.data.error || ('HTTP ' + result.status));
+        }
+        contentEl.innerHTML = renderMarkdown(result.data.analysis);
+        resultEl.style.display = 'block';
+        window.showToast('<%= lang === "en" ? "AI vision analysis saved" : "AI képelemzés elmentve" %>', 'success');
+      })
+      .catch(function(error) {
+        if (contentEl.textContent.trim()) {
+          resultEl.style.display = 'block';
+        } else {
+          emptyEl.style.display = 'block';
+        }
+        window.showToast(error.message, 'error', 5000);
+      })
+      .then(function() {
+        visionBtn.disabled = false;
+        loadingEl.style.display = 'none';
+      });
+    });
+  })();
 
   // Live polling: check for new images every 10 seconds
   var lastImageCount = <%= images ? images.length : 0 %>;

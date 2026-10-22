@@ -35,6 +35,13 @@
 - Export house data and inspection results as JSON, CSV, or PDF
 - Use built-in AI analysis settings for richer property evaluation workflows
 
+### 🤖 On-demand AI vision analysis
+- Analyze every photo of a house with **DeepSeek Vision** from the House Detail page
+- Analysis only runs when the user presses **🤖 Analyze Images with DeepSeek** — page views never cost API credits
+- The model reports structural condition, visible damage (cracks, leaks), room state, and repair needs as markdown
+- Photos are passed as public R2 URLs, so nothing extra is uploaded from the container
+- Results are stored in D1 (`houses.ai_vision_notes`) and shown again on every page load
+
 ### 🔍 Property finder and market research
 - Search listing URLs and generate property analysis pages
 - Browse every listing photo in a full-screen viewer with next/previous buttons and arrow keys
@@ -133,9 +140,26 @@ The app runs at `http://localhost:8080` by default (Cloud Run overrides this wit
 | `R2_OBJECT_KEY_PREFIX` | No | Folder prefix for uploaded objects | `house-hunt/images` |
 | `R2_ENDPOINT` | No | Override the R2 S3 endpoint | `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com` |
 | `LOG_RETENTION_DAYS` | No | Days to keep audit logs | `30` |
+| `DEEPSEEK_API_KEY` | No | API key for on-demand AI vision analysis | — |
+| `DEEPSEEK_BASE_URL` | No | OpenAI-compatible base URL (OpenRouter works too) | `https://api.deepseek.com/v1` |
+| `DEEPSEEK_VISION_MODEL` | No | Vision-capable model used for photo analysis | `deepseek-v4-flash-vision-exp` |
 
 The app exposes `GET /healthz` for container health checks; it returns `503` until the
 D1 schema has been verified.
+
+### AI vision analysis
+
+`POST /api/houses/:id/analyze-vision` collects the house gallery photos, resolves them
+to their public `R2_PUBLIC_DOMAIN` URLs, and sends them to the configured
+OpenAI-compatible vision model. By default the DeepSeek endpoint is used; set
+`DEEPSEEK_BASE_URL` to an OpenRouter-compatible URL to route elsewhere. When no
+`DEEPSEEK_API_KEY` is set, the provider configured in the admin UI is used instead.
+
+The returned markdown is saved in `houses.ai_vision_notes` and rendered on the House
+Detail page. The endpoint is rate limited and maps failures to standard status codes:
+`400` (no photos, or photos not publicly reachable), `404` (unknown house), `429`
+(provider rate limit), `502` (provider failure or empty answer), `503` (vision not
+configured) and `504` (provider timeout).
 
 ## Quality checks
 
@@ -179,7 +203,7 @@ gcloud run deploy house-hunt \
   --region europe-west3 \
   --port 8080 \
   --set-env-vars NODE_ENV=production \
-  --set-secrets SESSION_SECRET=session-secret:latest,CLOUDFLARE_API_TOKEN=cf-api-token:latest,R2_SECRET_ACCESS_KEY=r2-secret:latest \
+  --set-secrets SESSION_SECRET=session-secret:latest,CLOUDFLARE_API_TOKEN=cf-api-token:latest,R2_SECRET_ACCESS_KEY=r2-secret:latest,DEEPSEEK_API_KEY=deepseek-api-key:latest \
   --set-env-vars CLOUDFLARE_ACCOUNT_ID=...,CLOUDFLARE_D1_DATABASE_ID=...,R2_ACCOUNT_ID=...,R2_ACCESS_KEY_ID=...,R2_BUCKET_NAME=house-hunt-images,R2_PUBLIC_DOMAIN=https://images.example.com
 ```
 

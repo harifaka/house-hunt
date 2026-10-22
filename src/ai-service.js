@@ -56,6 +56,193 @@ async function getAIConfig() {
   }
 }
 
+// --- DeepSeek Vision (OpenAI-compatible image analysis) ---
+
+const DEFAULT_VISION_BASE_URL = 'https://api.deepseek.com/v1';
+const DEFAULT_VISION_MODEL = 'deepseek-v4-flash-vision-exp';
+const VISION_MAX_IMAGES = 12;
+const VISION_TIMEOUT_MS = 120000;
+
+const DEFAULT_VISION_PROMPT = 'Analyze these property images. Identify structural conditions, ' +
+  'note visible damages (cracks, leaks), estimate the overall state of the rooms, and list potential repair needs.';
+
+function normalizeBaseUrl(value) {
+  return String(value || '').trim().replace(/\/+$/, '');
+}
+
+/**
+ * Build the chat completions URL from a provider base URL. Accepts both
+ * `https://api.deepseek.com/v1` and a full `.../chat/completions` endpoint.
+ */
+function visionEndpoint(baseUrl) {
+  const base = normalizeBaseUrl(baseUrl);
+  if (!base) return '';
+  return base.endsWith('/chat/completions') ? base : `${base}/chat/completions`;
+}
+
+function visionError(message, status, code, details) {
+  const error = new Error(message);
+  error.status = status;
+  error.code = code;
+  if (details) error.details = details;
+  return error;
+}
+
+/**
+ * Resolve the DeepSeek Vision configuration.
+ *
+ * `DEEPSEEK_*` environment variables take precedence. When no key is present
+ * the admin-configured AI settings are used as a fallback so an existing
+ * OpenAI-compatible provider keeps working.
+ */
+async function getVisionConfig() {
+  if (process.env.DEEPSEEK_API_KEY) {
+    return {
+      apiKey: process.env.DEEPSEEK_API_KEY.trim(),
+      baseUrl: normalizeBaseUrl(process.env.DEEPSEEK_BASE_URL) || DEFAULT_VISION_BASE_URL,
+      model: (process.env.DEEPSEEK_VISION_MODEL || '').trim() || DEFAULT_VISION_MODEL,
+      source: 'env'
+    };
+  }
+
+  const settings = await getAIConfig();
+  const apiKey = (settings.api_key || '').trim();
+  return {
+    apiKey,
+    baseUrl: normalizeBaseUrl(settings.endpoint) || DEFAULT_VISION_BASE_URL,
+    model: (settings.model || '').trim() || DEFAULT_VISION_MODEL,
+    source: apiKey ? 'settings' : 'none'
+  };
+}
+
+function normalizeImageUrls(imageUrls) {
+  const list = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+  return list
+    .filter(url => typeof url === 'string')
+    .map(url => url.trim())
+    .filter(url => /^(https?:\/\/|data:image\/)/i.test(url))
+    .slice(0, VISION_MAX_IMAGES);
+}
+
+function describeVisionFailure(providerStatus, details) {
+  if (providerStatus === 401 || providerStatus === 403) {
+    return 'DeepSeek authentication failed — check DEEPSEEK_API_KEY';
+  }
+  if (providerStatus === 429) {
+    return 'DeepSeek rate limit exceeded — please retry later';
+  }
+  if (providerStatus === 404) {
+    return 'DeepSeek model or endpoint not found — check DEEPSEEK_BASE_URL and DEEPSEEK_VISION_MODEL';
+  }
+  const suffix = details ? `: ${String(details).slice(0, 300)}` : '';
+  return `DeepSeek Vision API error ${providerStatus}${suffix}`;
+}
+
+function visionErrorStatus(providerStatus) {
+  if (providerStatus === 429) return 429;
+  if (providerStatus === 408) return 504;
+  return 502;
+}
+
+/**
+ * Analyze several property images with a vision-capable DeepSeek model.
+ *
+ * Images are referenced by public URL (R2 public bucket domain), so the model
+ * downloads them itself — nothing is uploaded from this process.
+ *
+ * @param {string[]} imageUrls - public image URLs
+ * @param {string} [prompt] - instruction sent alongside the images
+ * @param {{config?: object}} [options]
+ * @returns {Promise<string>} analysis text
+ */
+async function analyzePropertyImages(imageUrls, prompt, options = {}) {
+  const urls = normalizeImageUrls(imageUrls);
+  if (urls.length === 0) {
+    throw visionError('No publicly accessible image URLs to analyze', 400, 'NO_IMAGES');
+  }
+
+  const config = options.config || await getVisionConfig();
+  if (!config.apiKey) {
+    throw visionError(
+      'DeepSeek Vision is not configured. Set DEEPSEEK_API_KEY (see .env.example).',
+      503,
+      'AI_NOT_CONFIGURED'
+    );
+  }
+
+  const text = typeof prompt === 'string' && prompt.trim() ? prompt.trim() : DEFAULT_VISION_PROMPT;
+  const endpoint = visionEndpoint(config.baseUrl);
+  if (!endpoint) {
+    throw visionError('DEEPSEEK_BASE_URL is not configured', 503, 'AI_NOT_CONFIGURED');
+  }
+
+  const body = {
+    model: config.model,
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'text', text },
+        ...urls.map(url => ({ type: 'image_url', image_url: { url } }))
+      ]
+    }],
+    temperature: 0.2,
+    max_tokens: 1500,
+    stream: false
+  };
+
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.apiKey}`
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(VISION_TIMEOUT_MS)
+    });
+  } catch (error) {
+    const timedOut = error && (error.name === 'TimeoutError' || error.name === 'AbortError');
+    throw visionError(
+      timedOut
+        ? 'DeepSeek Vision request timed out'
+        : `DeepSeek Vision request failed: ${error.message}`,
+      timedOut ? 504 : 502,
+      timedOut ? 'AI_TIMEOUT' : 'AI_UNREACHABLE'
+    );
+  }
+
+  if (!response.ok) {
+    const details = await response.text().catch(() => '');
+    throw visionError(
+      describeVisionFailure(response.status, details),
+      visionErrorStatus(response.status),
+      'AI_PROVIDER_ERROR',
+      details ? String(details).slice(0, 500) : ''
+    );
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw visionError('DeepSeek returned an invalid JSON response', 502, 'AI_INVALID_RESPONSE');
+  }
+
+  const content = data && data.choices && data.choices[0] && data.choices[0].message
+    ? data.choices[0].message.content
+    : null;
+  const analysis = Array.isArray(content)
+    ? content.map(part => (typeof part === 'string' ? part : (part && part.text) || '')).join('\n').trim()
+    : (typeof content === 'string' ? content.trim() : '');
+
+  if (!analysis) {
+    throw visionError('DeepSeek returned an empty analysis', 502, 'AI_EMPTY_RESPONSE');
+  }
+
+  return analysis;
+}
+
 /**
  * Download the bytes for a stored image. Images live in Cloudflare R2, so the
  * value stored on the answer (a public URL or key) is resolved and fetched
@@ -336,9 +523,15 @@ async function generateReport(houseId, houseData, lang) {
 module.exports = {
   callLLM,
   getAIConfig,
+  getVisionConfig,
+  analyzePropertyImages,
   computeImageHash,
   analyzeImage,
   generateReport,
   buildSectionPrompt,
-  buildSummaryPrompt
+  buildSummaryPrompt,
+  DEFAULT_VISION_PROMPT,
+  DEFAULT_VISION_BASE_URL,
+  DEFAULT_VISION_MODEL,
+  VISION_MAX_IMAGES
 };

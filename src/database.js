@@ -287,6 +287,7 @@ const SCHEMA_SQL = `
     asking_price REAL,
     notes TEXT,
     description TEXT,
+    ai_vision_notes TEXT,
     source TEXT DEFAULT 'manual',
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
@@ -508,6 +509,9 @@ async function initDb() {
   }
   if (!houseColumns.includes('source')) {
     await db.exec("ALTER TABLE houses ADD COLUMN source TEXT DEFAULT 'manual'");
+  }
+  if (!houseColumns.includes('ai_vision_notes')) {
+    await db.exec('ALTER TABLE houses ADD COLUMN ai_vision_notes TEXT');
   }
 
   const settings = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');

@@ -16,6 +16,12 @@
 - Added an action to copy a loaded listing into Houses for inspection, reusing the record when the same listing is added again.
 - Added city information lookup using configured AI with a Google Search snippets fallback and visible source links.
 
+### AI vision analysis (DeepSeek)
+- New on-demand `POST /api/houses/:id/analyze-vision` endpoint sends a house's gallery photos (public R2 URLs) to a vision-capable OpenAI-compatible model.
+- The analysis is stored in the new `houses.ai_vision_notes` column (idempotent migration) and rendered as formatted markdown on the House Detail page, so it survives reloads.
+- `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, and `DEEPSEEK_VISION_MODEL` configure the provider (OpenRouter-compatible). Analysis only runs when the user presses the button, so page views carry no API cost.
+- Provider failures map to standard HTTP codes (`429`, `502`, `503`, `504`) and the UI reports them through the existing toast notifications.
+
 ## v1.2.0
 
 ### Highlights

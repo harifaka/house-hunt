@@ -62,6 +62,13 @@ domain, and use that value for `R2_PUBLIC_DOMAIN` (for example `https://images.e
 | `R2_OBJECT_KEY_PREFIX` | No | Object key prefix | `house-hunt/images` |
 | `CLOUDFLARE_API_BASE_URL` | No | Override the Cloudflare API base URL | `https://api.cloudflare.com/client/v4` |
 | `LOG_RETENTION_DAYS` | No | Days of audit logs to keep | `30` |
+| `DEEPSEEK_API_KEY` | No | API key for on-demand AI vision analysis | — |
+| `DEEPSEEK_BASE_URL` | No | OpenAI-compatible base URL for the vision model | `https://api.deepseek.com/v1` |
+| `DEEPSEEK_VISION_MODEL` | No | Vision-capable model used for photo analysis | `deepseek-v4-flash-vision-exp` |
+
+> AI vision analysis needs publicly reachable photos: keep `R2_PUBLIC_DOMAIN` set so
+> DeepSeek can download the gallery images by URL. The analysis only runs when a user
+> clicks the button on the House Detail page — page views never trigger API calls.
 
 > `SESSION_SECRET` **must** be set in production. Without it each instance generates a
 > random secret, so sessions break as soon as Cloud Run adds a second instance.
@@ -99,7 +106,7 @@ gcloud run deploy house-hunt \
   --port 8080 \
   --allow-unauthenticated \
   --set-env-vars NODE_ENV=production,CLOUDFLARE_ACCOUNT_ID=...,CLOUDFLARE_D1_DATABASE_ID=...,R2_ACCOUNT_ID=...,R2_ACCESS_KEY_ID=...,R2_BUCKET_NAME=house-hunt-images,R2_PUBLIC_DOMAIN=https://images.example.com \
-  --set-secrets SESSION_SECRET=session-secret:latest,CLOUDFLARE_API_TOKEN=cloudflare-api-token:latest,R2_SECRET_ACCESS_KEY=r2-secret:latest
+  --set-secrets SESSION_SECRET=session-secret:latest,CLOUDFLARE_API_TOKEN=cloudflare-api-token:latest,R2_SECRET_ACCESS_KEY=r2-secret:latest,DEEPSEEK_API_KEY=deepseek-api-key:latest
 ```
 
 Recommended Cloud Run settings:

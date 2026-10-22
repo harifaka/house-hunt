@@ -3242,6 +3242,89 @@ select.form-control {
 }
 
 /* ============================================================
+   AI Vision Analysis (DeepSeek)
+   ============================================================ */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--gray-300);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-vision-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--gray-50);
+  border-radius: var(--radius);
+}
+
+.ai-vision-result {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.ai-vision-result__content {
+  white-space: pre-wrap;
+}
+
+.ai-vision-result__content > :first-child {
+  margin-top: 0;
+}
+
+.ai-vision-result__content > :last-child {
+  margin-bottom: 0;
+}
+
+.ai-vision-result__content h3,
+.ai-vision-result__content h4,
+.ai-vision-result__content h5,
+.ai-vision-result__content h6 {
+  margin: var(--sp-4) 0 var(--sp-2);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-tight);
+}
+
+.ai-vision-result__content p {
+  margin: 0 0 var(--sp-3);
+}
+
+.ai-vision-result__content ul,
+.ai-vision-result__content ol {
+  margin: 0 0 var(--sp-3);
+  padding-left: var(--sp-6);
+  list-style: disc;
+}
+
+.ai-vision-result__content ol {
+  list-style: decimal;
+}
+
+.ai-vision-result__content li {
+  margin-bottom: var(--sp-1);
+}
+
+.ai-vision-result__content code {
+  padding: 0 var(--sp-1);
+  background: var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+/* ============================================================
    Mobile Resource Saver & Reduced Motion
    ============================================================ */
 

@@ -7,7 +7,8 @@ const PDFDocument = require('pdfkit');
 const rateLimit = require('express-rate-limit');
 const { getDb } = require('../database');
 const { getAllQuestions, getGroups, getGroupQuestions, calculateScore } = require('../questions');
-const { getAIConfig, generateReport, analyzeImage, computeImageHash } = require('../ai-service');
+const { getAIConfig, generateReport, analyzeImage, computeImageHash, analyzePropertyImages, VISION_MAX_IMAGES } = require('../ai-service');
+const { publicUrlFor } = require('../image-service');
 const { logger } = require('../logger');
 
 // --- Helpers ---
@@ -859,6 +860,103 @@ router.put('/answers/:answerId/description', async (req, res) => {
     }
 
     res.json({ success: true });
+  } finally {
+    await db.close();
+  }
+});
+
+// --- AI Vision (DeepSeek) ---
+
+const VISION_ANALYSIS_PROMPTS = {
+  en: 'Analyze these property images. Identify structural conditions, note visible damages (cracks, leaks), ' +
+    'estimate the overall state of the rooms, and list potential repair needs. ' +
+    'Answer in English using short markdown sections.',
+  hu: 'Elemezd ezeket az ingatlanfotókat. Azonosítsd a szerkezeti állapotot, említsd meg a látható károsodásokat ' +
+    '(repedések, szivárgások), becsüld meg a helyiségek általános állapotát, és sorold fel a lehetséges javítási igényeket. ' +
+    'Válaszolj magyarul, rövid markdown szakaszokkal.'
+};
+
+// POST /api/houses/:id/analyze-vision — On-demand DeepSeek Vision analysis of gallery photos
+router.post('/houses/:id/analyze-vision', expensiveApiLimiter, async (req, res) => {
+  const lang = req.lang || 'hu';
+  const startTime = Date.now();
+  const meta = { ip: req.ip, ua: (req.headers['user-agent'] || '').substring(0, 255) };
+  const db = await getDb();
+
+  try {
+    const house = await db.prepare('SELECT id, name FROM houses WHERE id = ?').get(req.params.id);
+    if (!house) {
+      return res.status(404).json({
+        error: lang === 'en' ? 'House not found' : 'A ház nem található',
+        code: 'HOUSE_NOT_FOUND'
+      });
+    }
+
+    const images = await db.prepare(
+      'SELECT filename FROM house_images WHERE house_id = ? ORDER BY sort_order, created_at'
+    ).all(house.id);
+
+    if (images.length === 0) {
+      return res.status(400).json({
+        error: lang === 'en'
+          ? 'Add at least one photo before running the AI vision analysis.'
+          : 'Előbb tölts fel legalább egy fotót az AI képelemzéshez.',
+        code: 'NO_IMAGES'
+      });
+    }
+
+    // Only absolute URLs can be handed to the Vision model.
+    const imageUrls = images
+      .map(image => publicUrlFor(image.filename))
+      .filter(url => /^https?:\/\//i.test(url))
+      .slice(0, VISION_MAX_IMAGES);
+
+    if (imageUrls.length === 0) {
+      return res.status(400).json({
+        error: lang === 'en'
+          ? 'Photos are not publicly reachable. Configure R2_PUBLIC_DOMAIN so DeepSeek can download them.'
+          : 'A fotók nem érhetők el nyilvánosan. Állítsd be az R2_PUBLIC_DOMAIN-t, hogy a DeepSeek le tudja tölteni őket.',
+        code: 'IMAGES_NOT_PUBLIC'
+      });
+    }
+
+    const analysis = await analyzePropertyImages(
+      imageUrls,
+      VISION_ANALYSIS_PROMPTS[lang] || VISION_ANALYSIS_PROMPTS.hu
+    );
+    const analyzedAt = new Date().toISOString();
+
+    await db.prepare(
+      'UPDATE houses SET ai_vision_notes = ?, updated_at = ? WHERE id = ?'
+    ).run(analysis, analyzedAt, house.id);
+
+    logger.info('ai', 'vision_analysis_completed', {
+      houseId: house.id,
+      imageCount: imageUrls.length,
+      durationMs: Date.now() - startTime
+    }, meta).catch(() => {});
+
+    res.json({
+      success: true,
+      analysis,
+      imageCount: imageUrls.length,
+      analyzedAt
+    });
+  } catch (error) {
+    const status = (error && typeof error.status === 'number') ? error.status : 500;
+    const message = (error && error.code)
+      ? error.message
+      : (lang === 'en' ? 'AI vision analysis failed' : 'Az AI képelemzés nem sikerült');
+
+    logger.error('ai', 'vision_analysis_failed', {
+      houseId: req.params.id,
+      status,
+      code: error && error.code,
+      error: error && error.message,
+      durationMs: Date.now() - startTime
+    }, meta).catch(() => {});
+
+    res.status(status).json({ error: message, code: (error && error.code) || 'AI_VISION_FAILED' });
   } finally {
     await db.close();
   }
